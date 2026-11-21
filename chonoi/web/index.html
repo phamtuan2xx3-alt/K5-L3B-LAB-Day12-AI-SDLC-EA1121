@@ -1020,9 +1020,13 @@ function drawGather(w, h) {
 // CẬP NHẬT TRẠNG THÁI HUD OVERLAY (DOM)
 // =========================================================================
 function updateHUDOverlay(p, meta) {
-  // 1. Độ sâu
+  // 1. Độ sâu & Cảnh báo áp suất nước sâu
   const depth = p.pos ? p.pos[1] : 0;
-  document.getElementById("depth-display").textContent = `${depth.toFixed(1)} m`;
+  const depthEl = document.getElementById("depth-display");
+  const isDeep = depth > 18.0;
+  depthEl.textContent = isDeep ? `${depth.toFixed(1)} m ⚠ ÁP SUẤT VÙNG SÂU` : `${depth.toFixed(1)} m`;
+  depthEl.style.color = isDeep ? "#FF1744" : "#FFF";
+  depthEl.style.textShadow = isDeep ? "0 0 8px rgba(255,23,68,0.8)" : "none";
 
   // 2. Bình Oxy
   const oxy = p.oxygen_ticks || 1800;
