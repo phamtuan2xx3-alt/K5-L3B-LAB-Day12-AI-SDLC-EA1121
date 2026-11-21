@@ -1,6 +1,14 @@
 # Changelog
 ## Unreleased
 
+### Sửa sau v1.0.0 — bật độ tươi cho contract 1.3 (DEV 3)
+- `game.contract.json` thêm `tuning.freshness {initial:100, gather_decay_per_s:0.5, quan_decay_per_s:0.25,
+  spoiled_below:30}`. `inventory.is_itemized`: mọi contract ≥ 1.2 dùng kho cá thể. Trước đây chỉ đúng `"1.2"`,
+  nên với `"1.3"` độ tươi bị tắt và smoke ngưỡng 30 của TICKET-03 trả mã 2.
+- JSONL: khóa `fresh` xuất đủ chính xác (tọa độ vẫn làm tròn 3 chữ số), để snapshot quán khớp chính xác file kho.
+- Test: unit test luật kho đếm dùng `helpers.counts_tuning()` (manifest v1.0/1.1); smoke CLI trong
+  `test_smoke_p1` đổi sang mảng cá thể. Luật kiểm không đổi. 150 test OK.
+
 ### Phase 4 — Phát hành v1.0.0 (DEV 5 & QA)
 - `contract_version` = `"1.3"`, khai báo `bench_cmd` và `soak_cmd` ở gốc `game.contract.json`.
 - `bench_cmd` = `python3 -m chonoi.bench --seed <int> --duration <giây> --out bench.json`:

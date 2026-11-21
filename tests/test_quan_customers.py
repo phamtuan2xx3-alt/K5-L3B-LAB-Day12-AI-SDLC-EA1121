@@ -11,9 +11,9 @@ from chonoi.inputs import LiveInputs
 from chonoi.runner import Session
 from chonoi.sim import customers as cust
 
-from helpers import Workdir, read_jsonl, run_headless, write_json
+from helpers import Workdir, counts_tuning, read_jsonl, run_headless, write_json
 
-TUNING = load_contract()["tuning"]
+TUNING = counts_tuning()  # contract 1.3 bật kho cá thể; file này kiểm luật kho đếm (v1.0/1.1)
 FIRST = TUNING["quan"]["first_customer_tick"]                       # 120
 INTERVAL = int(round(TUNING["quan"]["customer_interval_s"] * 60))   # 900
 PATIENCE = int(round(TUNING["quan"]["patience_s"] * 60))            # 3600
@@ -224,7 +224,7 @@ class FixtureValidation(unittest.TestCase):
 class Headless(unittest.TestCase):
     def test_hop_den_khach_den_va_mau_thuan_ma_2(self):
         with Workdir() as w:
-            sc = write_json(w.path("sc.json"), {"quan": {"stock": {"ca_loc": 1}}})
+            sc = write_json(w.path("sc.json"), {"quan": {"stock": [{"id": "I1", "kind": "ca_loc", "fresh": 100}]}})  # CLI chạy contract 1.3: kho cá thể
             out = w.path("q.jsonl")
             code, err = run_headless("--mode", "quan", "--seed", "1", "--scenario", sc, "--ticks", str(FIRST),
                                      "--out", out)

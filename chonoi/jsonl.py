@@ -3,12 +3,17 @@
 import json
 
 
+# Contract v1.2: độ tươi xuất đủ chính xác (snapshot quán phải khớp CHÍNH XÁC file kho sau lần hao ở gather,
+# và giữ nhánh ở ngưỡng 30); tọa độ và số khác vẫn làm tròn 3 chữ số.
+_FULL_PRECISION_KEYS = {"fresh"}
+
+
 def _clean(v):
     if isinstance(v, float):
         r = round(v, 3)
         return 0.0 if r == 0 else r  # tránh -0.0
     if isinstance(v, dict):
-        return {k: _clean(x) for k, x in v.items()}
+        return {k: (x if k in _FULL_PRECISION_KEYS and isinstance(x, float) else _clean(x)) for k, x in v.items()}
     if isinstance(v, (list, tuple)):
         return [_clean(x) for x in v]
     return v

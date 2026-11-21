@@ -16,6 +16,7 @@ from chonoi.inventory import kinds_for, validate_items
 from chonoi.rng import Streams
 from chonoi.sim import customers as cust
 from chonoi.sim.quan import QuanSim
+from helpers import counts_tuning
 
 MENU_V11 = {
     "ca_loc_nuong_trui": {"recipe": {"ca_loc": 1}, "cook_s": 6, "price": 60},
@@ -31,7 +32,7 @@ FULL_STOCK = {"ca_loc": 9, "ca_linh": 9, "bong_dien_dien": 9, "bong_sung": 9, "c
 
 
 def tuning_v11():
-    t = copy.deepcopy(load_contract()["tuning"])
+    t = counts_tuning()  # bố cục v1.1 với kho đếm; kho cá thể v1.2 xem test_quan_freshness
     t["quan"]["stoves"] = [{"id": "B1", "pos": [2, 8]}, {"id": "B2", "pos": [5, 8]}]
     t["quan"]["tables"] = [{"id": "T1", "pos": [9, 2]}, {"id": "T2", "pos": [13, 2]},
                            {"id": "T3", "pos": [9, 6]}, {"id": "T4", "pos": [13, 6]}]

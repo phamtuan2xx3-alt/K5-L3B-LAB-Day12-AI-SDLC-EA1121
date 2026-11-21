@@ -39,9 +39,11 @@ def is_itemized(tuning, *, version=None) -> bool:
     """CLI chọn schema theo manifest; lớp mô phỏng có thể dùng tuning v1.2 riêng."""
     if version is None:
         return bool((tuning or {}).get("freshness"))
-    if version == "1.2" and not (tuning or {}).get("freshness"):
-        raise BadInput("contract v1.2 cần tuning.freshness")
-    return version == "1.2"
+    # v1.3 (TICKET-04) giữ "gameplay, tuning, kho và JSONL theo v1.2": mọi bản >= 1.2 dùng kho cá thể.
+    itemized = tuple(int(x) for x in str(version).split(".")[:2]) >= (1, 2)
+    if itemized and not (tuning or {}).get("freshness"):
+        raise BadInput(f"contract v{version} cần tuning.freshness")
+    return itemized
 
 
 def read_inventory(path: str, kinds=ALL_KINDS, itemized=False):

@@ -17,11 +17,12 @@ from chonoi.inputs import LiveInputs
 from chonoi.rng import Streams
 from chonoi.runner import Session
 from chonoi.sim.quan import QuanSim
+from helpers import counts_tuning
 
 
 class TestQuanKitchenServing(unittest.TestCase):
     def setUp(self):
-        self.tuning = load_contract()["tuning"]
+        self.tuning = counts_tuning()  # luật kho đếm (v1.0/1.1); v1.2 xem test_quan_freshness
 
     def test_stove_cook_ready_pick_serve_and_pay(self):
         """Kiểm tra toàn bộ chu trình: Bếp nấu -> Chín -> Bốc món -> Phục vụ -> Khách ăn -> Trả tiền + Boa."""

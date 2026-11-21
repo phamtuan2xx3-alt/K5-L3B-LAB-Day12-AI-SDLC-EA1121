@@ -11,16 +11,16 @@ import unittest
 from chonoi.contract import load_contract
 from chonoi.inputs import LiveInputs
 from chonoi.runner import Session
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import counts_tuning, Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
 
 
 def tuning_gather():
-    return load_contract()["tuning"]["gather"]
+    return counts_tuning()["gather"]
 
 
 class TestHarvestMechanics(unittest.TestCase):
     def setUp(self):
-        self.tuning = load_contract()["tuning"]
+        self.tuning = counts_tuning()  # luật giỏ đếm (v1.0/1.1); v1.2 xem test_gather_freshness
 
     def test_harvest_flower_success(self):
         """Hái hoa N1 thành công khi ở mặt nước: nhận 1 bông điên điển, regrow_ticks = 1200."""
@@ -103,7 +103,7 @@ class TestHarvestMechanics(unittest.TestCase):
 
 class TestCatchMechanics(unittest.TestCase):
     def setUp(self):
-        self.tuning = load_contract()["tuning"]
+        self.tuning = counts_tuning()  # luật giỏ đếm (v1.0/1.1); v1.2 xem test_gather_freshness
 
     def test_catch_ca_linh_yield_3(self):
         """Bắt Cá Linh F1 [15, 5] dưới nước nhận 3 con vào giỏ, F1 bị xóa khỏi sông."""

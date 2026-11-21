@@ -71,3 +71,14 @@ class Workdir:
 
     def path(self, name):
         return os.path.join(self._d.name, name)
+
+
+def counts_tuning():
+    """Tuning của contract nhưng bỏ `freshness`: chạy nhánh kho đếm (manifest v1.0/1.1) mà QuanSim/GatherSim
+    vẫn hỗ trợ. Unit test kiểm luật kho đếm dùng hàm này; luật kho cá thể v1.2 có test riêng
+    (test_quan_freshness, test_gather_freshness)."""
+    import copy
+    from chonoi.contract import load_contract
+    t = copy.deepcopy(load_contract()["tuning"])
+    t.pop("freshness", None)
+    return t

@@ -9,6 +9,7 @@
   "bench_cmd": "python3 -m chonoi.bench",
   "tuning": {
     "tick_hz": 60,
+    "freshness": {"initial": 100, "gather_decay_per_s": 0.5, "quan_decay_per_s": 0.25, "spoiled_below": 30},
     "gather": {
       "duration_s": 180,
       "bounds": {"x": [0, 100], "d": [0, 30]},

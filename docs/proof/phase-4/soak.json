@@ -5,64 +5,64 @@
   "results": [
     {
       "day": 1,
-      "earned": 48,
+      "earned": 43,
       "reputation": 3.2,
-      "score": 348
+      "score": 343
     },
     {
       "day": 2,
-      "earned": 48,
+      "earned": 43,
       "reputation": 3.2,
-      "score": 348
+      "score": 343
     },
     {
       "day": 3,
-      "earned": 96,
+      "earned": 86,
       "reputation": 3.4,
-      "score": 396
+      "score": 386
     },
     {
       "day": 4,
-      "earned": 144,
+      "earned": 125,
       "reputation": 3.6,
-      "score": 444
+      "score": 425
     },
     {
       "day": 5,
-      "earned": 144,
+      "earned": 125,
       "reputation": 3.6,
-      "score": 444
+      "score": 425
     },
     {
       "day": 6,
-      "earned": 192,
+      "earned": 168,
       "reputation": 3.8,
-      "score": 492
+      "score": 468
     },
     {
       "day": 7,
-      "earned": 192,
+      "earned": 168,
       "reputation": 3.8,
-      "score": 492
+      "score": 468
     },
     {
       "day": 8,
-      "earned": 240,
+      "earned": 211,
       "reputation": 4.0,
-      "score": 640
+      "score": 611
     },
     {
       "day": 9,
-      "earned": 288,
+      "earned": 250,
       "reputation": 4.2,
-      "score": 688
+      "score": 650
     },
     {
       "day": 10,
-      "earned": 288,
+      "earned": 250,
       "reputation": 4.2,
-      "score": 688
+      "score": 650
     }
   ],
-  "duration_s": 3.42
+  "duration_s": 14.309
 }

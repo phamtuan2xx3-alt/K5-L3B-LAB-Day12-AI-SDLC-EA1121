@@ -4,11 +4,12 @@ import unittest
 
 from chonoi.contract import load_contract
 from chonoi.runner import Session
+from helpers import counts_tuning
 
 
 class QuanInventory(unittest.TestCase):
     def make_sim(self, stock):
-        tuning = load_contract()["tuning"]
+        tuning = counts_tuning()  # luật kho đếm (v1.0/1.1); v1.2 xem test_quan_freshness
         return Session("quan", tuning, {"stock": stock}, seed=1).sim
 
     def test_first_cookable_dish_reserves_without_changing_stock(self):
