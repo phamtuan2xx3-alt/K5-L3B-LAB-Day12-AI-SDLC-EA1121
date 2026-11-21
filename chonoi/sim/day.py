@@ -149,14 +149,14 @@ class DaySim:
         - sleep/summary: 23:00 -> 06:00 (7h in-game)
         """
         if self.phase == "gather":
-            sub_ticks = getattr(self.sub_sim, "ticks_run", self.phase_tick)
-            tick_lim = getattr(self.sub_sim, "tick_limit", 10800)
+            sub_ticks = getattr(self.sub_sim, "ticks_run", getattr(self.sub_sim, "phase_tick", self.phase_tick))
+            tick_lim = getattr(self.sub_sim, "tick_limit", getattr(self.sub_sim, "duration_ticks", 10800))
             prog = min(1.0, sub_ticks / max(1, tick_lim))
             mins = 6 * 60 + int(prog * 540)
             period = "morning" if mins < 12 * 60 else "afternoon"
         elif self.phase == "quan":
-            sub_ticks = getattr(self.sub_sim, "ticks_run", self.phase_tick)
-            tick_lim = getattr(self.sub_sim, "tick_limit", 10800)
+            sub_ticks = getattr(self.sub_sim, "ticks_run", getattr(self.sub_sim, "phase_tick", self.phase_tick))
+            tick_lim = getattr(self.sub_sim, "tick_limit", getattr(self.sub_sim, "duration_ticks", 10800))
             prog = min(1.0, sub_ticks / max(1, tick_lim))
             mins = 18 * 60 + int(prog * 300)
             period = "evening"
@@ -175,6 +175,7 @@ class DaySim:
             "minute": minute,
             "time_str": f"{hour:02d}:{minute:02d}",
             "period": period,
+            "day": self.current_day,
             "real_minutes_per_24h": 8.0,
             "ratio_desc": "24h game = 8 phut doi thuc (1s thuc = 3 phut game)"
         }

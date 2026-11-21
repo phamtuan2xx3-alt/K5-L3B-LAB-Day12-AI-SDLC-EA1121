@@ -76,7 +76,10 @@ class GatherSim:
                 self.hold = []
         else:
             self.hold = list(scenario.get("hold", []))  # LIFO, cuối mảng là mới nhất
-        self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * TICK)))
+        self.duration_ticks = int(round(t["duration_s"] * TICK))
+        self.tick_limit = self.duration_ticks
+        self.ticks_run = 0
+        self.time_left_ticks = scenario.get("time_left_ticks", self.duration_ticks)
         self.phase_tick = 0
 
         # 1. Nút hoa (Nodes)
@@ -182,6 +185,7 @@ class GatherSim:
     def step(self, inp):
         events = []
         self.phase_tick += 1
+        self.ticks_run = self.phase_tick
 
         # 1. Đồng hồ, cooldown, giảm bất tử, hồi nút
         self.time_left_ticks = max(0, self.time_left_ticks - 1)

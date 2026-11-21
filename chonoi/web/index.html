@@ -2191,7 +2191,20 @@ async function switchModeAndPlay(mode) {
     console.warn("Lỗi switch mode:", e);
   }
   closeMainMenu();
-  restartGame();
+  lastSent = "";
+  down.clear();
+  cameraMode = "follow_player";
+  const dropHud = document.getElementById("camera-area-dropdown");
+  if (dropHud) dropHud.value = "follow_player";
+  prevEventsCount = 0;
+  prevHoldLength = 0;
+  snap = null;
+  floatingTexts.length = 0;
+  document.getElementById("dive-log-modal").classList.remove("visible");
+  document.getElementById("pause-modal").classList.remove("visible");
+  document.getElementById("shop-modal").classList.remove("visible");
+  document.getElementById("hub-modal").classList.remove("visible");
+  document.getElementById("sleep-modal").classList.remove("visible");
 }
 
 function toggleHubModal() {
@@ -2268,18 +2281,45 @@ document.getElementById("btn-buy-oxygen").addEventListener("click", () => {
 document.getElementById("btn-buy-hp").addEventListener("click", () => {
   pendingBuy = "hp"; pushInput();
 });
-document.getElementById("btn-shop-done").addEventListener("click", () => {
+document.getElementById("btn-shop-done").addEventListener("click", async () => {
   pendingShopDone = true; pushInput();
+  try {
+    await fetch("/next_phase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phase: "quan" })
+    });
+  } catch (e) {
+    console.warn("Lỗi next phase quan:", e);
+  }
+  document.getElementById("shop-modal").classList.remove("visible");
 });
 document.getElementById("btn-toggle-hub").addEventListener("click", toggleHubModal);
 document.getElementById("btn-close-hub").addEventListener("click", toggleHubModal);
-document.getElementById("btn-goto-prep").addEventListener("click", () => {
+document.getElementById("btn-goto-prep").addEventListener("click", async () => {
   document.getElementById("dive-log-modal").classList.remove("visible");
+  try {
+    await fetch("/next_phase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phase: "prep" })
+    });
+  } catch (e) {
+    console.warn("Lỗi next phase prep:", e);
+  }
   document.getElementById("shop-modal").classList.add("visible");
 });
-document.getElementById("btn-sleep-wakeup").addEventListener("click", () => {
+document.getElementById("btn-sleep-wakeup").addEventListener("click", async () => {
   document.getElementById("sleep-modal").classList.remove("visible");
-  restartGame();
+  try {
+    await fetch("/next_phase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phase: "gather" })
+    });
+  } catch (e) {
+    console.warn("Lỗi next phase gather:", e);
+  }
 });
 
 // ---------- SNAPSHOT POLLING & EVENT HANDLING ----------
@@ -2408,6 +2448,20 @@ function handleNewEvents(newSnap) {
       else if (e.name === "customer_arrived") {
         sfx.playBubble();
         addFloatingText("🛶 Khách ghé bàn!", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#80D8FF");
+      }
+      else if (e.name === "quan_end") {
+        sfx.playDing();
+        const sleepModal = document.getElementById("sleep-modal");
+        if (sleepModal) {
+          const money = (e.data && e.data.money !== undefined) ? e.data.money : (newSnap.money || 0);
+          const earned = (e.data && e.data.shift_earned !== undefined) ? e.data.shift_earned : (e.data && e.data.earned !== undefined ? e.data.earned : 0);
+          const rep = (e.data && e.data.reputation !== undefined) ? Number(e.data.reputation).toFixed(1) : (newSnap.reputation ? Number(newSnap.reputation).toFixed(1) : "3.0");
+          const sleepDesc = sleepModal.querySelector("p");
+          if (sleepDesc) {
+            sleepDesc.innerHTML = `Quán ăn đã đóng ca đêm (23:00)!<br>Doanh thu ca: <strong>+${earned} xu</strong> | Tổng quỹ: <strong>${money} xu</strong> | Uy tín: <strong>★ ${rep}</strong><br>Út Sen ngả lưng trên ghe ba lá, nghe sóng vỗ rì rào...`;
+          }
+          sleepModal.classList.add("visible");
+        }
       }
     }
     prevEventsCount = evs.length;
@@ -3246,6 +3300,9 @@ function updateHUDOverlay(p, meta) {
   updateZoneCard("cho-chu-sau", isChoOpen, "🟢 ĐANG MỞ CỬA", "⏳ CHƯA ĐẾN GIỜ");
   updateZoneCard("quan-an", isQuanOpen, "🟢 ĐANG MỞ CỬA", "⏳ CHƯA MỞ QUÁN");
   updateZoneCard("ghe-nghi", isGheNghiOpen, "💤 GIỜ ĐI NGỦ", "⛔ CHƯA ĐẾN GIỜ");
+
+  const curZone = MEKONG_ZONES_3D.find(z => z.id === selectedZoneId) || MEKONG_ZONES_3D[0];
+  updateZonePopup(curZone);
 
   // Xem trước kế hoạch thực đơn trong Shop nếu có
   if (snap.day_plan && snap.day_plan.dishes) {

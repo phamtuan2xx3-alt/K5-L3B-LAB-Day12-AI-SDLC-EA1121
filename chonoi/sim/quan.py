@@ -51,7 +51,11 @@ class QuanSim:
             self.items = None
             self.stock = dict(raw_stock)
         self.hand = scenario.get("hand")
-        self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * 60)))
+        self.duration_ticks = int(round(t["duration_s"] * 60))
+        self.tick_limit = self.duration_ticks
+        self.ticks_run = 0
+        self.time_left_ticks = scenario.get("time_left_ticks", self.duration_ticks)
+        self.phase_tick = 0
         self.reputation = scenario.get("reputation", t["reputation_initial"])
         self.stoves = [dict(s, state=s.get("state", "idle"), dish=s.get("dish"),
                             cook_ticks_left=s.get("cook_ticks_left", 0), ready_ticks=s.get("ready_ticks", 0))
@@ -140,6 +144,7 @@ class QuanSim:
         events = []
         # 1. đồng hồ, timer ca; kiên nhẫn + timer ăn (lát 3)
         self.phase_tick += 1
+        self.ticks_run = self.phase_tick
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
         cust.tick_timers(self)
         self._tick_stoves()
