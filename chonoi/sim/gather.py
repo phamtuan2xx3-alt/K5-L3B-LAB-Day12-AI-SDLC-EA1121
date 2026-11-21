@@ -16,9 +16,11 @@ Phase 1 & Phase 2 (Contract v1.0 & v1.1):
 """
 
 import math
+from fractions import Fraction
 
 from ..ids import id_key, sort_by_id
 from ..inventory import hold_to_items
+from .freshness import config as freshness_config, frac, out_item
 from .ramp import ramp_velocity
 
 TICK = 60.0
@@ -59,8 +61,21 @@ class GatherSim:
         self.invuln_ticks = p.get("invuln_ticks", 0)
         self.catch_cd_ticks = p.get("catch_cd_ticks", 0)
         self.depth_warned = False  # sáng tạo: cảnh báo khi vừa vượt qua ngưỡng áp suất dòng sâu (d > 18)
-        self.hold = list(scenario.get("hold", []))  # thứ tự nhặt, cuối mảng là mới nhất
-        self.hold = list(scenario.get("hold", []))  # LIFO, cuối mảng là mới nhất
+        self.fresh = freshness_config(tuning)
+        if self.fresh:
+            raw_hold = scenario.get("hold", [])
+            if isinstance(raw_hold, list) and raw_hold and isinstance(raw_hold[0], dict):
+                self.hold = [dict(it, fresh=frac(it["fresh"])) for it in raw_hold]
+                for it in self.hold:
+                    self.ids.reserve(it["id"])
+            elif isinstance(raw_hold, list):
+                self.hold = []
+                for k in raw_hold:
+                    self.hold.append({"id": self.ids.new("I"), "kind": k, "fresh": self.fresh["initial"]})
+            else:
+                self.hold = []
+        else:
+            self.hold = list(scenario.get("hold", []))  # LIFO, cuối mảng là mới nhất
         self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * TICK)))
         self.phase_tick = 0
 
@@ -136,7 +151,9 @@ class GatherSim:
         return fish_list
 
     # --- giao diện cho runner -------------------------------------------------
-    def inventory_items(self) -> dict:
+    def inventory_items(self):
+        if self.fresh:
+            return [out_item(it) for it in sort_by_id(self.hold)]
         return hold_to_items(self.hold)
 
     def snapshot(self) -> dict:
@@ -146,7 +163,8 @@ class GatherSim:
                        "hp": self.hp, "hp_max": self.t["hp_max"], "zero_oxy_ticks": self.zero_oxy_ticks,
                        "invuln_ticks": self.invuln_ticks, "catch_cd_ticks": self.catch_cd_ticks,
                        "at_surface": self._at_surface()},
-            "hold": self.hold, "hold_count": len(self.hold),
+            "hold": [out_item(it) for it in self.hold] if self.fresh else self.hold,
+            "hold_count": len(self.hold),
             "hold_capacity": self.t["hold_capacity"],
             "nodes": [{"id": n["id"], "pos": n["pos"], "kind": n["kind"],
                        "ready": n["regrow_ticks"] == 0, "regrow_ticks": n["regrow_ticks"]}
@@ -174,6 +192,15 @@ class GatherSim:
                 n["regrow_ticks"] -= 1
                 if n["regrow_ticks"] == 0:
                     events.append(("node_regrown", {"node_id": n["id"]}))
+
+        # 1b. v1.2: Hao tươi giỏ lặn, phát spoiled theo id khi fresh đi từ >= 30 xuống < 30
+        if self.fresh:
+            thr, step_decay = self.fresh["spoiled_below"], self.fresh["gather_decay"]
+            for it in sort_by_id(self.hold):
+                before = it["fresh"]
+                it["fresh"] = max(Fraction(0), before - step_decay)
+                if before >= thr > it["fresh"]:
+                    events.append(("spoiled", {"item_id": it["id"], "kind": it["kind"], "location": "hold"}))
 
         # 2. Bơi + chặn mép
         prev_surface = self._at_surface()
@@ -215,7 +242,11 @@ class GatherSim:
                     if self.hp <= 0:
                         lost = list(self.hold)
                         self.hold = []
-                        events.append(("faint", {"cause": "oxygen", "lost": lost, "hp": 0}))
+                        events.append(("faint", {
+                            "cause": "oxygen",
+                            "lost": [out_item(it) for it in lost] if self.fresh else lost,
+                            "hp": 0
+                        }))
                         self._finish("fainted", events)
                         return events
                 self.zero_oxy_ticks += 1
@@ -278,7 +309,12 @@ class GatherSim:
         yield_n = self.t.get("node_yield", 1)
         space = capacity - len(self.hold)
         add_n = min(yield_n, space)
-        self.hold.extend([chosen["kind"]] * add_n)
+        if self.fresh:
+            for _ in range(add_n):
+                iid = self.ids.new("I")
+                self.hold.append({"id": iid, "kind": chosen["kind"], "fresh": self.fresh["initial"]})
+        else:
+            self.hold.extend([chosen["kind"]] * add_n)
         chosen["regrow_ticks"] = int(round(self.t["regrow_s"] * TICK))
         events.append(("gather", {"node_id": chosen["id"], "kind": chosen["kind"]}))
 
@@ -308,7 +344,12 @@ class GatherSim:
             return
 
         add_n = min(y, space)
-        self.hold.extend([chosen["kind"]] * add_n)
+        if self.fresh:
+            for _ in range(add_n):
+                iid = self.ids.new("I")
+                self.hold.append({"id": iid, "kind": chosen["kind"], "fresh": self.fresh["initial"]})
+        else:
+            self.hold.extend([chosen["kind"]] * add_n)
         self.fish = [f for f in self.fish if f["id"] != chosen["id"]]
         events.append(("fish_caught", {"fish_id": chosen["id"], "kind": chosen["kind"]}))
 
@@ -483,14 +524,18 @@ class GatherSim:
                 events.append(("monster_hit", {
                     "monster_id": hit_m["id"],
                     "hp": self.hp,
-                    "lost": lost,
+                    "lost": [out_item(it) for it in lost] if self.fresh else lost,
                     "pos": list(self.pos)
                 }))
 
                 if self.hp <= 0:
                     lost_remaining = list(self.hold)
                     self.hold = []
-                    events.append(("faint", {"cause": "monster", "lost": lost_remaining, "hp": 0}))
+                    events.append(("faint", {
+                        "cause": "monster",
+                        "lost": [out_item(it) for it in lost_remaining] if self.fresh else lost_remaining,
+                        "hp": 0
+                    }))
                     self._finish("fainted", events)
 
     def _move(self, inp):

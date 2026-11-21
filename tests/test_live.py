@@ -57,6 +57,27 @@ class LiveServerTest(unittest.TestCase):
         self.assertFalse(server.game._thread.is_alive())
         self.assertFalse(server._thread.is_alive())
 
+    def test_switch_mode_via_api(self):
+        tuning = load_contract()["tuning"]
+        server = LiveServer(LiveGame("gather", tuning, {}, 1), port=0)
+        server.start()
+        try:
+            base = f"http://127.0.0.1:{server.port}"
+            # Ban đầu là gather
+            st = json.loads(_get(base + "/state")[1])
+            self.assertEqual(st["mode"], "gather")
+
+            # Chuyển sang quan
+            code = _post(base + "/mode", {"mode": "quan"})
+            self.assertEqual(code, 200)
+            st_quan = json.loads(_get(base + "/state")[1])
+            self.assertEqual(st_quan["mode"], "quan")
+
+            # Chế độ lạ bị từ chối
+            self.assertEqual(_post(base + "/mode", {"mode": "space"}), 400)
+        finally:
+            server.stop()
+
 
 if __name__ == "__main__":
     unittest.main()

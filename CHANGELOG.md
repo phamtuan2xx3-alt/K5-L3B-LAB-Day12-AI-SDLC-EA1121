@@ -22,6 +22,7 @@
 **Cập nhật fixture:** `{"stock":{"ca_loc":1}}` → `{"stock":[{"id":"I1","kind":"ca_loc","fresh":100}]}`;
 `"reserved":{"ca_loc":1}` → `"reserved":["I1"]` (hoặc bỏ để hệ thống tự cấp cá thể tươi nhất).
 
-Đã làm (DEV 3, nhánh `feat/quan-freshness`): phía Quán + đọc/ghi file kho cá thể. Còn lại: phía Lặn
-(giỏ cá thể, hao 0.5/s, `spoiled` location `hold`, `gather_end.inventory` mảng cá thể), bàn giao trong `day`,
-HUD độ tươi, và đổi `game.contract.json` sang 1.2.
+Đã làm:
+- Phía Quán + đọc/ghi file kho cá thể (DEV 3, PR #4).
+- Phía Lặn: giỏ cá thể, hao 0.5/s, `spoiled` location `hold`, `gather_end.inventory` mảng cá thể (DEV 1, thanhtung578804).
+Còn lại: bàn giao trong `day`, HUD độ tươi, và đổi `game.contract.json` sang 1.2.

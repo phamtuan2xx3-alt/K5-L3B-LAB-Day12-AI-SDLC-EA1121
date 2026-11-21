@@ -41,6 +41,9 @@ class LiveGame:
         self._args = (mode, tuning, scenario, seed, inventory)
         self.mode = mode
         self.tuning = tuning
+        self.scenario = scenario
+        self.seed = seed
+        self.inventory = inventory
         self.inventory_out = inventory_out
         self._lock = threading.Lock()
         self._stop = threading.Event()
@@ -101,7 +104,7 @@ class LiveGame:
     def state_json(self) -> bytes:
         with self._lock:
             snap = self.session.snapshot()
-            snap["meta"] = self.tuning[self.mode]
+            snap["meta"] = self.tuning.get(self.mode, self.tuning.get("gather", {}))
             snap["events"] = list(self.events)
             snap["finished"] = self.session.done
             snap["reason"] = self.session.sim.reason if self.session.done else None
@@ -116,7 +119,7 @@ class LiveGame:
             if not ok:
                 raise ValueError("move phải là [a, b] trong [-1, 1]")
         buttons = {}
-        for b in ("interact", "catch"):
+        for b in ("interact", "catch", "pause", "shop_done", "attack", "photo"):
             if b in body:
                 if not isinstance(body[b], bool):
                     raise ValueError(f"{b} phải là boolean")
@@ -126,6 +129,14 @@ class LiveGame:
 
     def restart(self):
         with self._lock:
+            self._reset()
+
+    def switch_mode(self, new_mode):
+        if new_mode not in ("gather", "quan", "day"):
+            raise ValueError(f"Chế độ không hợp lệ: {new_mode}")
+        with self._lock:
+            self.mode = new_mode
+            self._args = (new_mode, self.tuning, self.scenario, self._args[3], self._args[4])
             self._reset()
 
 
@@ -175,6 +186,12 @@ class _Handler(BaseHTTPRequestHandler):
                 self.game.set_input(body)
             elif path == "/restart":
                 self.game.restart()
+            elif path in ("/mode", "/switch_mode"):
+                body = json.loads(raw.decode("utf-8") or "{}")
+                new_mode = body.get("mode")
+                if not new_mode:
+                    raise ValueError("Thiếu trường 'mode'")
+                self.game.switch_mode(new_mode)
             else:
                 self._send(404, b'{"error":"khong co"}')
                 return
