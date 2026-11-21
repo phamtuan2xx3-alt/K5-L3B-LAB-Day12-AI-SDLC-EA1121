@@ -8,7 +8,7 @@ phải có đúng một món, khách eating thiếu giá/tip...) — xem PRD-0 m
 import json
 
 from .errors import BadInput
-from .inventory import ALL_KINDS, kinds_for, validate_items
+from .inventory import ALL_KINDS, is_itemized, kinds_for, validate_items
 
 GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "monsters", "time_left_ticks", "day"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
@@ -199,7 +199,11 @@ def _validate_quan(b, tuning):
         if arr in b:
             _check_ids(arr, b[arr])
     if "stock" in b:
-        validate_items(b["stock"], kinds_for(tuning))
+        if is_itemized(tuning):  # v1.2: quan.stock là mảng cá thể
+            from .sim.freshness import validate_item_list
+            validate_item_list(b["stock"], kinds_for(tuning), "quan.stock")
+        else:
+            validate_items(b["stock"], kinds_for(tuning))
     p = b.get("player", {})
     if not isinstance(p, dict) or set(p) - QUAN_PLAYER_KEYS:
         raise BadInput("quan.player chỉ có pos và vel")

@@ -35,7 +35,12 @@ def validate_items(items, kinds=ALL_KINDS):
     return out
 
 
-def read_inventory(path: str, kinds=ALL_KINDS) -> dict:
+def is_itemized(tuning) -> bool:
+    """Contract 1.2 bật độ tươi (tuning.freshness) -> kho cá thể; trước đó là kho đếm."""
+    return bool((tuning or {}).get("freshness"))
+
+
+def read_inventory(path: str, kinds=ALL_KINDS, itemized=False):
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
@@ -43,6 +48,9 @@ def read_inventory(path: str, kinds=ALL_KINDS) -> dict:
         raise BadInput(f"không đọc được file kho {path}: {e}")
     if not isinstance(data, dict) or set(data.keys()) != {"items"}:
         raise BadInput("file kho chỉ được có khóa gốc 'items'")
+    if itemized:  # v1.2: mảng cá thể; file kho đếm -> mã 2
+        from .sim.freshness import validate_item_list
+        return validate_item_list(data["items"], kinds)
     return validate_items(data["items"], kinds)
 
 
@@ -54,8 +62,13 @@ def hold_to_items(hold: list) -> dict:
     return {k: counts[k] for k in sorted(counts)}
 
 
-def write_inventory(path: str, items: dict):
-    items = {k: items[k] for k in sorted(items) if items[k] > 0}
+def write_inventory(path: str, items):
+    """dict đếm (v1.0/1.1) hoặc mảng cá thể (v1.2, sắp theo id, fresh đủ chính xác để đọc lại)."""
+    if isinstance(items, list):
+        from .ids import sort_by_id
+        items = [{"id": it["id"], "kind": it["kind"], "fresh": float(it["fresh"])} for it in sort_by_id(items)]
+    else:
+        items = {k: items[k] for k in sorted(items) if items[k] > 0}
     d = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(prefix=".inv-", suffix=".tmp", dir=d)
     try:
