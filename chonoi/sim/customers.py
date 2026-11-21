@@ -50,10 +50,16 @@ def available_stock(sim) -> dict:
     return {k: sim.stock.get(k, 0) - held.get(k, 0) for k in set(sim.stock) | set(held)}
 
 
+def menu_pool(sim) -> list:
+    """Id món khách được gọi, theo mã Unicode. Trong day (v1.1) lọc theo kế hoạch Ngày TRƯỚC khi xét kho."""
+    allowed = getattr(sim, "allowed_dishes", None)
+    return [d for d in sorted(sim.menu) if allowed is None or d in allowed]
+
+
 def cookable_dishes(sim) -> list:
-    """Món đủ nguyên liệu khả dụng, theo thứ tự mã Unicode của id món."""
+    """Món trong pool đủ nguyên liệu khả dụng (tồn - giữ chỗ), theo thứ tự mã Unicode của id món."""
     avail = available_stock(sim)
-    return [d for d in sorted(sim.menu)
+    return [d for d in menu_pool(sim)
             if all(avail.get(k, 0) >= n for k, n in sim.menu[d]["recipe"].items())]
 
 

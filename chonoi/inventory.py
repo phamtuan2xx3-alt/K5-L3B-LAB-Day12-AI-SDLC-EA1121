@@ -13,6 +13,12 @@ from .errors import BadInput
 KINDS_P1 = ("ca_loc", "ca_linh", "bong_dien_dien", "bong_sung")
 
 
+def kinds_for(tuning) -> tuple:
+    """Nguyên liệu hợp lệ = mọi kind trong công thức menu đang chạy (P1: 4 loại, v1.1: thêm ca_keo, keo_neo)."""
+    kinds = {k for d in (tuning or {}).get("menu", {}).values() for k in d.get("recipe", {})}
+    return tuple(sorted(kinds)) if kinds else KINDS_P1
+
+
 def validate_items(items, kinds=KINDS_P1):
     if not isinstance(items, dict):
         raise BadInput("items phải là object")
