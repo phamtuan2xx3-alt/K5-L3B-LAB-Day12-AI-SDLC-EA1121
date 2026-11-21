@@ -624,6 +624,127 @@
     box-shadow: 0 4px 12px rgba(2, 136, 209, 0.5);
   }
 
+  /* ========== BẢN ĐỒ GÓC NHÌN 3/4 ISOMETRIC MEKONG TRÊN MENU ========== */
+  .menu-map-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: linear-gradient(180deg, rgba(6, 20, 30, 0.95), rgba(4, 14, 22, 0.98));
+    border: 2px solid rgba(79, 195, 247, 0.45);
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(79, 195, 247, 0.08);
+  }
+  .menu-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 2px 6px;
+  }
+  .map-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .map-title-icon { font-size: 18px; }
+  .map-title-text {
+    font-size: 13px; font-weight: 900;
+    letter-spacing: 1px; color: var(--color-yellow-dien-dien);
+  }
+  .map-live-pill {
+    font-size: 10px; font-weight: 800;
+    color: #FF5252; background: rgba(255, 82, 82, 0.15);
+    border: 1px solid rgba(255, 82, 82, 0.4);
+    padding: 1px 6px; border-radius: 10px;
+    letter-spacing: 0.5px;
+  }
+  .map-hint-text {
+    font-size: 11px; color: #81D4FA; font-weight: 500;
+  }
+  .menu-map-viewport {
+    position: relative;
+    width: 100%;
+    height: 330px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #081720;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  #menu-map-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+  #menu-map-canvas:active {
+    cursor: grabbing;
+  }
+  .map-zone-popup {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 300px;
+    background: rgba(8, 24, 34, 0.94);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid var(--color-yellow-dien-dien);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8), inset 0 0 16px rgba(243, 205, 88, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 5;
+    transition: transform 0.25s, opacity 0.25s;
+    pointer-events: auto;
+  }
+  .popup-zone-badge {
+    align-self: flex-start;
+    font-size: 10px; font-weight: 800;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(0, 230, 118, 0.2);
+    color: #00E676; border: 1px solid #00E676;
+    letter-spacing: 0.5px;
+  }
+  .popup-zone-title {
+    font-size: 15px; font-weight: 900; color: #FFF;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .popup-zone-hours {
+    font-size: 11px; font-weight: bold; color: var(--color-yellow-dien-dien);
+  }
+  .popup-zone-desc {
+    font-size: 11px; line-height: 1.4; color: #CFD8DC;
+  }
+  .popup-action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .popup-enter-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #00E676, #00B0FF);
+    color: #04101A; font-weight: 900; font-size: 12px;
+    border: none; border-radius: 6px; padding: 7px 10px;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .popup-enter-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
+  }
+  .popup-pan-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFF; font-weight: bold; font-size: 11px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px; padding: 7px 10px;
+    cursor: pointer;
+  }
+  .popup-pan-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
   .menu-modes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -744,6 +865,36 @@
             <option value="ghe_nghi">🛏️ Ghe Nghỉ Út Sen (22:00 - 06:00)</option>
           </select>
           <button id="btn-menu-inspect-area" class="inspect-area-btn">👀 Quan Sát Góc Nhìn Này</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG — GÓC NHÌN TRÊN XUỐNG 3/4 ISOMETRIC -->
+    <div class="menu-map-section">
+      <div class="menu-map-header">
+        <div class="map-header-left">
+          <span class="map-title-icon">🧭</span>
+          <span class="map-title-text">BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG (GÓC NHÌN 3/4 TRÊN XUỐNG)</span>
+          <span class="map-live-pill">🔴 TRỰC QUAN 24H</span>
+        </div>
+        <div class="map-header-right">
+          <span class="map-hint-text">💡 Nhấp chuột vào bất kỳ địa danh trên bản đồ 3/4 để di chuyển góc nhìn & xem chi tiết</span>
+        </div>
+      </div>
+
+      <div class="menu-map-viewport">
+        <canvas id="menu-map-canvas" width="940" height="330"></canvas>
+
+        <!-- Khung chi tiết địa danh khi được chọn (Inspector Popup) -->
+        <div id="menu-map-zone-popup" class="map-zone-popup">
+          <div class="popup-zone-badge" id="popup-zone-badge">🟢 ĐANG MỞ CỬA</div>
+          <div class="popup-zone-title" id="popup-zone-title">⚓ Bến Lặn Sông Tiền</div>
+          <div class="popup-zone-hours" id="popup-zone-hours">⏰ Hoạt động: 06:00 - 15:00</div>
+          <div class="popup-zone-desc" id="popup-zone-desc">Út Sen lặn sông bắt Cá Linh, Cá Lóc, Cá Kèo và hái Bông Điên Điển, Bông Súng mang về kho.</div>
+          <div class="popup-action-row">
+            <button id="btn-popup-enter" class="popup-enter-btn">VÀO LẶN NGAY 🌊</button>
+            <button id="btn-popup-pan" class="popup-pan-btn">🎥 Lướt Camera</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1370,6 +1521,9 @@ function openMainMenu() {
   const dropMenu = document.getElementById("menu-camera-area-dropdown");
   if (dropMenu) dropMenu.value = cameraMode;
   document.getElementById("main-menu-overlay").classList.add("visible");
+  if (typeof selectZoneOn3DMap === "function") {
+    selectZoneOn3DMap(cameraMode === "follow_player" ? "ben_lan" : cameraMode);
+  }
 }
 function closeMainMenu() {
   const dropHud = document.getElementById("camera-area-dropdown");
@@ -1377,8 +1531,571 @@ function closeMainMenu() {
   document.getElementById("main-menu-overlay").classList.remove("visible");
 }
 function toggleMainMenu() {
-  document.getElementById("main-menu-overlay").classList.toggle("visible");
+  const overlay = document.getElementById("main-menu-overlay");
+  if (overlay.classList.contains("visible")) closeMainMenu();
+  else openMainMenu();
 }
+
+// =========================================================================
+// BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG — GÓC NHÌN 3/4 TRÊN XUỐNG (ISOMETRIC MAP)
+// =========================================================================
+const menuMapCanvas = document.getElementById("menu-map-canvas");
+const mmCtx = menuMapCanvas ? menuMapCanvas.getContext("2d") : null;
+
+const MEKONG_ZONES_3D = [
+  {
+    id: "ben_lan",
+    name: "Bến Lặn Sông Tiền",
+    icon: "⚓",
+    hours: "06:00 - 15:00",
+    desc: "Bến ghe mui lá dừa của Út Sen. Xuất phát lặn sông bắt Cá Linh, Cá Lóc, Cá Kèo và hái hoa về bến xuất kho.",
+    mode: "gather",
+    btnText: "VÀO LẶN NGAY 🌊",
+    wx: 130, wy: 150, wz: 0,
+    color: "#4FC3F7"
+  },
+  {
+    id: "ghe_nghi",
+    name: "Ghe Nghỉ Út Sen",
+    icon: "🛏️",
+    hours: "22:00 - 06:00",
+    desc: "Ghe ba lá yên bình nép dưới bóng dừa nước. Mắc võng dù ngả lưng nghe sóng vỗ, hồi 100% sinh lực đón bình minh.",
+    mode: "day",
+    btnText: "VỀ GHE NGHỈ 🛏️",
+    wx: 230, wy: 80, wz: 4,
+    color: "#B0BEC5"
+  },
+  {
+    id: "bai_hoa",
+    name: "Bãi Hoa Điên Điển & Bông Súng",
+    icon: "🌼",
+    hours: "Mặt nước phù sa",
+    desc: "Cù lao ngập nước nở vàng rực Bông Điên Điển và đầm Bông Súng tím ngát hương miền Tây mùa nước nổi.",
+    mode: "gather",
+    btnText: "HÁI HOA & BẮT CÁ 🌼",
+    wx: 360, wy: 210, wz: 0,
+    color: "#F3CD58"
+  },
+  {
+    id: "vung_sau",
+    name: "Vực Nước Sâu & Đầm Năm Chèo",
+    icon: "🐊",
+    hours: "Độ sâu d = 20 - 28m",
+    desc: "Vực xoáy nước sâu thẳm áp suất cao, nơi ẩn náu của Thủy Quái Cá Sấu Năm Chèo huyền thoại!",
+    mode: "gather",
+    btnText: "THÁM HIỂM VỰC SÂU 🐊",
+    wx: 520, wy: 270, wz: -10,
+    color: "#FF1744"
+  },
+  {
+    id: "cho_chu_sau",
+    name: "Chợ Nổi Chú Sáu",
+    icon: "🏮",
+    hours: "15:00 - 22:00",
+    desc: "Chợ nổi sầm uất, cây bẹo treo nông sản, lồng đèn đỏ rực. Mua nâng cấp bình oxy 60s và áo phao thêm máu.",
+    mode: "shop",
+    btnText: "GHÉ CHỢ SẮM ĐỒ 🏮",
+    wx: 680, wy: 170, wz: 2,
+    color: "#FF9800"
+  },
+  {
+    id: "quan_an",
+    name: "Quán Ăn Chợ Nổi Má Tư",
+    icon: "🍜",
+    hours: "18:00 - 23:00",
+    desc: "Nhà bè nổi lên đèn đón khách ghe cập mạn. Nấu 2 bếp than hồng, phục vụ 6 món đặc sản miền Tây.",
+    mode: "quan",
+    btnText: "MỞ QUÁN NGAY 🍜",
+    wx: 820, wy: 110, wz: 6,
+    color: "#FFD54F"
+  }
+];
+
+let selectedZoneId = "ben_lan";
+let hoveredZoneId = null;
+let mapCamX = 130;
+let mapCamY = 150;
+let mapTargetCamX = 130;
+let mapTargetCamY = 150;
+let isMapDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let mapCamStartX = 130, mapCamStartY = 150;
+let mapHasDragged = false;
+
+// Chuyển đổi tọa độ bản đồ sang góc nhìn 3/4 Isometric (Tilted Top-Down 3/4)
+function toIso3D(wx, wy, wz, w, h) {
+  const rad = 25 * Math.PI / 180;
+  const cosR = Math.cos(rad);
+  const sinR = Math.sin(rad);
+
+  const dx = wx - mapCamX;
+  const dy = wy - mapCamY;
+
+  // Xoay 25 độ và nén trục Y xuống 0.52 tạo góc nhìn nghiêng 3/4 isometric
+  const sx = (dx * cosR - dy * sinR) * 1.05 + w / 2;
+  const sy = (dx * sinR + dy * cosR) * 0.54 - (wz || 0) * 1.2 + h / 2;
+  return [sx, sy];
+}
+
+function updateZonePopup(zone) {
+  const badgeEl = document.getElementById("popup-zone-badge");
+  const titleEl = document.getElementById("popup-zone-title");
+  const hoursEl = document.getElementById("popup-zone-hours");
+  const descEl = document.getElementById("popup-zone-desc");
+  const enterBtn = document.getElementById("btn-popup-enter");
+
+  if (!zone) return;
+  if (titleEl) titleEl.innerHTML = `${zone.icon} ${zone.name}`;
+  if (hoursEl) hoursEl.textContent = `⏰ ${zone.hours}`;
+  if (descEl) descEl.textContent = zone.desc;
+  if (enterBtn) {
+    enterBtn.textContent = zone.btnText;
+    enterBtn.onclick = () => {
+      if (zone.mode === "gather") {
+        if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
+        else closeMainMenu();
+      } else if (zone.mode === "quan") {
+        if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
+        else closeMainMenu();
+      } else if (zone.mode === "shop") {
+        closeMainMenu();
+        const shopModal = document.getElementById("shop-modal");
+        if (shopModal) shopModal.classList.add("visible");
+      } else if (zone.mode === "day") {
+        switchModeAndPlay("day");
+      } else {
+        closeMainMenu();
+      }
+    };
+  }
+
+  // Cập nhật trạng thái mở cửa theo giờ in-game
+  let clkH = 8;
+  if (snap && snap.clock) clkH = snap.clock.hour;
+  let isOpen = true;
+  let openText = "🟢 ĐANG MỞ CỬA";
+  if (zone.id === "ben_lan" && (clkH < 6 || clkH >= 15)) {
+    isOpen = false; openText = "⏳ ĐÃ ĐÓNG CA LẶN (06:00-15:00)";
+  } else if (zone.id === "cho_chu_sau" && (clkH < 15 || clkH >= 22)) {
+    isOpen = false; openText = "⏳ CHỢ CHƯA MỞ (15:00-22:00)";
+  } else if (zone.id === "quan_an" && (clkH < 18 || clkH >= 23)) {
+    isOpen = false; openText = "⏳ QUÁN CHƯA MỞ (18:00-23:00)";
+  } else if (zone.id === "ghe_nghi" && (clkH >= 6 && clkH < 22)) {
+    isOpen = false; openText = "💤 CHƯA ĐẾN GIỜ NGỦ (22:00-06:00)";
+  }
+
+  if (badgeEl) {
+    badgeEl.textContent = openText;
+    badgeEl.style.background = isOpen ? "rgba(0, 230, 118, 0.2)" : "rgba(255, 82, 82, 0.2)";
+    badgeEl.style.color = isOpen ? "#00E676" : "#FF5252";
+    badgeEl.style.borderColor = isOpen ? "#00E676" : "#FF5252";
+  }
+}
+
+function selectZoneOn3DMap(zoneId) {
+  if (zoneId === "follow_player") zoneId = "ben_lan";
+  selectedZoneId = zoneId;
+  const z = MEKONG_ZONES_3D.find(item => item.id === zoneId);
+  if (z) {
+    mapTargetCamX = z.wx;
+    mapTargetCamY = z.wy;
+    updateZonePopup(z);
+  }
+  const menuDrop = document.getElementById("menu-camera-area-dropdown");
+  if (menuDrop) menuDrop.value = zoneId;
+  const hudDrop = document.getElementById("camera-area-dropdown");
+  if (hudDrop) hudDrop.value = zoneId;
+  cameraMode = zoneId;
+}
+
+// Bắt sự kiện chuột trên Canvas Bản Đồ 3/4
+if (menuMapCanvas) {
+  menuMapCanvas.addEventListener("mousedown", (e) => {
+    isMapDragging = true;
+    mapHasDragged = false;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    mapCamStartX = mapCamX;
+    mapCamStartY = mapCamY;
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (isMapDragging) {
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      if (Math.hypot(dx, dy) > 4) mapHasDragged = true;
+      mapTargetCamX = mapCamStartX - dx * 1.2;
+      mapTargetCamY = mapCamStartY - dy * 1.8;
+      return;
+    }
+
+    // Hover detection trên canvas
+    const rect = menuMapCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const w = menuMapCanvas.width, h = menuMapCanvas.height;
+
+    let found = null;
+    MEKONG_ZONES_3D.forEach(z => {
+      const [sx, sy] = toIso3D(z.wx, z.wy, z.wz, w, h);
+      if (Math.hypot(mx - sx, my - sy) < 42) {
+        found = z.id;
+      }
+    });
+    hoveredZoneId = found;
+    menuMapCanvas.style.cursor = found ? "pointer" : "grab";
+  });
+
+  window.addEventListener("mouseup", (e) => {
+    if (isMapDragging) {
+      isMapDragging = false;
+      if (!mapHasDragged && menuMapCanvas) {
+        const rect = menuMapCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const w = menuMapCanvas.width, h = menuMapCanvas.height;
+
+        let closest = null;
+        let minDist = 48;
+        MEKONG_ZONES_3D.forEach(z => {
+          const [sx, sy] = toIso3D(z.wx, z.wy, z.wz, w, h);
+          const dist = Math.hypot(mx - sx, my - sy);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = z.id;
+          }
+        });
+        if (closest) {
+          sfx.playBubble();
+          selectZoneOn3DMap(closest);
+        }
+      }
+    }
+  });
+}
+
+// Nút lia camera game ở popup bản đồ
+const btnPopupPan = document.getElementById("btn-popup-pan");
+if (btnPopupPan) {
+  btnPopupPan.addEventListener("click", () => {
+    cameraMode = selectedZoneId;
+    closeMainMenu();
+  });
+}
+
+// =========================================================================
+// HÀM VẼ BẢN ĐỒ THẾ GIỚI MỞ GÓC NHÌN TRÊN XUỐNG 3/4 ISOMETRIC
+// =========================================================================
+function draw3DMenuMap() {
+  if (!menuMapCanvas || !mmCtx) return;
+  const overlay = document.getElementById("main-menu-overlay");
+  if (!overlay || !overlay.classList.contains("visible")) return;
+
+  const w = menuMapCanvas.width;
+  const h = menuMapCanvas.height;
+  const tNow = performance.now() * 0.002;
+
+  // LERP Camera bản đồ mượt mà
+  mapCamX += (mapTargetCamX - mapCamX) * 0.09;
+  mapCamY += (mapTargetCamY - mapCamY) * 0.09;
+
+  mmCtx.clearRect(0, 0, w, h);
+
+  // 1. NỀN PHÙ SA & ĐẤT VÙNG NƯỚC NỔI (ISOMETRIC GROUND)
+  const bgGrad = mmCtx.createLinearGradient(0, 0, 0, h);
+  bgGrad.addColorStop(0, "#081E29");
+  bgGrad.addColorStop(0.5, "#0F2834");
+  bgGrad.addColorStop(1, "#07141D");
+  mmCtx.fillStyle = bgGrad;
+  mmCtx.fillRect(0, 0, w, h);
+
+  // Lưới ô đất phù sa 3/4 Isometric (Subtle 3D Grid)
+  mmCtx.save();
+  mmCtx.strokeStyle = "rgba(79, 195, 247, 0.06)";
+  mmCtx.lineWidth = 1;
+  for (let gx = -100; gx <= 1100; gx += 80) {
+    const [x1, y1] = toIso3D(gx, -100, 0, w, h);
+    const [x2, y2] = toIso3D(gx, 500, 0, w, h);
+    mmCtx.beginPath(); mmCtx.moveTo(x1, y1); mmCtx.lineTo(x2, y2); mmCtx.stroke();
+  }
+  for (let gy = -100; gy <= 500; gy += 60) {
+    const [x1, y1] = toIso3D(-100, gy, 0, w, h);
+    const [x2, y2] = toIso3D(1100, gy, 0, w, h);
+    mmCtx.beginPath(); mmCtx.moveTo(x1, y1); mmCtx.lineTo(x2, y2); mmCtx.stroke();
+  }
+  mmCtx.restore();
+
+  // 2. DÒNG SÔNG TIỀN MEKONG UỐN LƯỢN (3/4 ISOMETRIC WATERWAY)
+  mmCtx.save();
+  const riverCurve = [];
+  for (let rx = -150; rx <= 1150; rx += 40) {
+    const riverY = 160 + Math.sin(rx * 0.005 + 0.8) * 80 + Math.cos(rx * 0.01) * 30;
+    riverCurve.push({ x: rx, y: riverY });
+  }
+
+  // Bờ sông dưới (Độ dày thành đất phù sa 3D)
+  mmCtx.beginPath();
+  riverCurve.forEach((pt, idx) => {
+    const [sx, sy] = toIso3D(pt.x, pt.y + 70, 0, w, h);
+    if (idx === 0) mmCtx.moveTo(sx, sy + 14); else mmCtx.lineTo(sx, sy + 14);
+  });
+  for (let i = riverCurve.length - 1; i >= 0; i--) {
+    const pt = riverCurve[i];
+    const [sx, sy] = toIso3D(pt.x, pt.y + 70, 0, w, h);
+    mmCtx.lineTo(sx, sy);
+  }
+  mmCtx.fillStyle = "#3E2723"; // Thành đất phù sa sâu 3D
+  mmCtx.fill();
+
+  // Thảm cỏ bờ sông xanh mát
+  mmCtx.beginPath();
+  riverCurve.forEach((pt, idx) => {
+    const [sx, sy] = toIso3D(pt.x, pt.y + 70, 0, w, h);
+    if (idx === 0) mmCtx.moveTo(sx, sy); else mmCtx.lineTo(sx, sy);
+  });
+  const [bCornerX, bCornerY] = toIso3D(1150, 480, 0, w, h);
+  const [bCornerX0, bCornerY0] = toIso3D(-150, 480, 0, w, h);
+  mmCtx.lineTo(bCornerX, bCornerY); mmCtx.lineTo(bCornerX0, bCornerY0);
+  mmCtx.closePath();
+  mmCtx.fillStyle = "#1B3A26"; // Đất cỏ bờ sông
+  mmCtx.fill();
+
+  // Mặt nước dòng sông Mekong góc nhìn 3/4
+  mmCtx.beginPath();
+  riverCurve.forEach((pt, idx) => {
+    const [sx, sy] = toIso3D(pt.x, pt.y - 65, 0, w, h);
+    if (idx === 0) mmCtx.moveTo(sx, sy); else mmCtx.lineTo(sx, sy);
+  });
+  for (let i = riverCurve.length - 1; i >= 0; i--) {
+    const pt = riverCurve[i];
+    const [sx, sy] = toIso3D(pt.x, pt.y + 65, 0, w, h);
+    mmCtx.lineTo(sx, sy);
+  }
+  mmCtx.closePath();
+
+  // Nước sông phù sa xanh ngọc pha vàng nắng
+  const waterGrad = mmCtx.createLinearGradient(0, 0, w, h);
+  waterGrad.addColorStop(0, "#194D58");
+  waterGrad.addColorStop(0.5, "#225E6B");
+  waterGrad.addColorStop(1, "#123740");
+  mmCtx.fillStyle = waterGrad;
+  mmCtx.fill();
+  mmCtx.strokeStyle = "rgba(79, 195, 247, 0.4)"; mmCtx.lineWidth = 2; mmCtx.stroke();
+
+  // Gợn sóng 3/4 lấp lánh (Isometric Waves)
+  for (let i = 0; i < 28; i++) {
+    const waveWx = (i * 44 + tNow * 35) % 1200 - 100;
+    const waveWy = 160 + Math.sin(waveWx * 0.005 + 0.8) * 80 + Math.sin(i * 1.7) * 45;
+    const [wsx, wsy] = toIso3D(waveWx, waveWy, 0, w, h);
+    mmCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    mmCtx.lineWidth = 1.4;
+    mmCtx.beginPath();
+    mmCtx.ellipse(wsx, wsy, 16, 6, -0.2, 0, Math.PI * 2);
+    mmCtx.stroke();
+  }
+
+  // Đám Lục Bình hoa tím trôi dạt trên sông 3/4
+  for (let i = 0; i < 14; i++) {
+    const lbWx = (i * 88 + tNow * 18) % 1200 - 100;
+    const lbWy = 160 + Math.sin(lbWx * 0.005 + 0.8) * 80 + Math.cos(i * 2.3) * 38;
+    const [lbsx, lbsy] = toIso3D(lbWx, lbWy, 0, w, h);
+    mmCtx.fillStyle = "#43A047";
+    mmCtx.beginPath(); mmCtx.ellipse(lbsx, lbsy, 9, 4, 0.2, 0, Math.PI * 2); mmCtx.fill();
+    mmCtx.fillStyle = "#BA68C8";
+    mmCtx.beginPath(); mmCtx.arc(lbsx, lbsy - 2, 2.5, 0, Math.PI * 2); mmCtx.fill();
+  }
+  mmCtx.restore();
+
+  // Hàng dừa nước miền Tây ven bờ 3/4
+  const palmCoords = [
+    [80, 50], [170, 40], [280, 60], [420, 90], [580, 70], [740, 50], [900, 40],
+    [60, 260], [180, 270], [320, 310], [460, 340], [620, 310], [780, 250], [920, 230]
+  ];
+  palmCoords.forEach(([px, py]) => {
+    const [psx, psy] = toIso3D(px, py, 0, w, h);
+    mmCtx.save();
+    // Bóng dừa 3/4
+    mmCtx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    mmCtx.beginPath(); mmCtx.ellipse(psx + 6, psy + 2, 16, 6, -0.3, 0, Math.PI * 2); mmCtx.fill();
+    // Thân dừa nghiêng
+    mmCtx.strokeStyle = "#5D4037"; mmCtx.lineWidth = 3.5;
+    mmCtx.beginPath(); mmCtx.moveTo(psx, psy); mmCtx.quadraticCurveTo(psx + 8, psy - 16, psx + 12, psy - 32); mmCtx.stroke();
+    // Tán lá dừa xòe 3/4
+    mmCtx.fillStyle = "#2E7D32";
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 3) {
+      const lx = psx + 12 + Math.cos(angle + tNow * 0.4) * 16;
+      const ly = psy - 32 + Math.sin(angle + tNow * 0.4) * 9;
+      mmCtx.beginPath(); mmCtx.ellipse(lx, ly, 10, 4, angle, 0, Math.PI * 2); mmCtx.fill();
+    }
+    mmCtx.restore();
+  });
+
+  // 3. VẼ CÁC ĐỊA DANH MÔ HÌNH 3/4 ISOMETRIC (MEKONG LANDMARKS)
+  MEKONG_ZONES_3D.forEach((zone) => {
+    const [zx, zy] = toIso3D(zone.wx, zone.wy, zone.wz, w, h);
+    const isSelected = zone.id === selectedZoneId;
+    const isHovered = zone.id === hoveredZoneId;
+    const scale = isSelected ? 1.15 : (isHovered ? 1.08 : 1.0);
+
+    mmCtx.save();
+    mmCtx.translate(zx, zy);
+    mmCtx.scale(scale, scale);
+
+    // Vòng hào quang dưới chân địa danh
+    const glowR = isSelected ? 34 : (isHovered ? 28 : 22);
+    const glowAlpha = isSelected ? (0.35 + 0.15 * Math.sin(tNow * 5)) : (isHovered ? 0.3 : 0.15);
+    mmCtx.fillStyle = isSelected ? `rgba(243, 205, 88, ${glowAlpha})` : `rgba(79, 195, 247, ${glowAlpha})`;
+    mmCtx.beginPath();
+    mmCtx.ellipse(0, 8, glowR, glowR * 0.48, 0, 0, Math.PI * 2);
+    mmCtx.fill();
+
+    // VẼ CHI TIẾT ĐỊA DANH GÓC 3/4:
+    if (zone.id === "ben_lan") {
+      // Bến lặn: Cầu tàu gỗ 3D chìa ra sông & Ghe Út Sen
+      mmCtx.fillStyle = "#6D4C41";
+      mmCtx.beginPath(); // Cầu gỗ 3D
+      mmCtx.moveTo(-22, -6); mmCtx.lineTo(4, -18); mmCtx.lineTo(24, -8); mmCtx.lineTo(-2, 4); mmCtx.closePath();
+      mmCtx.fill();
+      mmCtx.strokeStyle = "#3E2723"; mmCtx.lineWidth = 1.5; mmCtx.stroke();
+      // Ghe Út Sen
+      mmCtx.fillStyle = "#8D6E63";
+      mmCtx.beginPath(); mmCtx.ellipse(14, 10, 18, 7, -0.2, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.fillStyle = "#BCAAA4";
+      mmCtx.beginPath(); mmCtx.arc(14, 6, 8, Math.PI, 0); mmCtx.fill(); // Mui ghe
+    }
+    else if (zone.id === "ghe_nghi") {
+      // Ghe nghỉ Út Sen nép bóng dừa
+      mmCtx.fillStyle = "#5D4037";
+      mmCtx.beginPath(); mmCtx.ellipse(0, 4, 18, 8, 0.3, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.fillStyle = "#4FC3F7"; // Mui ghe màu xanh
+      mmCtx.beginPath(); mmCtx.roundRect(-8, -6, 16, 10, [3]); mmCtx.fill();
+      // Chiếc võng dù đung đưa
+      const hammockSwing = Math.sin(tNow * 3) * 3;
+      mmCtx.strokeStyle = "#FFD54F"; mmCtx.lineWidth = 2;
+      mmCtx.beginPath(); mmCtx.moveTo(-10, -2); mmCtx.quadraticCurveTo(0, 4 + hammockSwing, 10, -2); mmCtx.stroke();
+    }
+    else if (zone.id === "bai_hoa") {
+      // Bãi hoa Điên Điển & Bông Súng
+      mmCtx.fillStyle = "#2E7D32";
+      mmCtx.beginPath(); mmCtx.ellipse(0, 6, 22, 10, 0, 0, Math.PI * 2); mmCtx.fill();
+      // Hoa vàng điên điển nở rộ
+      mmCtx.fillStyle = "#F3CD58";
+      for (let i = -3; i <= 3; i++) {
+        mmCtx.beginPath(); mmCtx.arc(i * 5, -2 + Math.sin(i * 2 + tNow * 3) * 3, 3.5, 0, Math.PI * 2); mmCtx.fill();
+      }
+      // Hoa súng tím
+      mmCtx.fillStyle = "#E91E63";
+      mmCtx.beginPath(); mmCtx.arc(-8, 6, 4.5, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.beginPath(); mmCtx.arc(10, 8, 4.5, 0, Math.PI * 2); mmCtx.fill();
+    }
+    else if (zone.id === "vung_sau") {
+      // Vực nước sâu & Thủy quái Năm Chèo
+      mmCtx.fillStyle = "#091D26";
+      mmCtx.beginPath(); mmCtx.ellipse(0, 6, 26, 12, 0, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.strokeStyle = "rgba(255, 23, 68, 0.6)"; mmCtx.lineWidth = 1.5; mmCtx.stroke();
+      // Vây lưng cá sấu Năm Chèo xẻ nước
+      const gatorWave = Math.sin(tNow * 4) * 4;
+      mmCtx.fillStyle = "#2E4224";
+      mmCtx.beginPath();
+      mmCtx.moveTo(-10 + gatorWave, 4); mmCtx.lineTo(0 + gatorWave, -10); mmCtx.lineTo(6 + gatorWave, 4); mmCtx.closePath();
+      mmCtx.fill();
+      mmCtx.strokeStyle = "#1B2E15"; mmCtx.lineWidth = 1; mmCtx.stroke();
+    }
+    else if (zone.id === "cho_chu_sau") {
+      // Chợ nổi Chú Sáu: 3 ghe ghép kề, cây bẹo tre & lồng đèn đỏ
+      mmCtx.fillStyle = "#795548";
+      mmCtx.beginPath(); mmCtx.ellipse(-10, 8, 14, 6, 0.1, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.beginPath(); mmCtx.ellipse(10, 6, 14, 6, -0.1, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.fillStyle = "#8D6E63";
+      mmCtx.beginPath(); mmCtx.ellipse(0, 12, 16, 7, 0, 0, Math.PI * 2); mmCtx.fill();
+      // Cây bẹo tre treo nông sản
+      mmCtx.strokeStyle = "#FFF8E1"; mmCtx.lineWidth = 2;
+      mmCtx.beginPath(); mmCtx.moveTo(0, 6); mmCtx.lineTo(0, -26); mmCtx.stroke();
+      mmCtx.fillStyle = "#4CAF50"; mmCtx.beginPath(); mmCtx.arc(0, -22, 4, 0, Math.PI * 2); mmCtx.fill(); // Dưa hấu
+      mmCtx.fillStyle = "#FF9800"; mmCtx.beginPath(); mmCtx.arc(0, -14, 4, 0, Math.PI * 2); mmCtx.fill(); // Khóm
+      // Lồng đèn đỏ
+      mmCtx.fillStyle = "#FF1744";
+      mmCtx.beginPath(); mmCtx.arc(-12, -2, 5, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.beginPath(); mmCtx.arc(12, -4, 5, 0, Math.PI * 2); mmCtx.fill();
+    }
+    else if (zone.id === "quan_an") {
+      // Quán ăn Má Tư: Nhà bè gỗ nổi 3D, mái lá dừa, 2 bếp than hồng
+      mmCtx.fillStyle = "#4E342E";
+      mmCtx.beginPath(); // Sàn bè 3D
+      mmCtx.moveTo(-24, 0); mmCtx.lineTo(0, -12); mmCtx.lineTo(24, 0); mmCtx.lineTo(0, 12); mmCtx.closePath();
+      mmCtx.fill();
+      mmCtx.strokeStyle = "#FFB300"; mmCtx.lineWidth = 2; mmCtx.stroke();
+      // Mái lá dừa
+      mmCtx.fillStyle = "#6D4C41";
+      mmCtx.beginPath();
+      mmCtx.moveTo(-20, -4); mmCtx.lineTo(0, -22); mmCtx.lineTo(20, -4); mmCtx.closePath();
+      mmCtx.fill();
+      // Bếp than hồng đỏ rực
+      mmCtx.fillStyle = "#FF3D00";
+      mmCtx.beginPath(); mmCtx.arc(-8, 0, 4, 0, Math.PI * 2); mmCtx.fill();
+      mmCtx.beginPath(); mmCtx.arc(8, 2, 4, 0, Math.PI * 2); mmCtx.fill();
+      // Khói bếp lam chiều bốc lên
+      mmCtx.fillStyle = "rgba(255, 255, 255, 0.4)";
+      const smokeH = (tNow * 20) % 24;
+      mmCtx.beginPath(); mmCtx.arc(-8 + Math.sin(tNow * 3) * 4, -12 - smokeH, 4 + smokeH * 0.3, 0, Math.PI * 2); mmCtx.fill();
+    }
+
+    // NHÃN TÊN ĐỊA DANH NỔI (3D BADGE)
+    const badgeY = -34;
+    mmCtx.font = isSelected ? "bold 13px system-ui" : "bold 11px system-ui";
+    const textW = mmCtx.measureText(`${zone.icon} ${zone.name}`).width;
+
+    // Khung nhãn
+    mmCtx.fillStyle = isSelected ? "rgba(243, 205, 88, 0.95)" : "rgba(8, 24, 34, 0.85)";
+    mmCtx.strokeStyle = isSelected ? "#FFF" : "rgba(79, 195, 247, 0.5)";
+    mmCtx.lineWidth = 1.2;
+    mmCtx.beginPath();
+    mmCtx.roundRect(-textW / 2 - 8, badgeY - 14, textW + 16, 22, [6]);
+    mmCtx.fill(); mmCtx.stroke();
+
+    // Chữ tên địa danh
+    mmCtx.fillStyle = isSelected ? "#06131C" : "#FFF";
+    mmCtx.textAlign = "center";
+    mmCtx.fillText(`${zone.icon} ${zone.name}`, 0, badgeY + 2);
+
+    // MŨI TÊN ĐỊNH VỊ PIN 3D (NẾU ĐANG CHỌN)
+    if (isSelected) {
+      const pinBounce = Math.sin(tNow * 6) * 4;
+      const pinY = badgeY - 20 + pinBounce;
+      mmCtx.fillStyle = "#FF1744";
+      mmCtx.beginPath();
+      mmCtx.moveTo(-6, pinY - 8);
+      mmCtx.lineTo(6, pinY - 8);
+      mmCtx.lineTo(0, pinY);
+      mmCtx.closePath();
+      mmCtx.fill();
+      mmCtx.beginPath(); mmCtx.arc(0, pinY - 10, 5, 0, Math.PI * 2); mmCtx.fill();
+    }
+
+    mmCtx.restore();
+  });
+}
+
+// Khởi tạo popup ban đầu với bến lặn
+updateZonePopup(MEKONG_ZONES_3D[0]);
+
+function init3DMenuMap() {
+  if (!menuMapCanvas) return;
+  const resizeMap = () => {
+    const parent = menuMapCanvas.parentElement;
+    if (parent) {
+      const pw = parent.clientWidth;
+      const ph = parent.clientHeight || 330;
+      if (menuMapCanvas.width !== pw || menuMapCanvas.height !== ph) {
+        menuMapCanvas.width = pw;
+        menuMapCanvas.height = ph;
+      }
+    }
+  };
+  resizeMap();
+  window.addEventListener("resize", resizeMap);
+}
+init3DMenuMap();
 
 async function switchModeAndPlay(mode) {
   try {
@@ -3062,6 +3779,10 @@ function frame() {
     document.getElementById("fps-display").textContent = `${frameCount} FPS`;
     frameCount = 0;
     fpsTimer = now;
+  }
+
+  if (typeof draw3DMenuMap === "function") {
+    draw3DMenuMap();
   }
 
   if (snap) {
