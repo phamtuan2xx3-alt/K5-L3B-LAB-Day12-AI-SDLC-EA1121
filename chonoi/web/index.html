@@ -1179,21 +1179,35 @@ let pendingShopDone = false;
 let pendingPause = false;
 
 function currentInput() {
-  const mode = snap ? snap.mode : "gather";
+  const phase = snap ? (snap.phase || snap.mode) : "gather";
   const dx = (down.has("r") ? 1 : 0) - (down.has("l") ? 1 : 0);
   let dy = (down.has("d") ? 1 : 0) - (down.has("u") ? 1 : 0);
-  if (mode === "quan") dy = -dy;
-  const inp = { move: [dx, dy], interact: down.has("interact"), catch: down.has("catch") };
+  if (phase === "quan") dy = -dy;
+  const inp = {
+    move: [dx, dy],
+    interact: down.has("interact"),
+    catch: down.has("catch"),
+    pause: false,
+    shop_done: false
+  };
   if (pendingPause) { inp.pause = true; pendingPause = false; }
   if (pendingShopDone) { inp.shop_done = true; pendingShopDone = false; }
   if (pendingBuy) { inp.buy = pendingBuy; pendingBuy = null; }
   return inp;
 }
 function pushInput() {
-  const s = JSON.stringify(currentInput());
-  if (s === lastSent && !pendingBuy && !pendingShopDone && !pendingPause) return;
+  const hasOneShot = Boolean(pendingBuy || pendingShopDone || pendingPause);
+  const inp = currentInput();
+  const s = JSON.stringify(inp);
+  if (s === lastSent && !hasOneShot) return;
   lastSent = s;
   queue.push(s);
+  if (inp.pause || inp.shop_done) {
+    // Nhả nút một-lần ngay bước kế tiếp để cạnh lên lần sau hoạt động bình thường
+    const release = JSON.stringify({ ...inp, pause: false, shop_done: false, buy: undefined });
+    lastSent = release;
+    queue.push(release);
+  }
   flush();
 }
 async function flush() {
@@ -1346,6 +1360,10 @@ function restartGame() {
   fetch("/restart", { method: "POST" });
   lastSent = "";
   down.clear();
+  prevEventsCount = 0;
+  prevHoldLength = 0;
+  snap = null;
+  floatingTexts.length = 0;
   document.getElementById("dive-log-modal").classList.remove("visible");
   document.getElementById("pause-modal").classList.remove("visible");
   document.getElementById("shop-modal").classList.remove("visible");
@@ -1434,12 +1452,15 @@ function handleNewEvents(newSnap) {
   const curHold = newSnap.hold || [];
   const curHoldLen = curHold.length;
 
+  if (evs.length < prevEventsCount) {
+    prevEventsCount = 0;
+  }
   if (evs.length > prevEventsCount) {
     const newOnes = evs.slice(prevEventsCount);
     for (const e of newOnes) {
       const p = newSnap.player ? newSnap.player.pos : [2, 0];
 
-      else if (e.name === "spoiled") {
+      if (e.name === "spoiled") {
         addFloatingText("⚠ Hàng ươn!", p[0], p[1] - 1.2, "#E57373");
       }
       else if (e.name === "gather") {
@@ -1469,7 +1490,9 @@ function handleNewEvents(newSnap) {
       }
       else if (e.name === "gather_end") {
         if (e.data.reason === "docked") sfx.playDock();
-        showDiveLog(e.data.reason, curHold);
+        if (newSnap.mode === "gather") {
+          showDiveLog(e.data.reason, curHold);
+        }
       }
       else if (e.name === "node_regrown") {
         // Subtle water blossom effect
@@ -1501,12 +1524,13 @@ function showDiveLog(reason, hold) {
 
   let cDienDien = 0, cSung = 0, cKeoNeo = 0, cCaLinh = 0, cCaLoc = 0, cCaKeo = 0;
   hold.forEach(item => {
-    if (item === "bong_dien_dien") cDienDien++;
-    else if (item === "bong_sung") cSung++;
-    else if (item === "keo_neo") cKeoNeo++;
-    else if (item === "ca_linh") cCaLinh++;
-    else if (item === "ca_loc") cCaLoc++;
-    else if (item === "ca_keo") cCaKeo++;
+    const kind = (typeof item === "object" && item !== null) ? item.kind : item;
+    if (kind === "bong_dien_dien") cDienDien++;
+    else if (kind === "bong_sung") cSung++;
+    else if (kind === "keo_neo") cKeoNeo++;
+    else if (kind === "ca_linh") cCaLinh++;
+    else if (kind === "ca_loc") cCaLoc++;
+    else if (kind === "ca_keo") cCaKeo++;
   });
 
   document.getElementById("count-dien-dien").textContent = cDienDien;
@@ -2154,11 +2178,13 @@ function updateHUDOverlay(p, meta) {
 
   // Day badge & Phase Modals
   const dayBadge = document.getElementById("day-badge");
-  if (snap.day !== undefined) {
-    dayBadge.style.display = "block";
-    dayBadge.textContent = `NGÀY ${snap.day} / 5`;
-  } else {
-    dayBadge.style.display = "none";
+  if (dayBadge) {
+    if (snap.day !== undefined) {
+      dayBadge.style.display = "block";
+      dayBadge.textContent = `NGÀY ${snap.day} / 5`;
+    } else {
+      dayBadge.style.display = "none";
+    }
   }
 
   const shopModal = document.getElementById("shop-modal");
@@ -2465,7 +2491,10 @@ function drawQuan(w, h) {
     ctx.fillStyle = "#FFF";
     ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
     ctx.fillText("Bếp " + st.id, sx(st.pos[0]), sy(st.pos[1]) + 4);
-    if (st.dish) ctx.fillText("🍲 " + st.dish, sx(st.pos[0]), sy(st.pos[1]) - 1.0 * s);
+    if (st.dish) {
+      const stDishName = typeof st.dish === "object" && st.dish !== null ? (st.dish.dish_id || "món") : st.dish;
+      ctx.fillText("🍲 " + stDishName, sx(st.pos[0]), sy(st.pos[1]) - 1.0 * s);
+    }
     if (isCooking && st.cook_ticks_left !== undefined) {
       ctx.fillStyle = "#FFEB3B";
       ctx.fillText(Math.ceil(st.cook_ticks_left / 60) + "s", sx(st.pos[0]), sy(st.pos[1]) + 1.3 * s);
@@ -2487,7 +2516,7 @@ function drawQuan(w, h) {
       ctx.fillStyle = c.state === "eating" ? "#66BB6A" : "#FFA726";
       ctx.beginPath(); ctx.arc(cx, cy, 0.65 * s, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = "#FFF"; ctx.font = "bold 11px system-ui";
-      ctx.fillText("👤 " + (c.dish || "?"), cx, cy - 0.8 * s);
+      ctx.fillText("👤 " + (c.dish_id || c.dish || "?"), cx, cy - 0.8 * s);
     }
   });
 
@@ -2499,8 +2528,9 @@ function drawQuan(w, h) {
     ctx.beginPath(); ctx.arc(px, py, 0.65 * s, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = "#FFF"; ctx.lineWidth = 2; ctx.stroke();
     if (snap.hand) {
+      const handDishName = typeof snap.hand === "object" && snap.hand !== null ? (snap.hand.dish_id || "món") : snap.hand;
       ctx.fillStyle = "#FFEB3B"; ctx.font = "bold 14px system-ui"; ctx.textAlign = "center";
-      ctx.fillText("🍲 " + snap.hand, px, py - 0.9 * s);
+      ctx.fillText("🍲 " + handDishName, px, py - 0.9 * s);
     }
   }
 
@@ -2541,7 +2571,8 @@ function frame() {
   }
 
   if (snap) {
-    if (snap.mode === "quan") {
+    const activePhase = snap.phase || snap.mode;
+    if (activePhase === "quan") {
       document.body.classList.add("mode-quan");
       const basket = document.getElementById("basket-panel");
       if (basket) basket.style.display = "none";
