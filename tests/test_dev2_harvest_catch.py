@@ -107,7 +107,7 @@ class TestCatchMechanics(unittest.TestCase):
 
     def test_catch_ca_linh_yield_3(self):
         """Bắt Cá Linh F1 [15, 5] dưới nước nhận 3 con vào giỏ, F1 bị xóa khỏi sông."""
-        scenario = {"player": {"pos": [15.0, 5.0]}}
+        scenario = {"player": {"pos": [15.0, 5.0]}, "fish": [{"id": "F1", "kind": "ca_linh", "pos": [15.0, 5.0]}]}
         s = Session("gather", self.tuning, scenario, seed=1)
         li = LiveInputs()
         li.set(catch=True)
@@ -126,7 +126,7 @@ class TestCatchMechanics(unittest.TestCase):
 
     def test_catch_ca_loc_yield_1(self):
         """Bắt Cá Lóc F2 [30, 10] dưới nước nhận 1 con vào giỏ, F2 bị xóa khỏi sông."""
-        scenario = {"player": {"pos": [30.0, 10.0]}}
+        scenario = {"player": {"pos": [30.0, 10.0]}, "fish": [{"id": "F2", "kind": "ca_loc", "pos": [30.0, 10.0]}]}
         s = Session("gather", self.tuning, scenario, seed=1)
         li = LiveInputs()
         li.set(catch=True)
@@ -199,23 +199,22 @@ class TestCatchMechanics(unittest.TestCase):
         self.assertEqual(snap["hold_count"], 12)
 
     def test_catch_partial_yield_fills_bag(self):
-        """Giỏ có 11 món: bắt Cá Linh (yield 3) chỉ nhận 1 con để đạt 12/12.
-        Chỉ phát fish_caught, KHÔNG phát hold_full. Cá F1 bị xóa."""
+        """Contract v1.1: Bắt cá cần đủ chỗ cho cả đàn.
+        Giỏ có 11 món (còn 1 chỗ), bắt Cá Linh (yield 3) -> không đủ chỗ, phát hold_full và cá không bị bắt."""
         near_full_hold = ["ca_loc"] * 11
-        scenario = {"player": {"pos": [15.0, 5.0]}, "hold": near_full_hold}
+        scenario = {"player": {"pos": [15.0, 5.0]}, "fish": [{"id": "F1", "kind": "ca_linh", "pos": [15.0, 5.0]}], "hold": near_full_hold}
         s = Session("gather", self.tuning, scenario, seed=1)
         li = LiveInputs()
         li.set(catch=True)
         evs = s.step(li.advance())
         
-        c_evs = [e for e in evs if e["name"] == "fish_caught"]
-        self.assertEqual(len(c_evs), 1)
-        self.assertEqual(len([e for e in evs if e["name"] == "hold_full"]), 0)
+        hf_evs = [e for e in evs if e["name"] == "hold_full"]
+        self.assertEqual(len(hf_evs), 1)
+        self.assertEqual(len([e for e in evs if e["name"] == "fish_caught"]), 0)
         
         snap = s.snapshot()
-        self.assertEqual(snap["hold_count"], 12)
-        self.assertEqual(snap["hold"][-1], "ca_linh")
-        self.assertFalse(any(f["id"] == "F1" for f in snap["fish"]))
+        self.assertEqual(snap["hold_count"], 11)
+        self.assertTrue(any(f["id"] == "F1" for f in snap["fish"]))
 
     def test_tie_breaking_natural_id_key(self):
         """Khi 2 con cá F2 và F10 ở cùng khoảng cách, ưu tiên bắt F2 theo chuẩn id_key."""
