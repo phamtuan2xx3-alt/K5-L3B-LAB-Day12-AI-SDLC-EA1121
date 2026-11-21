@@ -521,6 +521,109 @@
   .game-tagline {
     font-size: 14px; color: #81D4FA; margin-top: 6px;
   }
+
+  /* ========== THANH ĐIỀU HÀNH THỜI GIAN & CHỌN KHU VỰC NGAY TẠI MENU TRANG CHỦ ========== */
+  .menu-hub-control-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: linear-gradient(135deg, rgba(8, 28, 40, 0.95), rgba(4, 16, 26, 0.98));
+    border: 2px solid rgba(243, 205, 88, 0.5);
+    border-radius: 14px;
+    padding: 14px 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 6px rgba(255, 255, 255, 0.1);
+  }
+  .menu-celestial-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .menu-celestial-orb-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, rgba(0, 0, 0, 0.6) 100%);
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.8);
+  }
+  .menu-celestial-orb-wrapper .celestial-orb {
+    font-size: 28px;
+  }
+  .menu-celestial-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .menu-time-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 22px;
+    font-weight: 900;
+    color: #FFF;
+    font-family: 'Segoe UI', system-ui, monospace;
+    letter-spacing: 1px;
+  }
+  .menu-sub-text {
+    font-size: 11px;
+    color: #81D4FA;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .menu-area-selector-box {
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .menu-selector-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--color-yellow-dien-dien);
+    letter-spacing: 1px;
+  }
+  .menu-dropdown-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .large-menu-dropdown {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid rgba(79, 195, 247, 0.5) !important;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px !important;
+    color: #FFF !important;
+  }
+  .large-menu-dropdown option {
+    background: #0A192F;
+    color: #FFF;
+    font-size: 13px;
+    padding: 6px;
+  }
+  .inspect-area-btn {
+    background: linear-gradient(135deg, #4FC3F7, #0288D1);
+    color: #FFF;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .inspect-area-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(2, 136, 209, 0.5);
+  }
+
   .menu-modes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -607,6 +710,42 @@
       <div class="game-pre-title">🌾 MIỀN TÂY SÔNG NƯỚC · MEKONG EDITION 🌾</div>
       <h1 class="game-title">QUÁN ĂN CHỢ NỔI</h1>
       <div class="game-tagline">Lấy cảm hứng từ <em>Dave the Diver</em> · Lặn sông bắt cá ban ngày, mở quán ăn ghe ban đêm</div>
+    </div>
+
+    <!-- THANH ĐIỀU HÀNH THỜI GIAN & CHỌN KHU VỰC GÓC NHÌN NGAY TẠI TRANG CHỦ -->
+    <div class="menu-hub-control-bar">
+      <!-- Khối hiển thị Thời gian & Mặt Trời / Mặt Trăng -->
+      <div class="menu-celestial-box">
+        <div class="menu-celestial-orb-wrapper">
+          <span id="menu-celestial-orb" class="celestial-orb sun-glow">☀️</span>
+        </div>
+        <div class="menu-celestial-info">
+          <div class="menu-time-row">
+            <span id="menu-clock-time">08:30</span>
+            <span id="menu-clock-period" class="period-badge">SÁNG</span>
+          </div>
+          <div class="menu-sub-text" id="menu-day-sub">NGÀY 1 / 5 · 24H = 8 PHÚT (1S = 3 PHÚT)</div>
+        </div>
+      </div>
+
+      <!-- Khối Dropdown Di Chuyển Góc Nhìn Khu Vực -->
+      <div class="menu-area-selector-box">
+        <div class="menu-selector-label">
+          <span>📍 DI CHUYỂN GÓC NHÌN BẢN ĐỒ MEKONG:</span>
+        </div>
+        <div class="menu-dropdown-wrapper">
+          <select id="menu-camera-area-dropdown" class="styled-area-dropdown large-menu-dropdown" title="Chọn khu vực để di chuyển góc nhìn camera">
+            <option value="follow_player">👤 Theo chân Út Sen (Mặc định)</option>
+            <option value="ben_lan">⚓ Bến Lặn Sông Tiền (06:00 - 15:00)</option>
+            <option value="bai_hoa">🌼 Bãi Hoa Điên Điển & Bông Súng</option>
+            <option value="vung_sau">🐊 Vùng Sâu & Thủy Quái Năm Chèo (d = 20-28m)</option>
+            <option value="cho_chu_sau">🏮 Chợ Nổi Chú Sáu (15:00 - 22:00)</option>
+            <option value="quan_an">🍜 Quán Ăn Má Tư (18:00 - 23:00)</option>
+            <option value="ghe_nghi">🛏️ Ghe Nghỉ Út Sen (22:00 - 06:00)</option>
+          </select>
+          <button id="btn-menu-inspect-area" class="inspect-area-btn">👀 Quan Sát Góc Nhìn Này</button>
+        </div>
+      </div>
     </div>
 
     <div class="menu-modes-grid">
@@ -1078,6 +1217,8 @@ addEventListener("keydown", (e) => {
       cameraMode = "follow_player";
       const drop = document.getElementById("camera-area-dropdown");
       if (drop) drop.value = "follow_player";
+      const dropMenu = document.getElementById("menu-camera-area-dropdown");
+      if (dropMenu) dropMenu.value = "follow_player";
     }
     e.preventDefault();
   }
@@ -1103,6 +1244,8 @@ if (areaDropdown) {
   areaDropdown.addEventListener("change", (e) => {
     const val = e.target.value;
     cameraMode = val;
+    const dropMenu = document.getElementById("menu-camera-area-dropdown");
+    if (dropMenu) dropMenu.value = val;
     if (val === "quan_an") {
       if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
     } else if (val === "cho_chu_sau") {
@@ -1114,10 +1257,49 @@ if (areaDropdown) {
   });
 }
 
+const menuAreaDropdown = document.getElementById("menu-camera-area-dropdown");
+if (menuAreaDropdown) {
+  menuAreaDropdown.addEventListener("change", (e) => {
+    const val = e.target.value;
+    cameraMode = val;
+    const dropHud = document.getElementById("camera-area-dropdown");
+    if (dropHud) dropHud.value = val;
+    if (val === "quan_an") {
+      if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
+      else closeMainMenu();
+    } else if (val === "cho_chu_sau") {
+      closeMainMenu();
+      const shopModal = document.getElementById("shop-modal");
+      if (shopModal) shopModal.classList.add("visible");
+    } else if (val === "ben_lan") {
+      if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
+      else closeMainMenu();
+    } else {
+      closeMainMenu();
+    }
+  });
+}
+
+const btnMenuInspect = document.getElementById("btn-menu-inspect-area");
+if (btnMenuInspect) {
+  btnMenuInspect.addEventListener("click", () => {
+    const dropMenu = document.getElementById("menu-camera-area-dropdown");
+    const val = dropMenu ? dropMenu.value : "follow_player";
+    cameraMode = val;
+    const dropHud = document.getElementById("camera-area-dropdown");
+    if (dropHud) dropHud.value = val;
+    closeMainMenu();
+  });
+}
+
 function openMainMenu() {
+  const dropMenu = document.getElementById("menu-camera-area-dropdown");
+  if (dropMenu) dropMenu.value = cameraMode;
   document.getElementById("main-menu-overlay").classList.add("visible");
 }
 function closeMainMenu() {
+  const dropHud = document.getElementById("camera-area-dropdown");
+  if (dropHud) dropHud.value = cameraMode;
   document.getElementById("main-menu-overlay").classList.remove("visible");
 }
 function toggleMainMenu() {
@@ -2064,6 +2246,33 @@ function updateHUDOverlay(p, meta) {
     } else {
       orbEl.textContent = "🌙";
       orbEl.className = "celestial-orb moon-glow";
+    }
+  }
+
+  // Cập nhật Thiên thể & Thời gian ngay tại Menu Trang Chủ
+  const menuOrbEl = document.getElementById("menu-celestial-orb");
+  const menuClockTimeEl = document.getElementById("menu-clock-time");
+  const menuClockPeriodEl = document.getElementById("menu-clock-period");
+  const menuDaySubEl = document.getElementById("menu-day-sub");
+  if (menuClockTimeEl) menuClockTimeEl.textContent = clk.time_str;
+  if (menuClockPeriodEl) menuClockPeriodEl.textContent = periodLabel;
+  if (menuDaySubEl) {
+    const dayNum = snap.day !== undefined ? snap.day : 1;
+    menuDaySubEl.textContent = `NGÀY ${dayNum} / 5 · 24H = 8 PHÚT (1S = 3 PHÚT)`;
+  }
+  if (menuOrbEl) {
+    if (isMorning) {
+      menuOrbEl.textContent = "☀️";
+      menuOrbEl.className = "celestial-orb sun-glow";
+    } else if (isAfternoon) {
+      menuOrbEl.textContent = "🌅";
+      menuOrbEl.className = "celestial-orb sun-glow";
+    } else if (isEvening) {
+      menuOrbEl.textContent = "🏮";
+      menuOrbEl.className = "celestial-orb sun-glow";
+    } else {
+      menuOrbEl.textContent = "🌙";
+      menuOrbEl.className = "celestial-orb moon-glow";
     }
   }
 
