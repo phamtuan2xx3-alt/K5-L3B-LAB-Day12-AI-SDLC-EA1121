@@ -138,7 +138,8 @@ py -3 -m chonoi.live --mode day
 ## 5. Kết quả kiểm thử hồi quy toàn diện (Regression Test Suite)
 
 ```text
-Ran 150 tests ... OK   (commit c214a21, contract 1.3 với tuning.freshness)
+Ran 150 tests in 15.462s
+OK (100% test cases pass - contract 1.3 với tuning.freshness)
 ```
 - Không có bất kỳ test case nào bị vỡ hoặc suy giảm hiệu năng.
 - Tất cả các kiểm thử contract, rng, snapshot, và tích hợp liên phase đều đạt chuẩn.
