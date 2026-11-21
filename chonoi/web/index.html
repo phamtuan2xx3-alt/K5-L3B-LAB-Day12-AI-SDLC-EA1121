@@ -1012,12 +1012,8 @@
       <span class="dropdown-icon">📍</span>
       <select id="camera-area-dropdown" class="styled-area-dropdown" title="Chọn khu vực để di chuyển góc nhìn camera">
         <option value="follow_player">👤 Theo chân Út Sen (Mặc định)</option>
-        <option value="ben_lan">⚓ Bến Lặn Sông Tiền (06:00 - 15:00)</option>
-        <option value="bai_hoa">🌼 Bãi Hoa Điên Điển & Bông Súng</option>
-        <option value="vung_sau">🐊 Vùng Sâu & Cá Sấu (d = 20-28m)</option>
-        <option value="cho_chu_sau">🏮 Chợ Nổi Chú Sáu (15:00 - 22:00)</option>
-        <option value="quan_an">🍜 Quán Ăn Má Tư (18:00 - 23:00)</option>
-        <option value="ghe_nghi">🛏️ Ghe Nghỉ Út Sen (22:00 - 06:00)</option>
+        <option value="ben_lan">⚓ Bến Lặn Sông Tiền (Lặn & Săn Bắt - DEV 1 & 2)</option>
+        <option value="quan_an">🍜 Quán Ăn Chợ Nổi Má Tư (Quán Ăn & Bếp - DEV 3, 4 & 5)</option>
       </select>
     </div>
 
@@ -1137,7 +1133,7 @@
   </div>
   <div style="display: flex; gap: 8px;">
     <button id="btn-return-map" class="restart-btn" style="flex: 1.3; background: linear-gradient(135deg, #00E676, #00B0FF); color: #000; font-weight: bold;">🗺️ VỀ BẢN ĐỒ CHÍNH (MAP 3/4) ➡️</button>
-    <button id="btn-goto-prep" class="restart-btn" style="flex: 1; background: linear-gradient(135deg, #4FC3F7, #0288D1); color: #FFF;">🏮 GHÉ CHỢ CHÚ SÁU ➡️</button>
+    <button id="btn-goto-quan" class="restart-btn" style="flex: 1; background: linear-gradient(135deg, #FFB300, #FF6F00); color: #000; font-weight: bold;">🍜 MỞ QUÁN ĂN MÁ TƯ ➡️</button>
     <button id="btn-restart" class="tier-btn" style="padding: 10px 14px; font-size: 13px;">Chơi lại (R)</button>
   </div>
 </div>
@@ -1186,46 +1182,28 @@
   <div style="text-align: center; font-size: 13px; color: var(--color-yellow-dien-dien); margin-bottom: 2px;">
     <span id="hub-clock-sub">⏰ 08:30 SÁNG · 1 Ngày in-game 24H = 8 Phút Đời Thực</span>
   </div>
-  <div class="hub-zones-grid">
+  <div class="hub-zones-grid" style="grid-template-columns: 1fr 1fr;">
     <div class="zone-card zone-open" id="card-ben-lan">
       <div class="zone-icon">⚓</div>
       <div class="zone-info">
         <div class="zone-name">Bến Lặn Sông Tiền</div>
-        <div class="zone-hours">Mở cửa: 06:00 - 15:00</div>
-        <div class="zone-desc">Lặn bắt cá Linh/Lóc/Kèo, hái Bông Điên Điển & Bông Súng</div>
+        <div class="zone-hours">Mở cửa: 06:00 - 15:00 (Ban Ngày)</div>
+        <div class="zone-desc">Lặn bắt cá Linh/Lóc/Kèo, hái Bông Điên Điển & Bông Súng (DEV 1 & DEV 2)</div>
         <span class="zone-badge badge-open" id="badge-ben-lan">🟢 ĐANG MỞ CỬA</span>
-      </div>
-    </div>
-    <div class="zone-card zone-closed" id="card-cho-chu-sau">
-      <div class="zone-icon">🏮</div>
-      <div class="zone-info">
-        <div class="zone-name">Chợ Nổi Chú Sáu & Chuẩn Bị</div>
-        <div class="zone-hours">Mở cửa: 15:00 - 22:00</div>
-        <div class="zone-desc">Bán nông sản dôi dư, mua nguyên liệu thiếu, sắm bình oxy & áo phao</div>
-        <span class="zone-badge badge-closed" id="badge-cho-chu-sau">⏳ CHƯA MỞ</span>
       </div>
     </div>
     <div class="zone-card zone-closed" id="card-quan-an">
       <div class="zone-icon">🍜</div>
       <div class="zone-info">
         <div class="zone-name">Quán Ăn Chợ Nổi Má Tư</div>
-        <div class="zone-hours">Mở cửa: 18:00 - 23:00</div>
-        <div class="zone-desc">Quán lên đèn đón khách ghe, phục vụ 6 món ăn đặc sản miền Tây</div>
+        <div class="zone-hours">Mở cửa: 18:00 - 23:00 (Ban Đêm)</div>
+        <div class="zone-desc">Quán lên đèn đón khách ghe, phục vụ các món ăn đặc sản miền Tây (DEV 3, 4 & 5)</div>
         <span class="zone-badge badge-closed" id="badge-quan-an">⏳ CHƯA MỞ</span>
       </div>
     </div>
-    <div class="zone-card zone-closed" id="card-ghe-nghi">
-      <div class="zone-icon">🛏️</div>
-      <div class="zone-info">
-        <div class="zone-name">Ghe Nghỉ Út Sen</div>
-        <div class="zone-hours">Mở cửa: 22:00 - 06:00</div>
-        <div class="zone-desc">Về ghe nghỉ ngơi, hồi phục thể lực và ngủ sang ngày tiếp theo</div>
-        <span class="zone-badge badge-closed" id="badge-ghe-nghi">💤 CHƯA ĐẾN GIỜ NGỦ</span>
-      </div>
-    </div>
   </div>
-  <div style="font-size: 12px; color: #81D4FA; text-align: center; margin-top: 4px;">
-    🔁 Vòng lặp: Lặn bắt xong (06:00-15:00) ➔ Chuẩn bị đồ & Chợ Chú Sáu (15:00-18:00) ➔ Mở quán (18:00-23:00) ➔ Ngủ (23:00-06:00)
+  <div style="font-size: 12px; color: #81D4FA; text-align: center; margin-top: 6px;">
+    🔁 Vòng lặp Gameplay: Ban Ngày Lặn bắt nguyên liệu (06:00 - 15:00) ➔ Ban Đêm Mở Quán Ăn phục vụ khách (18:00 - 23:00)
   </div>
   <button id="btn-close-hub" class="restart-btn" style="margin-top: 6px;">ĐÓNG BẢN ĐỒ (PHÍM M)</button>
 </div>
@@ -1542,13 +1520,8 @@ if (areaDropdown) {
   areaDropdown.addEventListener("change", (e) => {
     const val = e.target.value;
     cameraMode = val;
-    const dropMenu = document.getElementById("menu-camera-area-dropdown");
-    if (dropMenu) dropMenu.value = val;
     if (val === "quan_an") {
       if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
-    } else if (val === "cho_chu_sau") {
-      const shopModal = document.getElementById("shop-modal");
-      if (shopModal) shopModal.classList.add("visible");
     } else if (val === "ben_lan") {
       if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
     }
@@ -1565,10 +1538,6 @@ if (menuAreaDropdown) {
     if (val === "quan_an") {
       if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
       else closeMainMenu();
-    } else if (val === "cho_chu_sau") {
-      closeMainMenu();
-      const shopModal = document.getElementById("shop-modal");
-      if (shopModal) shopModal.classList.add("visible");
     } else if (val === "ben_lan") {
       if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
       else closeMainMenu();
@@ -1622,78 +1591,34 @@ const MEKONG_ZONES_3D = [
     name: "Bến Lặn Sông Tiền",
     icon: "⚓",
     hours: "06:00 - 15:00",
-    desc: "Bến ghe mui lá dừa của Út Sen. Xuất phát lặn sông bắt Cá Linh, Cá Lóc, Cá Kèo và hái hoa về bến xuất kho.",
+    desc: "Bến ghe mui lá dừa của Út Sen. Xuất phát lặn sông bắt Cá Linh, Cá Lóc, Cá Kèo và hái hoa về bến xuất kho (DEV 1 & DEV 2).",
     mode: "gather",
     btnText: "VÀO LẶN NGAY 🌊",
-    wx: 130, wy: 150, wz: 0,
+    wx: 220, wy: 150, wz: 0,
     color: "#4FC3F7"
-  },
-  {
-    id: "ghe_nghi",
-    name: "Ghe Nghỉ Út Sen",
-    icon: "🛏️",
-    hours: "22:00 - 06:00",
-    desc: "Ghe ba lá yên bình nép dưới bóng dừa nước. Mắc võng dù ngả lưng nghe sóng vỗ, hồi 100% sinh lực đón bình minh.",
-    mode: "day",
-    btnText: "VỀ GHE NGHỈ 🛏️",
-    wx: 230, wy: 80, wz: 4,
-    color: "#B0BEC5"
-  },
-  {
-    id: "bai_hoa",
-    name: "Bãi Hoa Điên Điển & Bông Súng",
-    icon: "🌼",
-    hours: "Mặt nước phù sa",
-    desc: "Cù lao ngập nước nở vàng rực Bông Điên Điển và đầm Bông Súng tím ngát hương miền Tây mùa nước nổi.",
-    mode: "gather",
-    btnText: "HÁI HOA & BẮT CÁ 🌼",
-    wx: 360, wy: 210, wz: 0,
-    color: "#F3CD58"
-  },
-  {
-    id: "vung_sau",
-    name: "Vực Nước Sâu & Đầm Năm Chèo",
-    icon: "🐊",
-    hours: "Độ sâu d = 20 - 28m",
-    desc: "Vực xoáy nước sâu thẳm áp suất cao, nơi ẩn náu của Thủy Quái Cá Sấu Năm Chèo huyền thoại!",
-    mode: "gather",
-    btnText: "THÁM HIỂM VỰC SÂU 🐊",
-    wx: 520, wy: 270, wz: -10,
-    color: "#FF1744"
-  },
-  {
-    id: "cho_chu_sau",
-    name: "Chợ Nổi Chú Sáu",
-    icon: "🏮",
-    hours: "15:00 - 22:00",
-    desc: "Chợ nổi sầm uất, cây bẹo treo nông sản, lồng đèn đỏ rực. Mua nâng cấp bình oxy 60s và áo phao thêm máu.",
-    mode: "shop",
-    btnText: "GHÉ CHỢ SẮM ĐỒ 🏮",
-    wx: 680, wy: 170, wz: 2,
-    color: "#FF9800"
   },
   {
     id: "quan_an",
     name: "Quán Ăn Chợ Nổi Má Tư",
     icon: "🍜",
     hours: "18:00 - 23:00",
-    desc: "Nhà bè nổi lên đèn đón khách ghe cập mạn. Nấu 2 bếp than hồng, phục vụ 6 món đặc sản miền Tây.",
+    desc: "Nhà bè nổi lên đèn đón khách ghe cập mạn. Nấu 2 bếp than hồng, phục vụ các món đặc sản miền Tây (DEV 3, DEV 4 & DEV 5).",
     mode: "quan",
     btnText: "MỞ QUÁN NGAY 🍜",
-    wx: 820, wy: 110, wz: 6,
+    wx: 750, wy: 120, wz: 6,
     color: "#FFD54F"
   }
 ];
 
 let selectedZoneId = "ben_lan";
 let hoveredZoneId = null;
-let mapCamX = 130;
+let mapCamX = 220;
 let mapCamY = 150;
-let mapTargetCamX = 130;
+let mapTargetCamX = 220;
 let mapTargetCamY = 150;
 let isMapDragging = false;
 let dragStartX = 0, dragStartY = 0;
-let mapCamStartX = 130, mapCamStartY = 150;
+let mapCamStartX = 220, mapCamStartY = 150;
 let mapHasDragged = false;
 
 // Chuyển đổi tọa độ bản đồ sang góc nhìn 3/4 Isometric (Tilted Top-Down 3/4)
@@ -1759,12 +1684,8 @@ function updateZonePopup(zone) {
   let openText = "🟢 ĐANG MỞ CỬA";
   if (zone.id === "ben_lan" && (clkH < 6 || clkH >= 15)) {
     isOpen = false; openText = "⏳ ĐÃ ĐÓNG CA LẶN (06:00-15:00)";
-  } else if (zone.id === "cho_chu_sau" && (clkH < 15 || clkH >= 22)) {
-    isOpen = false; openText = "⏳ CHỢ CHƯA MỞ (15:00-22:00)";
   } else if (zone.id === "quan_an" && (clkH < 18 || clkH >= 23)) {
     isOpen = false; openText = "⏳ QUÁN CHƯA MỞ (18:00-23:00)";
-  } else if (zone.id === "ghe_nghi" && (clkH >= 6 && clkH < 22)) {
-    isOpen = false; openText = "💤 CHƯA ĐẾN GIỜ NGỦ (22:00-06:00)";
   }
 
   if (badgeEl) {
@@ -2050,61 +1971,6 @@ function draw3DMenuMap() {
       mmCtx.fillStyle = "#BCAAA4";
       mmCtx.beginPath(); mmCtx.arc(14, 6, 8, Math.PI, 0); mmCtx.fill(); // Mui ghe
     }
-    else if (zone.id === "ghe_nghi") {
-      // Ghe nghỉ Út Sen nép bóng dừa
-      mmCtx.fillStyle = "#5D4037";
-      mmCtx.beginPath(); mmCtx.ellipse(0, 4, 18, 8, 0.3, 0, Math.PI * 2); mmCtx.fill();
-      mmCtx.fillStyle = "#4FC3F7"; // Mui ghe màu xanh
-      mmCtx.beginPath(); mmCtx.roundRect(-8, -6, 16, 10, [3]); mmCtx.fill();
-      // Chiếc võng dù đung đưa
-      const hammockSwing = Math.sin(tNow * 3) * 3;
-      mmCtx.strokeStyle = "#FFD54F"; mmCtx.lineWidth = 2;
-      mmCtx.beginPath(); mmCtx.moveTo(-10, -2); mmCtx.quadraticCurveTo(0, 4 + hammockSwing, 10, -2); mmCtx.stroke();
-    }
-    else if (zone.id === "bai_hoa") {
-      // Bãi hoa Điên Điển & Bông Súng
-      mmCtx.fillStyle = "#2E7D32";
-      mmCtx.beginPath(); mmCtx.ellipse(0, 6, 22, 10, 0, 0, Math.PI * 2); mmCtx.fill();
-      // Hoa vàng điên điển nở rộ
-      mmCtx.fillStyle = "#F3CD58";
-      for (let i = -3; i <= 3; i++) {
-        mmCtx.beginPath(); mmCtx.arc(i * 5, -2 + Math.sin(i * 2 + tNow * 3) * 3, 3.5, 0, Math.PI * 2); mmCtx.fill();
-      }
-      // Hoa súng tím
-      mmCtx.fillStyle = "#E91E63";
-      mmCtx.beginPath(); mmCtx.arc(-8, 6, 4.5, 0, Math.PI * 2); mmCtx.fill();
-      mmCtx.beginPath(); mmCtx.arc(10, 8, 4.5, 0, Math.PI * 2); mmCtx.fill();
-    }
-    else if (zone.id === "vung_sau") {
-      // Vực nước sâu & Thủy quái Năm Chèo
-      mmCtx.fillStyle = "#091D26";
-      mmCtx.beginPath(); mmCtx.ellipse(0, 6, 26, 12, 0, 0, Math.PI * 2); mmCtx.fill();
-      mmCtx.strokeStyle = "rgba(255, 23, 68, 0.6)"; mmCtx.lineWidth = 1.5; mmCtx.stroke();
-      // Vây lưng cá sấu Năm Chèo xẻ nước
-      const gatorWave = Math.sin(tNow * 4) * 4;
-      mmCtx.fillStyle = "#2E4224";
-      mmCtx.beginPath();
-      mmCtx.moveTo(-10 + gatorWave, 4); mmCtx.lineTo(0 + gatorWave, -10); mmCtx.lineTo(6 + gatorWave, 4); mmCtx.closePath();
-      mmCtx.fill();
-      mmCtx.strokeStyle = "#1B2E15"; mmCtx.lineWidth = 1; mmCtx.stroke();
-    }
-    else if (zone.id === "cho_chu_sau") {
-      // Chợ nổi Chú Sáu: 3 ghe ghép kề, cây bẹo tre & lồng đèn đỏ
-      mmCtx.fillStyle = "#795548";
-      mmCtx.beginPath(); mmCtx.ellipse(-10, 8, 14, 6, 0.1, 0, Math.PI * 2); mmCtx.fill();
-      mmCtx.beginPath(); mmCtx.ellipse(10, 6, 14, 6, -0.1, 0, Math.PI * 2); mmCtx.fill();
-      mmCtx.fillStyle = "#8D6E63";
-      mmCtx.beginPath(); mmCtx.ellipse(0, 12, 16, 7, 0, 0, Math.PI * 2); mmCtx.fill();
-      // Cây bẹo tre treo nông sản
-      mmCtx.strokeStyle = "#FFF8E1"; mmCtx.lineWidth = 2;
-      mmCtx.beginPath(); mmCtx.moveTo(0, 6); mmCtx.lineTo(0, -26); mmCtx.stroke();
-      mmCtx.fillStyle = "#4CAF50"; mmCtx.beginPath(); mmCtx.arc(0, -22, 4, 0, Math.PI * 2); mmCtx.fill(); // Dưa hấu
-      mmCtx.fillStyle = "#FF9800"; mmCtx.beginPath(); mmCtx.arc(0, -14, 4, 0, Math.PI * 2); mmCtx.fill(); // Khóm
-      // Lồng đèn đỏ
-      mmCtx.fillStyle = "#FF1744";
-      mmCtx.beginPath(); mmCtx.arc(-12, -2, 5, 0, Math.PI * 2); mmCtx.fill();
-      mmCtx.beginPath(); mmCtx.arc(12, -4, 5, 0, Math.PI * 2); mmCtx.fill();
-    }
     else if (zone.id === "quan_an") {
       // Quán ăn Má Tư: Nhà bè gỗ nổi 3D, mái lá dừa, 2 bếp than hồng
       mmCtx.fillStyle = "#4E342E";
@@ -2340,19 +2206,13 @@ if (actionHarvestEl) {
   });
 }
 
-document.getElementById("btn-goto-prep").addEventListener("click", async () => {
-  document.getElementById("dive-log-modal").classList.remove("visible");
-  try {
-    await fetch("/next_phase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phase: "prep" })
-    });
-  } catch (e) {
-    console.warn("Lỗi next phase prep:", e);
-  }
-  document.getElementById("shop-modal").classList.add("visible");
-});
+const btnGotoQuan = document.getElementById("btn-goto-quan") || document.getElementById("btn-goto-prep");
+if (btnGotoQuan) {
+  btnGotoQuan.addEventListener("click", async () => {
+    document.getElementById("dive-log-modal").classList.remove("visible");
+    switchModeAndPlay("quan");
+  });
+}
 document.getElementById("btn-sleep-wakeup").addEventListener("click", async () => {
   document.getElementById("sleep-modal").classList.remove("visible");
   try {
@@ -2581,11 +2441,7 @@ function drawGather(w, h) {
   let targetX = p.pos[0];
   let targetY = p.pos[1];
   if (cameraMode === "ben_lan") { targetX = 2; targetY = 0; }
-  else if (cameraMode === "bai_hoa") { targetX = 22; targetY = 0; }
-  else if (cameraMode === "vung_sau") { targetX = 62; targetY = 22; }
-  else if (cameraMode === "cho_chu_sau") { targetX = 85; targetY = 0; }
   else if (cameraMode === "quan_an") { targetX = 94; targetY = 0; }
-  else if (cameraMode === "ghe_nghi") { targetX = 6; targetY = 0; }
 
   cam.x += (targetX - cam.x) * 0.08;
   cam.y += (targetY - cam.y) * 0.08;
@@ -2702,71 +2558,6 @@ function drawGather(w, h) {
   ctx.setLineDash([8, 6]);
   ctx.beginPath(); ctx.arc(dockX, dockY, dockRadius, 0, Math.PI * 2); ctx.stroke();
   ctx.setLineDash([]);
-
-  // 4b. CÁC ĐỊA DANH KHU VỰC THẾ GIỚI MỞ MEKONG (PHASE 3 LANDMARKS)
-  // [A] GHE NGHỈ ÚT SEN (X=6, D=0)
-  const bedX = sx(6);
-  ctx.save();
-  ctx.translate(bedX, surfY - 4);
-  ctx.fillStyle = "#5D4037";
-  ctx.beginPath();
-  ctx.moveTo(-S * 1.2, 0); ctx.lineTo(S * 1.2, 0); ctx.lineTo(S * 0.9, S * 0.35); ctx.lineTo(-S * 0.9, S * 0.35); ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "#4FC3F7"; ctx.fillRect(-S * 0.4, -S * 0.3, S * 0.8, S * 0.3); // Mui ghe nghỉ
-  ctx.fillStyle = "#FFF"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
-  ctx.fillText("🛏️ Ghe Nghỉ Út Sen", 0, -S * 0.45);
-  ctx.restore();
-
-  // [B] BIỂN CHỈ DẪN BÃI HOA ĐIÊN ĐIỂN (X=22, D=0)
-  const flowerZoneX = sx(22);
-  ctx.save();
-  ctx.translate(flowerZoneX, surfY - 8);
-  ctx.fillStyle = "rgba(243, 205, 88, 0.9)";
-  ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
-  ctx.fillText("🌼 BÃI HOA ĐIÊN ĐIỂN & SÚNG", 0, -S * 0.4);
-  ctx.restore();
-
-  // [C] VỰC NƯỚC SÂU & THỦY QUÁI CÁ SẤU (X=62, D=22)
-  const abyssX = sx(62), abyssY = sy(22);
-  ctx.save();
-  ctx.translate(abyssX, abyssY);
-  ctx.fillStyle = "rgba(255, 23, 68, 0.15)";
-  ctx.beginPath(); ctx.arc(0, 0, S * 3.5, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#FF5252"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
-  ctx.fillText("⚠️ VỰC SÂU NĂM CHÈO (d > 20m)", 0, -S * 0.6);
-  ctx.restore();
-
-  // [D] CHỢ NỔI CHÚ SÁU — BÉO HÀNG & LỒNG ĐÈN (X=85, D=0)
-  const shopZoneX = sx(85);
-  ctx.save();
-  ctx.translate(shopZoneX, surfY - 6);
-  ctx.fillStyle = "#8D6E63";
-  ctx.beginPath();
-  ctx.moveTo(-S * 2.2, 0); ctx.quadraticCurveTo(0, S * 0.6, S * 2.2, 0);
-  ctx.lineTo(S * 1.8, -S * 0.25); ctx.lineTo(-S * 1.8, -S * 0.25); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = "#4E342E"; ctx.lineWidth = 2; ctx.stroke();
-  // Cây bẹo treo nông sản
-  ctx.strokeStyle = "#D7CCC8"; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(-S * 1.2, 0); ctx.lineTo(-S * 1.2, -S * 1.8); ctx.stroke();
-  ctx.fillStyle = "#FF9800"; ctx.beginPath(); ctx.arc(-S * 1.2, -S * 1.6, 6, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#4CAF50"; ctx.beginPath(); ctx.arc(-S * 1.2, -S * 1.2, 7, 0, Math.PI * 2); ctx.fill();
-  // Lồng đèn đỏ
-  ctx.fillStyle = "#FF1744"; ctx.beginPath(); ctx.arc(S * 1.2, -S * 0.8, 8, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#F3CD58"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
-  ctx.fillText("🏮 CHỢ NỔI CHÚ SÁU", 0, -S * 0.8);
-  ctx.fillStyle = "#81D4FA"; ctx.font = "10px system-ui";
-  ctx.fillText("(Nâng cấp & Chuẩn bị 15:00-22:00)", 0, -S * 0.45);
-  ctx.restore();
-
-  // [E] QUÁN ĂN MÁ TƯ (X=94, D=0)
-  const quanZoneX = sx(94);
-  ctx.save();
-  ctx.translate(quanZoneX, surfY - 8);
-  ctx.fillStyle = "#4E342E";
-  ctx.fillRect(-S * 2.0, -S * 0.3, S * 4.0, S * 0.6);
-  ctx.fillStyle = "#FFD54F"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
-  ctx.fillText("🍜 QUÁN ĂN MÁ TƯ (MỞ 18:00)", 0, -S * 0.8);
-  ctx.restore();
 
   // 5. CÁC BỤI HOA (BÔNG ĐIÊN ĐIỂN & BÔNG SÚNG)
   (snap.nodes || []).forEach((n) => {
@@ -3315,35 +3106,30 @@ function updateHUDOverlay(p, meta) {
   const areaTag = document.getElementById("clock-area-tag");
   let activeAreaName = "Bến Lặn Sông Tiền";
   let activeAreaColor = "var(--color-accent-green)";
-  if (snap.phase === "quan" || (h >= 18 && h < 23)) {
-    activeAreaName = "Quán Ăn Má Tư (Mở)";
+  if (snap.mode === "quan" || (h >= 18 && h < 23)) {
+    activeAreaName = "Quán Ăn Má Tư (Mở Cửa)";
     activeAreaColor = "var(--color-yellow-dien-dien)";
-  } else if (snap.phase === "shop" || (h >= 15 && h < 18)) {
-    activeAreaName = "Chợ Chú Sáu (Chuẩn bị)";
-    activeAreaColor = "var(--color-accent-blue)";
-  } else if (isNight) {
-    activeAreaName = "Ghe Nghỉ Út Sen (Ngủ)";
-    activeAreaColor = "#B0BEC5";
   } else {
-    activeAreaName = "Bến Lặn Sông Tiền (Mở)";
+    activeAreaName = "Bến Lặn Sông Tiền (Ca Lặn)";
     activeAreaColor = "var(--color-accent-green)";
   }
-  areaTag.textContent = `🟢 ${activeAreaName}`;
-  areaTag.style.borderColor = activeAreaColor;
-  areaTag.style.color = activeAreaColor;
+  if (areaTag) {
+    areaTag.textContent = `🟢 ${activeAreaName}`;
+    areaTag.style.borderColor = activeAreaColor;
+    areaTag.style.color = activeAreaColor;
+  }
 
   // Cập nhật trạng thái trong Modal Bản Đồ Hub
-  document.getElementById("hub-clock-sub").textContent = `⏰ ${clk.time_str} ${periodLabel} · 1 Ngày in-game 24H = 8 Phút Đời Thực`;
+  const hubClockSub = document.getElementById("hub-clock-sub");
+  if (hubClockSub) {
+    hubClockSub.textContent = `⏰ ${clk.time_str} ${periodLabel} · 1 Ngày in-game 24H = 8 Phút Đời Thực`;
+  }
 
   const isBenLanOpen = h >= 6 && h < 15;
-  const isChoOpen = h >= 15 && h < 22;
   const isQuanOpen = h >= 18 && h < 23;
-  const isGheNghiOpen = h >= 22 || h < 6;
 
   updateZoneCard("ben-lan", isBenLanOpen, "🟢 ĐANG MỞ CỬA", "⛔ ĐÓNG: Nước xiết");
-  updateZoneCard("cho-chu-sau", isChoOpen, "🟢 ĐANG MỞ CỬA", "⏳ CHƯA ĐẾN GIỜ");
   updateZoneCard("quan-an", isQuanOpen, "🟢 ĐANG MỞ CỬA", "⏳ CHƯA MỞ QUÁN");
-  updateZoneCard("ghe-nghi", isGheNghiOpen, "💤 GIỜ ĐI NGỦ", "⛔ CHƯA ĐẾN GIỜ");
 
   const curZone = MEKONG_ZONES_3D.find(z => z.id === selectedZoneId) || MEKONG_ZONES_3D[0];
   updateZonePopup(curZone);
