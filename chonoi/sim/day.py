@@ -4,6 +4,8 @@ Vòng lặp:
   DayIntro -> gather -> EveningIntro -> quan -> DayResult -> Shop -> Ngày kế tiếp (tối đa 5 ngày).
 """
 
+from ..contract import normalize_day_plan
+from ..errors import BadInput
 from ..ids import IdAllocator
 from ..rng import Streams
 from .gather import GatherSim
@@ -71,7 +73,14 @@ class DaySim:
         self.active_upgrades = dict(self.upgrades)
 
         # Kế hoạch ngày
-        self.day_plans = PRESET_DAY_PLANS
+        self.day_plans = {plan["day"]: plan for plan in tuning.get("day_plan", PRESET_DAY_PLANS)}
+        overrides = set()
+        for raw in day_scen.get("day_plan", []):
+            plan = normalize_day_plan(raw, tuning["menu"])
+            if plan["day"] in overrides:
+                raise BadInput("day.day_plan có Ngày trùng")
+            overrides.add(plan["day"])
+            self.day_plans[plan["day"]] = plan
         self.current_plan = self._get_plan(self.current_day)
 
         self.phase = "gather"
@@ -88,12 +97,11 @@ class DaySim:
 
     def _get_plan(self, day_num):
         # TICKET-04 soak: kế hoạch D1–D5 lặp ở Ngày 6–10 (Ngày n dùng D((n-1) % 5 + 1)).
-        cycle = len(self.day_plans)
+        if day_num in self.day_plans:
+            return self.day_plans[day_num]
+        cycle = max(self.day_plans.keys()) if self.day_plans else 5
         want = (day_num - 1) % cycle + 1 if cycle else day_num
-        for p in self.day_plans:
-            if p["day"] == want:
-                return p
-        return self.day_plans[0]
+        return self.day_plans.get(want, next(iter(self.day_plans.values())))
 
     def _init_current_day(self):
         """Khởi tạo buổi sáng của ngày hiện tại với các nâng cấp active."""

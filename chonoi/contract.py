@@ -119,6 +119,28 @@ def _validate_gather(g, version="1.0"):
                 raise BadInput(f"tuning.gather.fish_initial.{f['id']}: đàn cá phải ở dưới nước")
 
 
+def normalize_day_plan(plan, menu, *, require_ingredients=False):
+    """Chuẩn hóa một kế hoạch và tính mục tiêu từ công thức nhân số suất."""
+    if not isinstance(plan, dict):
+        raise BadInput("mục day_plan phải là object")
+    day, dishes = plan.get("day"), plan.get("dishes")
+    _int_between("day_plan.day", day, 1, 5)
+    if not isinstance(dishes, dict) or not dishes:
+        raise BadInput("day_plan.dishes phải là map món -> số suất dương")
+    ingredients = {}
+    for dish, portions in dishes.items():
+        if dish not in menu or type(portions) is not int or portions <= 0:
+            raise BadInput(f"day_plan.dishes.{dish}: món ngoài menu hoặc số suất không hợp lệ")
+        for kind, count in menu[dish]["recipe"].items():
+            ingredients[kind] = ingredients.get(kind, 0) + count * portions
+    if require_ingredients or "ingredients" in plan:
+        supplied = plan.get("ingredients")
+        if (not isinstance(supplied, dict) or supplied != ingredients
+                or any(type(n) is not int for n in supplied.values())):
+            raise BadInput(f"day_plan Ngày {day}: ingredients không khớp công thức và số suất")
+    return {"day": day, "dishes": dict(dishes), "ingredients": ingredients}
+
+
 def validate_tuning(t, version="1.0"):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
@@ -147,17 +169,22 @@ def validate_tuning(t, version="1.0"):
     if version < "1.1" and q.get("burn_s") is not None:
         raise BadInput("burn_s phải là null ở Phase 1")
     for dish_id, d in menu.items():
+        if not isinstance(d, dict):
+            raise BadInput(f"menu.{dish_id} phải là object")
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
+        recipe = d.get("recipe")
+        if not isinstance(recipe, dict) or not recipe or any(type(n) is not int or n <= 0 for n in recipe.values()):
+            raise BadInput(f"menu.{dish_id}.recipe cần số nguyên dương cho mỗi nguyên liệu")
     if version >= "1.1":
         if "day_plan" in t:
             dp = t["day_plan"]
             if not isinstance(dp, list) or len(dp) != 5:
                 raise BadInput("day_plan phải là mảng 5 ngày")
-            for item in dp:
-                if not isinstance(item, dict) or "day" not in item or "dishes" not in item or "ingredients" not in item:
-                    raise BadInput("mỗi mục day_plan phải có day, dishes, ingredients")
+            days = {normalize_day_plan(plan, menu, require_ingredients=True)["day"] for plan in dp}
+            if len(days) != len(dp):
+                raise BadInput("day_plan có Ngày trùng")
         if "shop" in t:
             sh = t["shop"]
             if not isinstance(sh, dict) or "max_ticks" not in sh or "upgrades" not in sh:

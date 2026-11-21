@@ -35,9 +35,13 @@ def validate_items(items, kinds=ALL_KINDS):
     return out
 
 
-def is_itemized(tuning) -> bool:
-    """Contract 1.2 bật độ tươi (tuning.freshness) -> kho cá thể; trước đó là kho đếm."""
-    return bool((tuning or {}).get("freshness"))
+def is_itemized(tuning, *, version=None) -> bool:
+    """CLI chọn schema theo manifest; lớp mô phỏng có thể dùng tuning v1.2 riêng."""
+    if version is None:
+        return bool((tuning or {}).get("freshness"))
+    if version == "1.2" and not (tuning or {}).get("freshness"):
+        raise BadInput("contract v1.2 cần tuning.freshness")
+    return version == "1.2"
 
 
 def read_inventory(path: str, kinds=ALL_KINDS, itemized=False):
