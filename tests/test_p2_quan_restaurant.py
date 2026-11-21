@@ -4,6 +4,10 @@
 3. Thanh toán tiền món và tiền boa (>= 50% kiên nhẫn), uy tín +0.2.
 4. Hết kiên nhẫn bỏ về (customer_left), trừ uy tín -0.5.
 5. Không đủ nguyên liệu phát no_dish.
+
+Khi tích hợp với PR #2 (lát 3+4 theo Test Contract): đổi tên trường cho đúng PRD-0 D/E —
+`dish` -> `dish_id`, `patience_ticks` -> `patience_ticks_left`, món trên tay là payload
+{order_id, dish_id, base_price}, `paid` dùng `amount`. Kịch bản và luật kiểm giữ nguyên.
 """
 
 import unittest
@@ -70,7 +74,7 @@ class TestQuanRestaurant(unittest.TestCase):
         self.assertEqual(len(sim.customers), 1)
         cust = sim.customers[0]
         self.assertEqual(cust["table_id"], "T1")
-        self.assertIn(cust["dish"], ("ca_loc_nuong_trui", "goi_bong_sung"))
+        self.assertIn(cust["dish_id"], ("ca_loc_nuong_trui", "goi_bong_sung"))
 
     def test_no_dish_when_stock_empty(self):
         """Kho rỗng: đến tick 120 phát no_dish và khách không ngồi bàn."""
@@ -92,7 +96,7 @@ class TestQuanRestaurant(unittest.TestCase):
             "player": {"pos": [2.0, 8.0]},  # Ngay tại bếp B1 [2, 8]
             "stock": {"ca_loc": 1},
             "customers": [
-                {"id": "C1", "table_id": "T1", "dish": "ca_loc_nuong_trui", "state": "waiting", "patience_ticks": 3600}
+                {"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui", "state": "waiting", "patience_ticks_left": 3600}
             ]
         }
         sim = QuanSim(tuning, scenario, Streams(1), IdAllocator())
@@ -113,7 +117,7 @@ class TestQuanRestaurant(unittest.TestCase):
         # 3. Bấm interact tại bếp B1 -> Bưng món lên tay
         evs_pick = sim.step(make_inp(interact=True))
         self.assertTrue(any(e[0] == "dish_picked" for e in evs_pick))
-        self.assertEqual(sim.hand, "ca_loc_nuong_trui")
+        self.assertEqual(sim.hand, {"order_id": "C1", "dish_id": "ca_loc_nuong_trui", "base_price": 60})
         self.assertEqual(sim.stoves[0]["state"], "idle")
 
         # 4. Di chuyển tới bàn T1 [9, 2]
@@ -131,7 +135,7 @@ class TestQuanRestaurant(unittest.TestCase):
         evs_pay = sim.step(make_inp())
         pay_evs = [e for e in evs_pay if e[0] == "paid"]
         self.assertEqual(len(pay_evs), 1)
-        self.assertEqual(pay_evs[0][1]["total"], 72)  # 60 + 12 = 72
+        self.assertEqual(pay_evs[0][1]["amount"], 72)  # 60 + 12 = 72
         self.assertEqual(sim.money, 72)
         # Uy tín tăng +0.2: 3.0 -> 3.2
         self.assertAlmostEqual(sim.reputation, 3.2, places=2)
@@ -144,7 +148,7 @@ class TestQuanRestaurant(unittest.TestCase):
             "player": {"pos": [8.0, 5.0]},
             "stock": {"ca_loc": 1},
             "customers": [
-                {"id": "C1", "table_id": "T1", "dish": "ca_loc_nuong_trui", "state": "waiting", "patience_ticks": 2}
+                {"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui", "state": "waiting", "patience_ticks_left": 2}
             ]
         }
         sim = QuanSim(tuning, scenario, Streams(1), IdAllocator())

@@ -10,7 +10,7 @@ import sys
 from .contract import load_contract
 from .errors import BadInput
 from .inputs import BUTTONS_V10, BUTTONS_V11, load_frames
-from .inventory import read_inventory
+from .inventory import kinds_for, read_inventory
 from .runner import run
 from .scenario import load_scenario
 
@@ -72,7 +72,7 @@ def main(argv=None) -> int:
         tuning = contract["tuning"]
         scenario = load_scenario(a.scenario, a.mode, tuning)
         frames = load_frames(a.inputs, buttons=BUTTONS_V11 if a.mode == "day" else BUTTONS_V10)
-        inventory = read_inventory(a.inventory) if a.inventory else None
+        inventory = read_inventory(a.inventory, kinds_for(tuning)) if a.inventory else None
         if inventory is not None and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
     except BadInput as e:

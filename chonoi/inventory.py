@@ -15,6 +15,12 @@ KINDS_P2 = ("ca_loc", "ca_linh", "ca_keo", "bong_dien_dien", "bong_sung", "keo_n
 ALL_KINDS = KINDS_P2
 
 
+def kinds_for(tuning) -> tuple:
+    """Nguyên liệu hợp lệ = mọi kind trong công thức menu đang chạy (P1: 4 loại, v1.1: thêm ca_keo, keo_neo)."""
+    kinds = {k for d in (tuning or {}).get("menu", {}).values() for k in d.get("recipe", {})}
+    return tuple(sorted(kinds)) if kinds else KINDS_P1
+
+
 def validate_items(items, kinds=ALL_KINDS):
     if not isinstance(items, dict):
         raise BadInput("items phải là object")
