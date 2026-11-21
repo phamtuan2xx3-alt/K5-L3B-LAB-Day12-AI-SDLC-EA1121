@@ -5,6 +5,7 @@
   + Phase 1: Triển khai logic đun nấu bếp than, bốc món chín, phục vụ món tại bàn và thanh toán hóa đơn kèm tiền boa (tip), cộng điểm uy tín nhà hàng (`chonoi/sim/quan.py`).
   + Phase 2: Nâng cấp hỗ trợ 2 bếp than B1/B2 và 4 bàn T1-T4, đồng bộ doanh thu với chế độ Shop cuối ngày.
   + Phase 3: Triển khai và xác thực cơ chế Bếp nấu chốt giá theo độ tươi cá thể (Freshness Pricing: `base_price = floor(price * avg_fresh / 100)`) và tính tiền boa động dựa trên giá đã chốt (`tip = floor(base_price * 0.2)`).
+  + Đóng góp phần việc chung Frontend/UI (`chonoi/web/index.html`): Nâng cấp đồ họa Quán Ăn Chợ Nổi với sàn bè gỗ nổi bập bềnh, đèn lồng bão vàng ấm, hiệu ứng khói bếp than hồng & tàn lửa, bong bóng gọi món kèm thanh đo kiên nhẫn, và bộ âm thanh Web Audio API sống động (tiếng xèo xèo nấu bếp, chuông món chín, tiền xu leng keng).
   + Mở rộng bộ kiểm thử `tests/test_quan_kitchen_serving.py` bao phủ toàn diện các ca kiểm thử độ tươi v1.2 và ngăn chặn nấu nguyên liệu ươn (< 30).
 - Tôi đã review (kèm link):
   + Review contract v1.2, cơ chế hao mòn tươi `freshness.py` và tích hợp giữa Bếp nấu với kho cá thể.
