@@ -8,6 +8,7 @@ Nhóm viết tiếp (PRD-0 mục F, Quán):
 """
 
 from ..ids import sort_by_id
+from . import customers as cust
 from .ramp import ramp_velocity
 
 TICK = 60.0
@@ -37,8 +38,10 @@ class QuanSim:
                             cook_ticks_left=s.get("cook_ticks_left", 0), ready_ticks=s.get("ready_ticks", 0))
                        for s in self._merge(t["stoves"], scenario.get("stoves", []))]
         self.tables = self._merge(t["tables"], scenario.get("tables", []))
-        # TODO(nhóm): khách dựng sẵn từ scenario (customers[]) và suy ra giữ chỗ (reserved).
-        self.customers = [dict(c, reserved=c.get("reserved", {})) for c in scenario.get("customers", [])]
+        # Lát 3 (DEV 3): khách fixture + giữ chỗ suy ra + kiểm mâu thuẫn — xem sim/customers.py.
+        self.phase_tick = 0
+        self.random_customers = scenario.get("random_customers", True)
+        self.customers = cust.init_customers(self, scenario.get("customers", []), self.random_customers)
         for e in self.customers:
             ids.reserve(e["id"])
         self.money = 0
@@ -71,16 +74,26 @@ class QuanSim:
 
     def step(self, inp):
         events = []
+        # 1. đồng hồ, timer ca; kiên nhẫn + timer ăn (lát 3)
+        self.phase_tick += 1
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
-        # TODO(nhóm): giảm kiên nhẫn / nấu / ăn; bếp chín -> ready; xử lý khách theo thứ tự PRD-0 mục F.
+        cust.tick_timers(self)
+        # TODO(nhóm, lát 4): nấu (cook_ticks_left), tăng ready_ticks cho món ready từ đầu bước.
+        # 2. TODO(nhóm, lát 4): xét bếp theo id, nấu xong -> ready, ready_ticks = 0.
+        # 3. di chuyển rồi tối đa MỘT interact
         self._move(inp)
-        # TODO(nhóm): tối đa MỘT interact, chọn đối tượng theo (khoảng cách, bếp trước bàn, id).
-        # TODO(nhóm): khách mới theo lịch (first_customer_tick, customer_interval_s), no_dish.
-        if self.time_left_ticks <= 0:
+        # TODO(nhóm, lát 4): interact theo (khoảng cách, bếp trước bàn, id): nấu / lấy món / phục vụ.
+        # 4. theo id bàn: ăn xong trả tiền, hết kiên nhẫn rời, đóng ca dọn khách (lát 3)
+        closing = self.time_left_ticks <= 0
+        cust.settle_tables(self, events, closing)
+        if closing:
             self.done = True
             self.reason = "time"
             events.append(("quan_end", {"reason": "time", "money": self.money, "earned": self.earned,
                                         "shift_earned": self.shift_earned, "reputation": self.reputation}))
+        else:
+            # 5. lượt khách mới theo lịch, no_dish (lát 3)
+            cust.maybe_spawn(self, events)
         return events
 
     def _move(self, inp):
