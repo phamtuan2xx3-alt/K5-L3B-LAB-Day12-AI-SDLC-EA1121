@@ -186,14 +186,23 @@ class GatherSim:
         elif not prev_surface and cur_surface:
             events.append(("surface", {"pos": list(self.pos)}))
 
+        # Cảnh báo áp suất dòng sâu (d > 18.0)
+        if self.pos[1] > 18.0:
+            if not self.depth_warned:
+                self.depth_warned = True
+                events.append(("depth_warning", {"depth": self.pos[1]}))
+        else:
+            self.depth_warned = False
+
         # 3. Oxy, Ngạt, Máu & Ngất
         refill_rate = self.t.get("oxygen_refill_per_tick", 6)
         if cur_surface:
             self.oxygen_ticks = min(self.oxygen_max, self.oxygen_ticks + refill_rate)
             self.zero_oxy_ticks = 0
         else:
+            drain = 2 if self.pos[1] > 18.0 else 1
             if self.oxygen_ticks > 0:
-                self.oxygen_ticks -= 1
+                self.oxygen_ticks = max(0, self.oxygen_ticks - drain)
                 if self.oxygen_ticks == 0:
                     events.append(("oxygen_empty", {}))
                     self.zero_oxy_ticks = 0
