@@ -23,7 +23,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from .contract import load_contract
 from .errors import BadInput
-from .inputs import LiveInputs
+from .inputs import BUTTONS_V11, LiveInputs
 from .inventory import is_itemized, kinds_for, read_inventory
 from .runner import Session
 from .scenario import load_scenario
@@ -52,7 +52,7 @@ class LiveGame:
 
     def _reset(self):
         self.session = Session(*self._args)
-        self.inputs = LiveInputs()
+        self.inputs = LiveInputs(buttons=BUTTONS_V11)
         self.events = []
         self._saved = False
         self.error = None
@@ -104,7 +104,8 @@ class LiveGame:
     def state_json(self) -> bytes:
         with self._lock:
             snap = self.session.snapshot()
-            snap["meta"] = self.tuning.get(self.mode, self.tuning.get("gather", {}))
+            phase = getattr(self.session.sim, "phase", self.mode)
+            snap["meta"] = self.tuning.get(phase, self.tuning.get(self.mode, self.tuning.get("gather", {})))
             snap["events"] = list(self.events)
             snap["finished"] = self.session.done
             snap["reason"] = self.session.sim.reason if self.session.done else None
@@ -124,8 +125,13 @@ class LiveGame:
                 if not isinstance(body[b], bool):
                     raise ValueError(f"{b} phải là boolean")
                 buttons[b] = body[b]
+        buy = body.get("buy")
+        if buy is not None:
+            if not isinstance(buy, str) or not buy.strip():
+                raise ValueError("buy phải là chuỗi khác rỗng")
+            buy = buy.strip()
         with self._lock:
-            self.inputs.set(move, **buttons)
+            self.inputs.set(move, buy=buy, **buttons)
 
     def restart(self):
         with self._lock:
