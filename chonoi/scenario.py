@@ -145,8 +145,12 @@ def _validate_gather(b, tuning):
         raise BadInput("random_fish phải là boolean")
     if "hold" in b:
         h = b["hold"]
-        if not isinstance(h, list) or any(k not in kinds_for(tuning) for k in h):
-            raise BadInput("hold phải là mảng id nguyên liệu hợp lệ")
+        if is_itemized(tuning):
+            from .sim.freshness import validate_item_list
+            validate_item_list(h, kinds_for(tuning), "gather.hold")
+        else:
+            if not isinstance(h, list) or any(k not in kinds_for(tuning) for k in h):
+                raise BadInput("hold phải là mảng id nguyên liệu hợp lệ")
         if len(h) > g["hold_capacity"]:
             raise BadInput("hold vượt sức chứa")
     p = b.get("player", {})

@@ -35,7 +35,7 @@
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     z-index: 10; pointer-events: none;
     display: grid;
-    grid-template-columns: 280px 1fr 280px;
+    grid-template-columns: 330px 1fr 280px;
     grid-template-rows: auto 1fr auto;
     padding: clamp(10px, 1.5vw, 20px);
     gap: 12px;
@@ -54,8 +54,84 @@
   /* ========== TOP LEFT: VITAL STATS & PERF ========== */
   .top-left {
     grid-column: 1; grid-row: 1;
-    display: flex; flex-direction: column; gap: 8px;
+    display: flex; flex-direction: column; gap: 7px;
     align-self: start;
+  }
+
+  /* ========== CELESTIAL CLOCK (GÓC TRÁI: THỜI GIAN & MẶT TRỜI / MẶT TRĂNG) ========== */
+  .celestial-clock-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(8, 28, 38, 0.95), rgba(4, 14, 22, 0.98));
+    border: 1px solid rgba(243, 205, 88, 0.4);
+    border-radius: 8px;
+    padding: 5px 10px;
+    box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.1);
+  }
+  .celestial-orb-wrapper {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(0, 0, 0, 0.5) 100%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  }
+  .celestial-orb {
+    font-size: 22px;
+    user-select: none;
+    transition: transform 0.3s;
+  }
+  .celestial-orb.sun-glow {
+    filter: drop-shadow(0 0 8px #FFD54F);
+    animation: pulse-sun 2s infinite alternate ease-in-out;
+  }
+  .celestial-orb.moon-glow {
+    filter: drop-shadow(0 0 8px #81D4FA);
+    animation: pulse-moon 2.5s infinite alternate ease-in-out;
+  }
+  @keyframes pulse-sun {
+    0% { transform: scale(0.95); filter: drop-shadow(0 0 4px #FFA000); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 12px #FFD54F); }
+  }
+  @keyframes pulse-moon {
+    0% { transform: scale(0.95); filter: drop-shadow(0 0 4px #0288D1); }
+    100% { transform: scale(1.12); filter: drop-shadow(0 0 12px #81D4FA); }
+  }
+  .celestial-text-group {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .time-main {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 18px; font-weight: 900; color: #FFF;
+    letter-spacing: 1px; font-family: 'Segoe UI', system-ui, monospace;
+  }
+  .period-badge {
+    font-size: 10px; font-weight: 800; padding: 1px 6px;
+    border-radius: 4px; background: rgba(243, 205, 88, 0.2);
+    color: var(--color-yellow-dien-dien); border: 1px solid var(--color-yellow-dien-dien);
+    letter-spacing: 0.5px;
+  }
+  .day-sub {
+    font-size: 10px; color: #81D4FA; letter-spacing: 0.5px; font-weight: 600;
+  }
+
+  /* ========== AREA DROPDOWN (GIAO DIỆN DI CHUYỂN GÓC NHÌN) ========== */
+  .area-dropdown-row {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0, 0, 0, 0.4); border-radius: 6px; padding: 4px 8px;
+    border: 1px solid rgba(79, 195, 247, 0.35);
+  }
+  .dropdown-icon { font-size: 13px; }
+  .styled-area-dropdown {
+    flex: 1;
+    background: transparent;
+    color: var(--color-cream-text);
+    border: none;
+    font-size: 11px; font-weight: bold;
+    cursor: pointer; outline: none;
+  }
+  .styled-area-dropdown option {
+    background: #0A192F; color: #FFF; font-weight: 500;
   }
   .vital-row {
     display: flex; justify-content: space-between; align-items: center;
@@ -330,6 +406,193 @@
   }
   .shop-buy-btn:hover { background: #81D4FA; transform: scale(1.05); }
   .shop-buy-btn.disabled { opacity: 0.5; pointer-events: none; background: #78909C; }
+
+  /* ========== 24H IN-GAME CLOCK & AREA HUB ========== */
+  .clock-widget {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; margin-top: 5px; padding-top: 5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .clock-pill {
+    background: rgba(243, 205, 88, 0.2); border: 1px solid var(--color-yellow-dien-dien);
+    color: var(--color-yellow-dien-dien); border-radius: 4px; padding: 2px 6px;
+    font-weight: bold; font-size: 11px; display: flex; align-items: center; gap: 4px;
+  }
+  .area-pill {
+    background: rgba(0, 230, 118, 0.2); border: 1px solid var(--color-accent-green);
+    color: var(--color-accent-green); border-radius: 4px; padding: 2px 6px; font-weight: bold;
+    font-size: 11px;
+  }
+  .hub-toggle-btn {
+    background: rgba(79, 195, 247, 0.25); border: 1px solid var(--color-accent-blue);
+    color: #FFF; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: bold;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .hub-toggle-btn:hover { background: var(--color-accent-blue); color: #000; }
+
+  /* ========== HUB OVERWORLD MODAL ========== */
+  #hub-modal {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(8, 24, 34, 0.96); backdrop-filter: blur(16px);
+    border: 2px solid var(--color-yellow-dien-dien); border-radius: 18px;
+    padding: 24px; width: clamp(420px, 60vw, 760px); z-index: 65;
+    display: none; flex-direction: column; gap: 14px; pointer-events: auto;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+  }
+  #hub-modal.visible { display: flex; }
+  .hub-zones-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px;
+  }
+  .zone-card {
+    background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px; padding: 12px; display: flex; gap: 12px; align-items: center;
+    position: relative; transition: all 0.2s;
+  }
+  .zone-card.zone-open {
+    border-color: var(--color-accent-green);
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.25);
+  }
+  .zone-card.zone-closed {
+    opacity: 0.65; filter: grayscale(0.4);
+  }
+  .zone-icon {
+    font-size: 28px; width: 44px; height: 44px; display: flex; align-items: center;
+    justify-content: center; background: rgba(255, 255, 255, 0.08); border-radius: 8px;
+  }
+  .zone-info { flex: 1; }
+  .zone-name { font-size: 14px; font-weight: bold; color: #FFF; }
+  .zone-hours { font-size: 11px; color: var(--color-yellow-dien-dien); margin: 2px 0; }
+  .zone-desc { font-size: 11px; color: #B0BEC5; }
+  .zone-badge {
+    display: inline-block; font-size: 10px; font-weight: bold; border-radius: 4px;
+    padding: 2px 6px; margin-top: 4px;
+  }
+  .badge-open { background: rgba(0, 230, 118, 0.25); color: #00E676; border: 1px solid #00E676; }
+  .badge-closed { background: rgba(236, 105, 95, 0.25); color: #EC695F; border: 1px solid #EC695F; }
+
+  /* ========== SLEEP OVERLAY MODAL ========== */
+  #sleep-modal {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: radial-gradient(circle, #0A192F 0%, #030810 100%);
+    border: 2px solid #81D4FA; border-radius: 18px;
+    padding: 30px; width: clamp(340px, 45vw, 500px); text-align: center; z-index: 70;
+    display: none; flex-direction: column; gap: 16px; pointer-events: auto;
+    box-shadow: 0 0 40px rgba(79, 195, 247, 0.4);
+  }
+  #sleep-modal.visible { display: flex; }
+
+  /* ========== MAIN GAMEPLAY SELECTION MENU (TRANG CHỦ) ========== */
+  #main-menu-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, rgba(16, 46, 62, 0.94) 0%, rgba(4, 14, 22, 0.98) 100%);
+    backdrop-filter: blur(14px);
+    z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    pointer-events: auto;
+  }
+  #main-menu-overlay.visible { display: flex; }
+  .menu-content-box {
+    width: clamp(380px, 85vw, 980px);
+    max-height: 94vh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 20px;
+    background: rgba(10, 30, 42, 0.85);
+    border: 2px solid var(--color-yellow-dien-dien);
+    border-radius: 20px;
+    padding: clamp(20px, 3vw, 36px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), inset 0 0 40px rgba(243, 205, 88, 0.1);
+  }
+  .game-logo-container {
+    text-align: center;
+    border-bottom: 1px solid rgba(243, 205, 88, 0.3);
+    padding-bottom: 14px;
+  }
+  .game-pre-title {
+    font-size: 13px; font-weight: bold; letter-spacing: 2px;
+    color: var(--color-yellow-dien-dien); margin-bottom: 4px;
+  }
+  .game-title {
+    font-size: clamp(28px, 4vw, 46px); font-weight: 900;
+    margin: 0;
+    background: linear-gradient(135deg, #FFF9C4 0%, #F3CD58 50%, #FFA000 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 12px rgba(243, 205, 88, 0.4));
+  }
+  .game-tagline {
+    font-size: 14px; color: #81D4FA; margin-top: 6px;
+  }
+  .menu-modes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .mode-card {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px; padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .mode-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-yellow-dien-dien);
+    box-shadow: 0 8px 24px rgba(243, 205, 88, 0.25);
+  }
+  .mode-card.featured {
+    border-color: #00E5FF;
+    background: rgba(0, 229, 255, 0.06);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+  }
+  .mode-header {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mode-icon {
+    font-size: 32px; width: 48px; height: 48px; border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center;
+  }
+  .mode-title {
+    font-size: 16px; font-weight: bold; color: #FFF;
+  }
+  .mode-subtitle {
+    font-size: 12px; color: #B0BEC5;
+  }
+  .mode-badge {
+    align-self: start;
+    font-size: 11px; font-weight: bold;
+    padding: 3px 8px; border-radius: 6px;
+    background: rgba(0, 230, 118, 0.15); border: 1px solid #00E676; color: #00E676;
+  }
+  .mode-desc {
+    font-size: 13px; line-height: 1.5; color: #CFD8DC; margin: 0; flex: 1;
+  }
+  .mode-play-btn {
+    background: linear-gradient(135deg, #00B0FF, #00E5FF);
+    border: none; border-radius: 8px; padding: 12px;
+    color: #000; font-weight: 800; font-size: 14px;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .mode-play-btn:hover {
+    transform: scale(1.03); filter: brightness(1.15);
+  }
+  .menu-bottom-bar {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 14px;
+  }
+  .controls-hint {
+    display: flex; align-items: center; gap: 8px; font-size: 12px; color: #90A4AE; flex-wrap: wrap;
+  }
+  .controls-hint kbd {
+    background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 11px; color: #FFF;
+  }
+  .menu-continue-btn {
+    background: transparent; border: 1px solid rgba(246, 234, 210, 0.4);
+    color: var(--color-cream-text); border-radius: 8px; padding: 8px 16px;
+    font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+  }
+  .menu-continue-btn:hover {
+    background: rgba(255, 255, 255, 0.1); border-color: #FFF;
+  }
 </style>
 </head>
 <body>
@@ -337,21 +600,124 @@
 <div id="threat-vignette"></div>
 <div id="threat-banner" class="threat-banner">⚠️ THỦY QUÁI CÁ SẤU NĂM CHÈO ĐANG RƯỢT ĐUỔI!</div>
 
-<!-- HUD DOM OVERLAY -->
-<div id="hud">
-  <!-- TOP LEFT -->
-  <div class="top-left hud-panel">
-    <div class="vital-row">
-      <div id="day-badge" style="font-size: 13px; font-weight: bold; color: var(--color-yellow-dien-dien); display: none;">NGÀY 1 / 5</div>
-      <div id="hp-container" class="hp-hearts">❤️❤️❤️</div>
-      <div class="perf-pill">
-        <span id="fps-display">60 FPS</span>
-        <button id="tier-toggle" class="tier-btn" title="Chuyển đổi chất lượng đồ họa">Tier: CAO</button>
+<!-- MAIN GAMEPLAY SELECTION MENU (TRANG CHỦ) -->
+<div id="main-menu-overlay" class="visible">
+  <div class="menu-content-box">
+    <div class="game-logo-container">
+      <div class="game-pre-title">🌾 MIỀN TÂY SÔNG NƯỚC · MEKONG EDITION 🌾</div>
+      <h1 class="game-title">QUÁN ĂN CHỢ NỔI</h1>
+      <div class="game-tagline">Lấy cảm hứng từ <em>Dave the Diver</em> · Lặn sông bắt cá ban ngày, mở quán ăn ghe ban đêm</div>
+    </div>
+
+    <div class="menu-modes-grid">
+      <!-- Mode 1: Gather -->
+      <div class="mode-card" id="card-mode-gather">
+        <div class="mode-header">
+          <div class="mode-icon">🌊</div>
+          <div>
+            <div class="mode-title">1. CA LẶN & SĂN BẮT</div>
+            <div class="mode-subtitle">Gathering & Fishing (Ban Ngày)</div>
+          </div>
+        </div>
+        <div class="mode-badge">06:00 - 15:00 · 3 phút thực</div>
+        <p class="mode-desc">
+          Út Sen bơi lặn sông sâu, quản lý bình Oxy, hái Bông Điên Điển, Bông Súng, săn đàn Cá Linh, Cá Lóc, Cá Kèo và né đòn táp của Cá Sấu Năm Chèo!
+        </p>
+        <button class="mode-play-btn" id="btn-play-gather">VÀO LẶN NGAY 🌊</button>
+      </div>
+
+      <!-- Mode 2: Quan -->
+      <div class="mode-card" id="card-mode-quan">
+        <div class="mode-header">
+          <div class="mode-icon">🏮</div>
+          <div>
+            <div class="mode-title">2. QUÁN ĂN CHỢ NỔI</div>
+            <div class="mode-subtitle">Floating Restaurant (Ban Đêm)</div>
+          </div>
+        </div>
+        <div class="mode-badge" style="border-color: var(--color-yellow-dien-dien); color: var(--color-yellow-dien-dien); background: rgba(243, 205, 88, 0.2);">18:00 - 23:00 · 3 phút thực</div>
+        <p class="mode-desc">
+          Quán Ăn Má Tư lên đèn đón khách ghe: nấu 2 bếp than hồng, bưng bê phục vụ 4 bàn, giữ chỗ nguyên liệu, thu tiền, nhận tip và tích lũy uy tín nhà hàng!
+        </p>
+        <button class="mode-play-btn" id="btn-play-quan" style="background: linear-gradient(135deg, #F3CD58, #FFA000); color: #000;">MỞ QUÁN NGAY 🏮</button>
+      </div>
+
+      <!-- Mode 3: Day Story -->
+      <div class="mode-card featured" id="card-mode-day">
+        <div class="mode-header">
+          <div class="mode-icon">🌅</div>
+          <div>
+            <div class="mode-title">3. CHU TRÌNH TRỌN NGÀY</div>
+            <div class="mode-subtitle">Full Day Loop (Phase 2 & 3)</div>
+          </div>
+        </div>
+        <div class="mode-badge" style="border-color: var(--color-accent-blue); color: var(--color-accent-blue); background: rgba(79, 195, 247, 0.2);">Chu kỳ 24H · 1 - 5 Ngày</div>
+        <p class="mode-desc">
+          Trải nghiệm trọn vẹn vòng lặp: Sáng lặn sông bắt cá ➔ Chiều ghé Chợ Chú Sáu sắm đồ ➔ Tối mở quán ăn ➔ Đêm về ghe ngủ hồi phục sinh lực.
+        </p>
+        <button class="mode-play-btn" id="btn-play-day" style="background: linear-gradient(135deg, #00E676, #00B0FF); color: #000;">BẮT ĐẦU VÒNG NGÀY 🌅</button>
       </div>
     </div>
-    <div class="vital-row" style="font-size: 12px; color: #81D4FA;">
-      <span>Độ Sâu (Depth):</span>
-      <strong id="depth-display" style="font-size: 14px; color: #FFF;">0.0 m</strong>
+
+    <!-- Quick Controls & Close -->
+    <div class="menu-bottom-bar">
+      <div class="controls-hint">
+        <span><strong>Phím:</strong></span>
+        <span><kbd>W A S D</kbd> Di chuyển</span>
+        <span><kbd>E</kbd> Hái / Cập bến</span>
+        <span><kbd>SPACE</kbd> Bắt cá</span>
+        <span><kbd>M</kbd> Bản đồ Hub</span>
+        <span><kbd>P</kbd> Tạm dừng</span>
+        <span><kbd>H</kbd> Menu Chính</span>
+      </div>
+      <button class="menu-continue-btn" id="btn-continue-game">Tiếp Tục Game Đang Chạy ➡️</button>
+    </div>
+  </div>
+</div>
+
+<!-- HUD DOM OVERLAY -->
+<div id="hud">
+  <!-- TOP LEFT: CELESTIAL CLOCK (SUN/MOON) & AREA DROPDOWN & STATS -->
+  <div class="top-left hud-panel">
+    <!-- HÀNG 1: THỜI GIAN VÀ MẶT TRỜI / MẶT TRĂNG (CELESTIAL CLOCK) -->
+    <div class="celestial-clock-row">
+      <div class="celestial-orb-wrapper">
+        <span id="celestial-orb" class="celestial-orb sun-glow">☀️</span>
+      </div>
+      <div class="celestial-text-group">
+        <div class="time-main">
+          <span id="corner-clock-time">08:30</span>
+          <span id="corner-clock-period" class="period-badge">SÁNG</span>
+        </div>
+        <div class="day-sub" id="corner-day-sub">NGÀY 1 / 5 · 24H = 8 PHÚT</div>
+      </div>
+    </div>
+
+    <!-- HÀNG 2: DROPDOWN CHỌN KHU VỰC DI CHUYỂN GÓC NHÌN -->
+    <div class="area-dropdown-row">
+      <span class="dropdown-icon">📍</span>
+      <select id="camera-area-dropdown" class="styled-area-dropdown" title="Chọn khu vực để di chuyển góc nhìn camera">
+        <option value="follow_player">👤 Theo chân Út Sen (Mặc định)</option>
+        <option value="ben_lan">⚓ Bến Lặn Sông Tiền (06:00 - 15:00)</option>
+        <option value="bai_hoa">🌼 Bãi Hoa Điên Điển & Bông Súng</option>
+        <option value="vung_sau">🐊 Vùng Sâu & Cá Sấu (d = 20-28m)</option>
+        <option value="cho_chu_sau">🏮 Chợ Nổi Chú Sáu (15:00 - 22:00)</option>
+        <option value="quan_an">🍜 Quán Ăn Má Tư (18:00 - 23:00)</option>
+        <option value="ghe_nghi">🛏️ Ghe Nghỉ Út Sen (22:00 - 06:00)</option>
+      </select>
+    </div>
+
+    <!-- HÀNG 3: CHỈ SỐ MÁU, ĐỘ SÂU & NÚT MENU -->
+    <div class="vital-row">
+      <div id="hp-container" class="hp-hearts">❤️❤️❤️</div>
+      <div style="font-size: 11px; color: #81D4FA;">
+        <span>Sâu:</span> <strong id="depth-display" style="font-size: 13px; color: #FFF;">0.0 m</strong>
+      </div>
+      <button id="btn-open-menu" class="tier-btn" style="background: rgba(243, 205, 88, 0.25); border-color: var(--color-yellow-dien-dien); color: var(--color-yellow-dien-dien); font-weight: bold; cursor: pointer;" title="Phím tắt: H">🏠 Menu (H)</button>
+      <div class="perf-pill">
+        <span id="fps-display">60 FPS</span>
+        <button id="tier-toggle" class="tier-btn" title="Chuyển đổi chất lượng đồ họa">CAO</button>
+      </div>
     </div>
   </div>
 
@@ -363,6 +729,14 @@
     </div>
     <div class="oxy-track">
       <div id="oxy-fill" class="oxy-fill"></div>
+    </div>
+    <div class="clock-widget">
+      <div class="clock-pill" id="clock-display-pill">
+        <span id="clock-icon">☀️</span>
+        <span id="clock-text">08:30 (SÁNG)</span>
+      </div>
+      <div class="area-pill" id="clock-area-tag">🟢 Bến Lặn Đang Mở</div>
+      <button class="hub-toggle-btn" id="btn-toggle-hub" title="Phím tắt: M">🗺️ Khu Vực (M)</button>
     </div>
   </div>
 
@@ -407,6 +781,8 @@
   <span><span class="key-pill">W A S D</span> Bơi lặn</span>
   <span><span class="key-pill">E</span> Hái / Cập bến</span>
   <span><span class="key-pill">SPACE</span> Bắt cá</span>
+  <span><span class="key-pill">M</span> Bản đồ khu vực</span>
+  <span><span class="key-pill">P</span> Tạm dừng</span>
   <span><span class="key-pill">R</span> Chơi lại</span>
 </div>
 
@@ -444,7 +820,10 @@
       <strong id="count-total">0/12</strong>
     </div>
   </div>
-  <button id="btn-restart" class="restart-btn">CHƠI LƯỢT MỚI (PHÍM R)</button>
+  <div style="display: flex; gap: 8px;">
+    <button id="btn-goto-prep" class="restart-btn" style="flex: 1; background: linear-gradient(135deg, #4FC3F7, #0288D1); color: #FFF;">ĐẾN CHỢ CHUẨN BỊ ĐỒ ➡️</button>
+    <button id="btn-restart" class="tier-btn" style="padding: 10px 14px; font-size: 13px;">Chơi lại (R)</button>
+  </div>
 </div>
 
 <!-- PAUSE MODAL -->
@@ -455,10 +834,14 @@
   <button id="btn-menu" class="tier-btn" style="padding: 8px 16px; font-size: 13px;">Chơi lại từ đầu</button>
 </div>
 
-<!-- SHOP MODAL (PHASE 2) -->
+<!-- SHOP MODAL (CHỢ NỔI CHÚ SÁU & CHUẨN BỊ ĐỒ) -->
 <div id="shop-modal">
-  <h2 class="modal-title">CHỢ QUÊ — NÂNG CẤP DỤNG CỤ LẶN</h2>
-  <div style="display: flex; justify-content: space-between; font-size: 15px; color: #F3CD58; margin-bottom: 8px;">
+  <h2 class="modal-title">🏮 CHỢ NỔI CHÚ SÁU — CHUẨN BỊ ĐỒ & NÂNG CẤP</h2>
+  <div id="menu-plan-preview" style="background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px; font-size: 12px; color: #FFF; margin-bottom: 4px;">
+    <div style="font-weight: bold; color: var(--color-yellow-dien-dien); margin-bottom: 4px;">📋 Thực đơn tối nay của Má Tư:</div>
+    <div id="menu-plan-text">Đang tải kế hoạch ngày...</div>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-size: 14px; color: #F3CD58;">
     <span>Tiền tiết kiệm của Út Sen:</span>
     <strong id="shop-money">0 xu</strong>
   </div>
@@ -478,7 +861,71 @@
     </div>
     <button id="btn-buy-hp" class="shop-buy-btn">Mua Nâng Cấp</button>
   </div>
-  <button id="btn-shop-done" class="restart-btn" style="margin-top: 8px;">XONG SHOP — BƯỚC SANG NGÀY KẾ</button>
+  <button id="btn-shop-done" class="restart-btn" style="margin-top: 6px; background: linear-gradient(135deg, #00E676, #00B0FF); color: #000;">🏮 SẴN SÀNG MỞ QUÁN ĂN (18:00) ➡️</button>
+</div>
+
+<!-- HUB OVERWORLD MODAL (PHASE 3) -->
+<div id="hub-modal">
+  <h2 class="modal-title">🗺️ BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG</h2>
+  <div style="text-align: center; font-size: 13px; color: var(--color-yellow-dien-dien); margin-bottom: 2px;">
+    <span id="hub-clock-sub">⏰ 08:30 SÁNG · 1 Ngày in-game 24H = 8 Phút Đời Thực</span>
+  </div>
+  <div class="hub-zones-grid">
+    <div class="zone-card zone-open" id="card-ben-lan">
+      <div class="zone-icon">⚓</div>
+      <div class="zone-info">
+        <div class="zone-name">Bến Lặn Sông Tiền</div>
+        <div class="zone-hours">Mở cửa: 06:00 - 15:00</div>
+        <div class="zone-desc">Lặn bắt cá Linh/Lóc/Kèo, hái Bông Điên Điển & Bông Súng</div>
+        <span class="zone-badge badge-open" id="badge-ben-lan">🟢 ĐANG MỞ CỬA</span>
+      </div>
+    </div>
+    <div class="zone-card zone-closed" id="card-cho-chu-sau">
+      <div class="zone-icon">🏮</div>
+      <div class="zone-info">
+        <div class="zone-name">Chợ Nổi Chú Sáu & Chuẩn Bị</div>
+        <div class="zone-hours">Mở cửa: 15:00 - 22:00</div>
+        <div class="zone-desc">Bán nông sản dôi dư, mua nguyên liệu thiếu, sắm bình oxy & áo phao</div>
+        <span class="zone-badge badge-closed" id="badge-cho-chu-sau">⏳ CHƯA MỞ</span>
+      </div>
+    </div>
+    <div class="zone-card zone-closed" id="card-quan-an">
+      <div class="zone-icon">🍜</div>
+      <div class="zone-info">
+        <div class="zone-name">Quán Ăn Chợ Nổi Má Tư</div>
+        <div class="zone-hours">Mở cửa: 18:00 - 23:00</div>
+        <div class="zone-desc">Quán lên đèn đón khách ghe, phục vụ 6 món ăn đặc sản miền Tây</div>
+        <span class="zone-badge badge-closed" id="badge-quan-an">⏳ CHƯA MỞ</span>
+      </div>
+    </div>
+    <div class="zone-card zone-closed" id="card-ghe-nghi">
+      <div class="zone-icon">🛏️</div>
+      <div class="zone-info">
+        <div class="zone-name">Ghe Nghỉ Út Sen</div>
+        <div class="zone-hours">Mở cửa: 22:00 - 06:00</div>
+        <div class="zone-desc">Về ghe nghỉ ngơi, hồi phục thể lực và ngủ sang ngày tiếp theo</div>
+        <span class="zone-badge badge-closed" id="badge-ghe-nghi">💤 CHƯA ĐẾN GIỜ NGỦ</span>
+      </div>
+    </div>
+  </div>
+  <div style="font-size: 12px; color: #81D4FA; text-align: center; margin-top: 4px;">
+    🔁 Vòng lặp: Lặn bắt xong (06:00-15:00) ➔ Chuẩn bị đồ & Chợ Chú Sáu (15:00-18:00) ➔ Mở quán (18:00-23:00) ➔ Ngủ (23:00-06:00)
+  </div>
+  <button id="btn-close-hub" class="restart-btn" style="margin-top: 6px;">ĐÓNG BẢN ĐỒ (PHÍM M)</button>
+</div>
+
+<!-- SLEEP OVERLAY MODAL (PHASE 3) -->
+<div id="sleep-modal">
+  <h2 class="modal-title" style="color: #81D4FA;">🌙 GHE NGHỈ ÚT SEN (23:00)</h2>
+  <p style="color: #B0BEC5; font-size: 14px; margin: 0;">
+    Quán ăn đã đóng ca, ghe thuyền Chợ Nổi đã tắt đèn.<br>
+    Út Sen ngả lưng trên ghe ba lá, nghe sóng vỗ rì rào...
+  </p>
+  <div style="font-size: 48px; margin: 8px 0;">🛌 💤 🌌</div>
+  <p style="color: var(--color-yellow-dien-dien); font-size: 13px; margin: 0;">
+    Máu và Bình Oxy sẽ hồi phục 100% khi đón bình minh 06:00 sáng!
+  </p>
+  <button id="btn-sleep-wakeup" class="restart-btn" style="margin-top: 10px;">THỨC DẬY ĐÓN BÌNH MINH (06:00) ☀️</button>
 </div>
 
 <script>
@@ -644,6 +1091,7 @@ class SoundFX {
 const sfx = new SoundFX();
 
 // ---------- INPUT CONTROLS ----------
+let cameraMode = "follow_player";
 const down = new Set();
 const MOVE_KEYS = { w: "u", arrowup: "u", s: "d", arrowdown: "d", a: "l", arrowleft: "l", d: "r", arrowright: "r" };
 let queue = [], inflight = false, lastSent = "";
@@ -684,9 +1132,19 @@ addEventListener("keydown", (e) => {
   sfx.init();
   const k = keyName(e);
   if (e.repeat) { if (k === " " || k.startsWith("arrow")) e.preventDefault(); return; }
-  if (MOVE_KEYS[k]) { down.add(MOVE_KEYS[k]); e.preventDefault(); }
+  if (MOVE_KEYS[k]) {
+    down.add(MOVE_KEYS[k]);
+    if (cameraMode !== "follow_player") {
+      cameraMode = "follow_player";
+      const drop = document.getElementById("camera-area-dropdown");
+      if (drop) drop.value = "follow_player";
+    }
+    e.preventDefault();
+  }
   else if (k === "e") down.add("interact");
   else if (k === " ") { down.add("catch"); e.preventDefault(); }
+  else if (k === "m") { toggleHubModal(); e.preventDefault(); }
+  else if (k === "h") { toggleMainMenu(); e.preventDefault(); }
   else if (k === "p" || k === "escape") { pendingPause = true; e.preventDefault(); }
   else if (k === "r") { restartGame(); }
   pushInput();
@@ -700,6 +1158,68 @@ addEventListener("keyup", (e) => {
 });
 addEventListener("blur", () => { down.clear(); pushInput(); });
 
+const areaDropdown = document.getElementById("camera-area-dropdown");
+if (areaDropdown) {
+  areaDropdown.addEventListener("change", (e) => {
+    const val = e.target.value;
+    cameraMode = val;
+    if (val === "quan_an") {
+      if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
+    } else if (val === "cho_chu_sau") {
+      const shopModal = document.getElementById("shop-modal");
+      if (shopModal) shopModal.classList.add("visible");
+    } else if (val === "ben_lan") {
+      if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
+    }
+  });
+}
+
+function openMainMenu() {
+  document.getElementById("main-menu-overlay").classList.add("visible");
+}
+function closeMainMenu() {
+  document.getElementById("main-menu-overlay").classList.remove("visible");
+}
+function toggleMainMenu() {
+  document.getElementById("main-menu-overlay").classList.toggle("visible");
+}
+
+async function switchModeAndPlay(mode) {
+  try {
+    await fetch("/mode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode })
+    });
+  } catch (e) {
+    console.warn("Lỗi switch mode:", e);
+  }
+  closeMainMenu();
+  restartGame();
+}
+
+function toggleHubModal() {
+  const modal = document.getElementById("hub-modal");
+  modal.classList.toggle("visible");
+}
+
+function updateZoneCard(id, isOpen, openText, closedText) {
+  const card = document.getElementById("card-" + id);
+  const badge = document.getElementById("badge-" + id);
+  if (!card || !badge) return;
+  if (isOpen) {
+    card.classList.add("zone-open");
+    card.classList.remove("zone-closed");
+    badge.className = "zone-badge badge-open";
+    badge.textContent = openText;
+  } else {
+    card.classList.remove("zone-open");
+    card.classList.add("zone-closed");
+    badge.className = "zone-badge badge-closed";
+    badge.textContent = closedText;
+  }
+}
+
 function restartGame() {
   fetch("/restart", { method: "POST" });
   lastSent = "";
@@ -707,12 +1227,21 @@ function restartGame() {
   document.getElementById("dive-log-modal").classList.remove("visible");
   document.getElementById("pause-modal").classList.remove("visible");
   document.getElementById("shop-modal").classList.remove("visible");
+  document.getElementById("hub-modal").classList.remove("visible");
+  document.getElementById("sleep-modal").classList.remove("visible");
 }
 document.getElementById("btn-restart").addEventListener("click", restartGame);
 document.getElementById("btn-resume").addEventListener("click", () => {
   pendingPause = true; pushInput();
 });
-document.getElementById("btn-menu").addEventListener("click", restartGame);
+document.getElementById("btn-menu").addEventListener("click", () => {
+  openMainMenu();
+});
+document.getElementById("btn-open-menu").addEventListener("click", toggleMainMenu);
+document.getElementById("btn-continue-game").addEventListener("click", closeMainMenu);
+document.getElementById("btn-play-gather").addEventListener("click", () => switchModeAndPlay("gather"));
+document.getElementById("btn-play-quan").addEventListener("click", () => switchModeAndPlay("quan"));
+document.getElementById("btn-play-day").addEventListener("click", () => switchModeAndPlay("day"));
 document.getElementById("btn-buy-oxygen").addEventListener("click", () => {
   pendingBuy = "oxygen"; pushInput();
 });
@@ -721,6 +1250,16 @@ document.getElementById("btn-buy-hp").addEventListener("click", () => {
 });
 document.getElementById("btn-shop-done").addEventListener("click", () => {
   pendingShopDone = true; pushInput();
+});
+document.getElementById("btn-toggle-hub").addEventListener("click", toggleHubModal);
+document.getElementById("btn-close-hub").addEventListener("click", toggleHubModal);
+document.getElementById("btn-goto-prep").addEventListener("click", () => {
+  document.getElementById("dive-log-modal").classList.remove("visible");
+  document.getElementById("shop-modal").classList.add("visible");
+});
+document.getElementById("btn-sleep-wakeup").addEventListener("click", () => {
+  document.getElementById("sleep-modal").classList.remove("visible");
+  restartGame();
 });
 
 // ---------- SNAPSHOT POLLING & EVENT HANDLING ----------
@@ -778,7 +1317,10 @@ function handleNewEvents(newSnap) {
     for (const e of newOnes) {
       const p = newSnap.player ? newSnap.player.pos : [2, 0];
 
-      if (e.name === "gather") {
+      else if (e.name === "spoiled") {
+        addFloatingText("⚠ Hàng ươn!", p[0], p[1] - 1.2, "#E57373");
+      }
+      else if (e.name === "gather") {
         sfx.playPluck();
         const flowerName = e.data.kind === "bong_dien_dien" ? "Bông Điên Điển" : (e.data.kind === "keo_neo" ? "Kèo Nèo" : "Bông Súng");
         addFloatingText("+1 " + flowerName, p[0], p[1] - 0.8, "#F3CD58");
@@ -911,9 +1453,18 @@ function drawGather(w, h) {
   const time = now * 0.002;
   const p = snap.player || { pos: [2, 0], heading_deg: 0 };
 
-  // Camera LERP
-  cam.x += (p.pos[0] - cam.x) * 0.08;
-  cam.y += (p.pos[1] - cam.y) * 0.08;
+  // Camera LERP theo người chơi hoặc khu vực được chọn từ Dropdown
+  let targetX = p.pos[0];
+  let targetY = p.pos[1];
+  if (cameraMode === "ben_lan") { targetX = 2; targetY = 0; }
+  else if (cameraMode === "bai_hoa") { targetX = 22; targetY = 0; }
+  else if (cameraMode === "vung_sau") { targetX = 62; targetY = 22; }
+  else if (cameraMode === "cho_chu_sau") { targetX = 85; targetY = 0; }
+  else if (cameraMode === "quan_an") { targetX = 94; targetY = 0; }
+  else if (cameraMode === "ghe_nghi") { targetX = 6; targetY = 0; }
+
+  cam.x += (targetX - cam.x) * 0.08;
+  cam.y += (targetY - cam.y) * 0.08;
 
   const meta = snap.meta || {};
   const b = meta.bounds || { x: [0, 100], d: [0, 30] };
@@ -1027,6 +1578,71 @@ function drawGather(w, h) {
   ctx.setLineDash([8, 6]);
   ctx.beginPath(); ctx.arc(dockX, dockY, dockRadius, 0, Math.PI * 2); ctx.stroke();
   ctx.setLineDash([]);
+
+  // 4b. CÁC ĐỊA DANH KHU VỰC THẾ GIỚI MỞ MEKONG (PHASE 3 LANDMARKS)
+  // [A] GHE NGHỈ ÚT SEN (X=6, D=0)
+  const bedX = sx(6);
+  ctx.save();
+  ctx.translate(bedX, surfY - 4);
+  ctx.fillStyle = "#5D4037";
+  ctx.beginPath();
+  ctx.moveTo(-S * 1.2, 0); ctx.lineTo(S * 1.2, 0); ctx.lineTo(S * 0.9, S * 0.35); ctx.lineTo(-S * 0.9, S * 0.35); ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#4FC3F7"; ctx.fillRect(-S * 0.4, -S * 0.3, S * 0.8, S * 0.3); // Mui ghe nghỉ
+  ctx.fillStyle = "#FFF"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🛏️ Ghe Nghỉ Út Sen", 0, -S * 0.45);
+  ctx.restore();
+
+  // [B] BIỂN CHỈ DẪN BÃI HOA ĐIÊN ĐIỂN (X=22, D=0)
+  const flowerZoneX = sx(22);
+  ctx.save();
+  ctx.translate(flowerZoneX, surfY - 8);
+  ctx.fillStyle = "rgba(243, 205, 88, 0.9)";
+  ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🌼 BÃI HOA ĐIÊN ĐIỂN & SÚNG", 0, -S * 0.4);
+  ctx.restore();
+
+  // [C] VỰC NƯỚC SÂU & THỦY QUÁI CÁ SẤU (X=62, D=22)
+  const abyssX = sx(62), abyssY = sy(22);
+  ctx.save();
+  ctx.translate(abyssX, abyssY);
+  ctx.fillStyle = "rgba(255, 23, 68, 0.15)";
+  ctx.beginPath(); ctx.arc(0, 0, S * 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#FF5252"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("⚠️ VỰC SÂU NĂM CHÈO (d > 20m)", 0, -S * 0.6);
+  ctx.restore();
+
+  // [D] CHỢ NỔI CHÚ SÁU — BÉO HÀNG & LỒNG ĐÈN (X=85, D=0)
+  const shopZoneX = sx(85);
+  ctx.save();
+  ctx.translate(shopZoneX, surfY - 6);
+  ctx.fillStyle = "#8D6E63";
+  ctx.beginPath();
+  ctx.moveTo(-S * 2.2, 0); ctx.quadraticCurveTo(0, S * 0.6, S * 2.2, 0);
+  ctx.lineTo(S * 1.8, -S * 0.25); ctx.lineTo(-S * 1.8, -S * 0.25); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "#4E342E"; ctx.lineWidth = 2; ctx.stroke();
+  // Cây bẹo treo nông sản
+  ctx.strokeStyle = "#D7CCC8"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(-S * 1.2, 0); ctx.lineTo(-S * 1.2, -S * 1.8); ctx.stroke();
+  ctx.fillStyle = "#FF9800"; ctx.beginPath(); ctx.arc(-S * 1.2, -S * 1.6, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#4CAF50"; ctx.beginPath(); ctx.arc(-S * 1.2, -S * 1.2, 7, 0, Math.PI * 2); ctx.fill();
+  // Lồng đèn đỏ
+  ctx.fillStyle = "#FF1744"; ctx.beginPath(); ctx.arc(S * 1.2, -S * 0.8, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#F3CD58"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🏮 CHỢ NỔI CHÚ SÁU", 0, -S * 0.8);
+  ctx.fillStyle = "#81D4FA"; ctx.font = "10px system-ui";
+  ctx.fillText("(Nâng cấp & Chuẩn bị 15:00-22:00)", 0, -S * 0.45);
+  ctx.restore();
+
+  // [E] QUÁN ĂN MÁ TƯ (X=94, D=0)
+  const quanZoneX = sx(94);
+  ctx.save();
+  ctx.translate(quanZoneX, surfY - 8);
+  ctx.fillStyle = "#4E342E";
+  ctx.fillRect(-S * 2.0, -S * 0.3, S * 4.0, S * 0.6);
+  ctx.fillStyle = "#FFD54F"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🍜 QUÁN ĂN MÁ TƯ (MỞ 18:00)", 0, -S * 0.8);
+  ctx.restore();
 
   // 5. CÁC BỤI HOA (BÔNG ĐIÊN ĐIỂN & BÔNG SÚNG)
   (snap.nodes || []).forEach((n) => {
@@ -1358,34 +1974,50 @@ function drawGather(w, h) {
 // =========================================================================
 function updateHUDOverlay(p, meta) {
   // 1. Độ sâu & Cảnh báo áp suất nước sâu
-  const depth = p.pos ? p.pos[1] : 0;
   const depthEl = document.getElementById("depth-display");
-  const isDeep = depth > 18.0;
-  depthEl.textContent = isDeep ? `${depth.toFixed(1)} m ⚠ ÁP SUẤT VÙNG SÂU` : `${depth.toFixed(1)} m`;
-  depthEl.style.color = isDeep ? "#FF1744" : "#FFF";
-  depthEl.style.textShadow = isDeep ? "0 0 8px rgba(255,23,68,0.8)" : "none";
+  if (depthEl) {
+    if (snap && snap.mode === "quan") {
+      depthEl.textContent = "Nhà Hàng";
+      depthEl.style.color = "var(--color-yellow-dien-dien)";
+      depthEl.style.textShadow = "none";
+    } else {
+      const depth = p.pos ? p.pos[1] : 0;
+      const isDeep = depth > 18.0;
+      depthEl.textContent = isDeep ? `${depth.toFixed(1)} m ⚠ ÁP SUẤT VÙNG SÂU` : `${depth.toFixed(1)} m`;
+      depthEl.style.color = isDeep ? "#FF1744" : "#FFF";
+      depthEl.style.textShadow = isDeep ? "0 0 8px rgba(255,23,68,0.8)" : "none";
+    }
+  }
 
   // 2. Bình Oxy
-  const oxy = p.oxygen_ticks || 1800;
-  const maxOxy = p.oxygen_max_ticks || 1800;
-  const oxyRatio = Math.max(0, Math.min(1, oxy / maxOxy));
   const oxyFill = document.getElementById("oxy-fill");
-  oxyFill.style.width = `${(oxyRatio * 100).toFixed(1)}%`;
-  const isLow = oxyRatio < 0.25;
-  if (isLow) oxyFill.classList.add("low"); else oxyFill.classList.remove("low");
-  document.getElementById("oxy-seconds").textContent = `${Math.ceil(oxy / 60)}s (${Math.round(oxyRatio * 100)}%)`;
+  const oxySeconds = document.getElementById("oxy-seconds");
+  if (oxyFill && oxySeconds) {
+    const oxy = p.oxygen_ticks || 1800;
+    const maxOxy = p.oxygen_max_ticks || 1800;
+    const oxyRatio = Math.max(0, Math.min(1, oxy / maxOxy));
+    oxyFill.style.width = `${(oxyRatio * 100).toFixed(1)}%`;
+    const isLow = oxyRatio < 0.25;
+    if (isLow) oxyFill.classList.add("low"); else oxyFill.classList.remove("low");
+    oxySeconds.textContent = `${Math.ceil(oxy / 60)}s (${Math.round(oxyRatio * 100)}%)`;
+  }
 
   // 3. Tim máu HP
   const hpCont = document.getElementById("hp-container");
-  let hpStr = "";
-  const curHp = p.hp !== undefined ? p.hp : 3;
-  for (let i = 0; i < (p.hp_max || 3); i++) hpStr += i < curHp ? "❤️" : "🖤";
-  hpCont.textContent = hpStr;
+  if (hpCont) {
+    let hpStr = "";
+    const curHp = p.hp !== undefined ? p.hp : 3;
+    for (let i = 0; i < (p.hp_max || 3); i++) hpStr += i < curHp ? "❤️" : "🖤";
+    hpCont.textContent = hpStr;
+  }
 
   // 4. Đồng hồ ca lặn
-  const timeLeft = snap.time_left_ticks || 0;
-  const s = Math.ceil(timeLeft / 60);
-  document.getElementById("time-left-display").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const timeLeftEl = document.getElementById("time-left-display");
+  if (timeLeftEl) {
+    const timeLeft = snap.time_left_ticks || 0;
+    const s = Math.ceil(timeLeft / 60);
+    timeLeftEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  }
 
   // 5. Giỏ đồ 12 slot (LIFO)
   const hold = snap.hold || [];
@@ -1407,16 +2039,25 @@ function updateHUDOverlay(p, meta) {
     const item = hold[i];
     if (item) {
       slot.classList.add("filled");
-      if (item === "ca_linh") slot.textContent = "🐟";
-      else if (item === "ca_loc") slot.textContent = "🐊";
-      else if (item === "ca_keo") slot.textContent = "🐡";
-      else if (item === "bong_dien_dien") slot.textContent = "🌼";
-      else if (item === "bong_sung") slot.textContent = "🪷";
-      else if (item === "keo_neo") slot.textContent = "🌱";
+      const kind = (typeof item === "object" && item !== null) ? item.kind : item;
+      const fresh = (typeof item === "object" && item !== null && item.fresh !== undefined) ? Math.round(item.fresh) : null;
+      if (kind === "ca_linh") slot.textContent = "🐟";
+      else if (kind === "ca_loc") slot.textContent = "🐊";
+      else if (kind === "ca_keo") slot.textContent = "🐡";
+      else if (kind === "bong_dien_dien") slot.textContent = "🌼";
+      else if (kind === "bong_sung") slot.textContent = "🪷";
+      else if (kind === "keo_neo") slot.textContent = "🌱";
       else slot.textContent = "📦";
+      if (fresh !== null) {
+        slot.title = `${kind} (${fresh}%)`;
+        if (fresh < 30) slot.style.border = "1px solid #E57373";
+        else slot.style.border = "";
+      }
     } else {
       slot.classList.remove("filled");
       slot.textContent = "";
+      slot.title = "";
+      slot.style.border = "";
     }
   }
 
@@ -1452,9 +2093,123 @@ function updateHUDOverlay(p, meta) {
     pauseModal.classList.remove("visible");
   }
 
-  // 6. Action Contextual Cards
-  const inDock = Math.hypot(p.pos[0] - (meta.dock_pos ? meta.dock_pos[0] : 2), p.pos[1] - (meta.dock_pos ? meta.dock_pos[1] : 0)) <= (meta.dock_radius || 3);
-  const atSurface = p.pos[1] <= (meta.surface_depth || 0.5);
+  // 6. Đồng hồ in-game 24H & Khu vực thế giới mở (Phase 3)
+  let clk = snap.clock;
+  if (!clk) {
+    const mode = snap.mode || "gather";
+    const runTicks = snap.phase_tick || (10800 - (snap.time_left_ticks || 10800));
+    const lim = snap.tick_limit || 10800;
+    const prog = Math.min(1.0, Math.max(0, runTicks / Math.max(1, lim)));
+    let mins = 6 * 60;
+    let period = "morning";
+    if (mode === "gather") {
+      mins = 6 * 60 + Math.floor(prog * 540); // 06:00 -> 15:00
+      period = mins < 12 * 60 ? "morning" : "afternoon";
+    } else if (mode === "quan") {
+      mins = 18 * 60 + Math.floor(prog * 300); // 18:00 -> 23:00
+      period = "evening";
+    }
+    const h = Math.floor(mins / 60) % 24;
+    const m = mins % 60;
+    clk = {
+      hour: h, minute: m,
+      time_str: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`,
+      period: period
+    };
+  }
+
+  const h = clk.hour;
+  const isMorning = h >= 6 && h < 12;
+  const isAfternoon = h >= 12 && h < 18;
+  const isEvening = h >= 18 && h < 22;
+  const isNight = h >= 22 || h < 6;
+
+  const icon = isMorning ? "☀️" : (isAfternoon ? "🌇" : (isEvening ? "🏮" : "🌙"));
+  const periodLabel = isMorning ? "SÁNG" : (isAfternoon ? "CHIỀU" : (isEvening ? "TỐI" : "ĐÊM"));
+  const clockIconEl = document.getElementById("clock-icon");
+  const clockTextEl = document.getElementById("clock-text");
+  if (clockIconEl) clockIconEl.textContent = icon;
+  if (clockTextEl) clockTextEl.textContent = `${clk.time_str} (${periodLabel})`;
+
+  // Cập nhật Góc trái: Thời gian & Mặt Trời / Mặt Trăng (Celestial Clock)
+  const orbEl = document.getElementById("celestial-orb");
+  const cornerTimeEl = document.getElementById("corner-clock-time");
+  const cornerPeriodEl = document.getElementById("corner-clock-period");
+  const cornerDaySubEl = document.getElementById("corner-day-sub");
+  if (cornerTimeEl) cornerTimeEl.textContent = clk.time_str;
+  if (cornerPeriodEl) cornerPeriodEl.textContent = periodLabel;
+  if (cornerDaySubEl) {
+    const dayNum = snap.day !== undefined ? snap.day : 1;
+    cornerDaySubEl.textContent = `NGÀY ${dayNum} / 5 · 24H = 8 PHÚT`;
+  }
+  if (orbEl) {
+    if (isMorning) {
+      orbEl.textContent = "☀️";
+      orbEl.className = "celestial-orb sun-glow";
+    } else if (isAfternoon) {
+      orbEl.textContent = "🌅";
+      orbEl.className = "celestial-orb sun-glow";
+    } else if (isEvening) {
+      orbEl.textContent = "🏮";
+      orbEl.className = "celestial-orb sun-glow";
+    } else {
+      orbEl.textContent = "🌙";
+      orbEl.className = "celestial-orb moon-glow";
+    }
+  }
+
+  // Cập nhật thẻ trạng thái khu vực hiện tại trên HUD
+  const areaTag = document.getElementById("clock-area-tag");
+  let activeAreaName = "Bến Lặn Sông Tiền";
+  let activeAreaColor = "var(--color-accent-green)";
+  if (snap.phase === "quan" || (h >= 18 && h < 23)) {
+    activeAreaName = "Quán Ăn Má Tư (Mở)";
+    activeAreaColor = "var(--color-yellow-dien-dien)";
+  } else if (snap.phase === "shop" || (h >= 15 && h < 18)) {
+    activeAreaName = "Chợ Chú Sáu (Chuẩn bị)";
+    activeAreaColor = "var(--color-accent-blue)";
+  } else if (isNight) {
+    activeAreaName = "Ghe Nghỉ Út Sen (Ngủ)";
+    activeAreaColor = "#B0BEC5";
+  } else {
+    activeAreaName = "Bến Lặn Sông Tiền (Mở)";
+    activeAreaColor = "var(--color-accent-green)";
+  }
+  areaTag.textContent = `🟢 ${activeAreaName}`;
+  areaTag.style.borderColor = activeAreaColor;
+  areaTag.style.color = activeAreaColor;
+
+  // Cập nhật trạng thái trong Modal Bản Đồ Hub
+  document.getElementById("hub-clock-sub").textContent = `⏰ ${clk.time_str} ${periodLabel} · 1 Ngày in-game 24H = 8 Phút Đời Thực`;
+
+  const isBenLanOpen = h >= 6 && h < 15;
+  const isChoOpen = h >= 15 && h < 22;
+  const isQuanOpen = h >= 18 && h < 23;
+  const isGheNghiOpen = h >= 22 || h < 6;
+
+  updateZoneCard("ben-lan", isBenLanOpen, "🟢 ĐANG MỞ CỬA", "⛔ ĐÓNG: Nước xiết");
+  updateZoneCard("cho-chu-sau", isChoOpen, "🟢 ĐANG MỞ CỬA", "⏳ CHƯA ĐẾN GIỜ");
+  updateZoneCard("quan-an", isQuanOpen, "🟢 ĐANG MỞ CỬA", "⏳ CHƯA MỞ QUÁN");
+  updateZoneCard("ghe-nghi", isGheNghiOpen, "💤 GIỜ ĐI NGỦ", "⛔ CHƯA ĐẾN GIỜ");
+
+  // Xem trước kế hoạch thực đơn trong Shop nếu có
+  if (snap.day_plan && snap.day_plan.dishes) {
+    const dishes = snap.day_plan.dishes;
+    const planItems = [];
+    for (const [k, v] of Object.entries(dishes)) {
+      const dishName = k === "ca_loc_nuong_trui" ? "Cá Lóc Nướng Trui" :
+                       k === "goi_bong_sung" ? "Gỏi Bông Súng" :
+                       k === "lau_ca_linh_dien_dien" ? "Lẩu Cá Linh Bông Điên Điển" :
+                       k === "canh_chua_ca_loc" ? "Canh Chua Cá Lóc" :
+                       k === "ca_keo_nuong" ? "Cá Kèo Nướng" :
+                       k === "lau_mam" ? "Lẩu Mắm Miền Tây" : k;
+      planItems.push(`${dishName} (x${v})`);
+    }
+    const planEl = document.getElementById("menu-plan-text");
+    if (planEl) planEl.textContent = planItems.join(" · ");
+  }
+
+  // 7. Action Contextual Cards
   const cardHarvest = document.getElementById("action-harvest");
   const labelHarvest = document.getElementById("label-harvest");
   const cardCatch = document.getElementById("action-catch");
@@ -1462,35 +2217,40 @@ function updateHUDOverlay(p, meta) {
   const cdBar = document.getElementById("cd-bar-container");
   const cdFill = document.getElementById("cd-bar-fill");
 
-  // Reset classes
-  cardHarvest.className = "action-card";
-  cardCatch.className = "action-card";
+  if (cardHarvest && cardCatch && labelHarvest && labelCatch && cdBar && cdFill) {
+    const inDock = Math.hypot(p.pos[0] - (meta.dock_pos ? meta.dock_pos[0] : 2), p.pos[1] - (meta.dock_pos ? meta.dock_pos[1] : 0)) <= (meta.dock_radius || 3);
+    const atSurface = p.pos[1] <= (meta.surface_depth || 0.5);
 
-  if (inDock && atSurface) {
-    cardHarvest.classList.add("active-dock");
-    labelHarvest.textContent = "Cập Bến Ghe";
-  } else if (atSurface) {
-    cardHarvest.classList.add("active-harvest");
-    labelHarvest.textContent = "Hái Nông Sản (E)";
-  } else {
-    labelHarvest.textContent = "Hái (Chỉ Mặt Nước)";
-  }
+    // Reset classes
+    cardHarvest.className = "action-card";
+    cardCatch.className = "action-card";
 
-  const catchCd = snap.catch_cd_ticks || 0;
-  if (!atSurface) {
-    if (catchCd > 0) {
-      cardCatch.classList.add("cooldown");
-      labelCatch.textContent = `Hồi Chiêu ${(catchCd / 60).toFixed(1)}s`;
-      cdBar.style.display = "block";
-      cdFill.style.width = `${((30 - catchCd) / 30) * 100}%`;
+    if (inDock && atSurface) {
+      cardHarvest.classList.add("active-dock");
+      labelHarvest.textContent = "Cập Bến Ghe";
+    } else if (atSurface) {
+      cardHarvest.classList.add("active-harvest");
+      labelHarvest.textContent = "Hái Nông Sản (E)";
     } else {
-      cardCatch.classList.add("active-catch");
-      labelCatch.textContent = "Quăng Lưới Bắt Cá (Space)";
+      labelHarvest.textContent = "Hái (Chỉ Mặt Nước)";
+    }
+
+    const catchCd = snap.catch_cd_ticks || 0;
+    if (!atSurface) {
+      if (catchCd > 0) {
+        cardCatch.classList.add("cooldown");
+        labelCatch.textContent = `Hồi Chiêu ${(catchCd / 60).toFixed(1)}s`;
+        cdBar.style.display = "block";
+        cdFill.style.width = `${((30 - catchCd) / 30) * 100}%`;
+      } else {
+        cardCatch.classList.add("active-catch");
+        labelCatch.textContent = "Quăng Lưới Bắt Cá (Space)";
+        cdBar.style.display = "none";
+      }
+    } else {
+      labelCatch.textContent = "Bắt Cá (Chỉ Dưới Sông)";
       cdBar.style.display = "none";
     }
-  } else {
-    labelCatch.textContent = "Bắt Cá (Chỉ Dưới Sông)";
-    cdBar.style.display = "none";
   }
 
   // 7. Mini-map
@@ -2036,6 +2796,9 @@ function drawQuan(w, h) {
     ctx.fillText("Kho: " + stockStr, hudX + hudW - 16, hudY + 28);
   }
   ctx.restore();
+  if (typeof updateHUDOverlay === "function") {
+    updateHUDOverlay(snap.player || { pos: [0, 0] }, snap.meta || {});
+  }
 }
 
 function fmtTime(ticks) {
@@ -2068,9 +2831,27 @@ function frame() {
 
   if (snap) {
     if (snap.mode === "quan") {
-      document.getElementById("hud").style.display = "none";
+      document.body.classList.add("mode-quan");
+      const basket = document.getElementById("basket-panel");
+      if (basket) basket.style.display = "none";
+      const topCenter = document.querySelector(".top-center");
+      if (topCenter) topCenter.style.display = "none";
+      const botRight = document.querySelector(".bottom-right");
+      if (botRight) botRight.style.display = "none";
+      const topRight = document.querySelector(".top-right");
+      if (topRight) topRight.style.display = "none";
+      document.getElementById("hud").style.display = "grid";
       drawQuan(w, h);
     } else {
+      document.body.classList.remove("mode-quan");
+      const basket = document.getElementById("basket-panel");
+      if (basket) basket.style.display = "";
+      const topCenter = document.querySelector(".top-center");
+      if (topCenter) topCenter.style.display = "";
+      const botRight = document.querySelector(".bottom-right");
+      if (botRight) botRight.style.display = "";
+      const topRight = document.querySelector(".top-right");
+      if (topRight) topRight.style.display = "";
       document.getElementById("hud").style.display = "grid";
       drawGather(w, h);
     }
