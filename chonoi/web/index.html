@@ -1129,7 +1129,10 @@ function handleNewEvents(newSnap) {
     for (const e of newOnes) {
       const p = newSnap.player ? newSnap.player.pos : [2, 0];
 
-      if (e.name === "gather") {
+      else if (e.name === "spoiled") {
+        addFloatingText("⚠ Hàng ươn!", p[0], p[1] - 1.2, "#E57373");
+      }
+      else if (e.name === "gather") {
         sfx.playPluck();
         const flowerName = e.data.kind === "bong_dien_dien" ? "Bông Điên Điển" : (e.data.kind === "keo_neo" ? "Kèo Nèo" : "Bông Súng");
         addFloatingText("+1 " + flowerName, p[0], p[1] - 0.8, "#F3CD58");
@@ -1727,16 +1730,25 @@ function updateHUDOverlay(p, meta) {
     const item = hold[i];
     if (item) {
       slot.classList.add("filled");
-      if (item === "ca_linh") slot.textContent = "🐟";
-      else if (item === "ca_loc") slot.textContent = "🐊";
-      else if (item === "ca_keo") slot.textContent = "🐡";
-      else if (item === "bong_dien_dien") slot.textContent = "🌼";
-      else if (item === "bong_sung") slot.textContent = "🪷";
-      else if (item === "keo_neo") slot.textContent = "🌱";
+      const kind = (typeof item === "object" && item !== null) ? item.kind : item;
+      const fresh = (typeof item === "object" && item !== null && item.fresh !== undefined) ? Math.round(item.fresh) : null;
+      if (kind === "ca_linh") slot.textContent = "🐟";
+      else if (kind === "ca_loc") slot.textContent = "🐊";
+      else if (kind === "ca_keo") slot.textContent = "🐡";
+      else if (kind === "bong_dien_dien") slot.textContent = "🌼";
+      else if (kind === "bong_sung") slot.textContent = "🪷";
+      else if (kind === "keo_neo") slot.textContent = "🌱";
       else slot.textContent = "📦";
+      if (fresh !== null) {
+        slot.title = `${kind} (${fresh}%)`;
+        if (fresh < 30) slot.style.border = "1px solid #E57373";
+        else slot.style.border = "";
+      }
     } else {
       slot.classList.remove("filled");
       slot.textContent = "";
+      slot.title = "";
+      slot.style.border = "";
     }
   }
 

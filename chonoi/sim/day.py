@@ -81,7 +81,7 @@ class DaySim:
         self.reason = None
 
         # Kho nguyên liệu tích lũy và chuyển giao
-        self.inventory_stock = {}
+        self.inventory_stock = [] if bool((tuning or {}).get("freshness")) else {}
 
         # Trình mô phỏng buổi sáng hiện tại
         self._init_current_day()
@@ -313,12 +313,14 @@ class DaySim:
                 else:
                     # Sang ngày kế tiếp
                     self.current_day += 1
-                    self.inventory_stock = {}  # Kho dư bị bỏ sau shop
+                    self.inventory_stock = [] if bool((self.tuning or {}).get("freshness")) else {}  # Kho dư bị bỏ sau shop
                     self._init_current_day()
 
         return events
 
-    def inventory_items(self) -> dict:
+    def inventory_items(self):
+        if isinstance(self.inventory_stock, list):
+            return list(self.inventory_stock)
         return dict(self.inventory_stock)
 
     def buy_upgrade(self, upgrade_id):
