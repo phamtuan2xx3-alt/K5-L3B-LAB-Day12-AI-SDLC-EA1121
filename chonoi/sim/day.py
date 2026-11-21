@@ -87,8 +87,11 @@ class DaySim:
         self._init_current_day()
 
     def _get_plan(self, day_num):
+        # TICKET-04 soak: kế hoạch D1–D5 lặp ở Ngày 6–10 (Ngày n dùng D((n-1) % 5 + 1)).
+        cycle = len(self.day_plans)
+        want = (day_num - 1) % cycle + 1 if cycle else day_num
         for p in self.day_plans:
-            if p["day"] == day_num:
+            if p["day"] == want:
                 return p
         return self.day_plans[0]
 

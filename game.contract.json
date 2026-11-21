@@ -5,6 +5,7 @@
   "build_cmd": "true",
   "run_cmd": "python3 -m chonoi.live --mode gather",
   "headless_cmd": "python3 -m chonoi.headless",
+  "soak_cmd": "python3 -m chonoi.soak",
   "tuning": {
     "tick_hz": 60,
     "gather": {
