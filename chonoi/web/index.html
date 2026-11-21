@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quán Ăn Chợ Nổi — Dave the Diver Mekong Edition</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
 <style>
   :root {
     --color-mekong-dark: #102E3E;
@@ -554,14 +555,14 @@
   }
   #main-menu-overlay.visible { display: flex; }
   .menu-content-box {
-    width: clamp(380px, 85vw, 980px);
-    max-height: 94vh; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 20px;
-    background: rgba(10, 30, 42, 0.85);
-    border: 2px solid var(--color-yellow-dien-dien);
-    border-radius: 20px;
-    padding: clamp(20px, 3vw, 36px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), inset 0 0 40px rgba(243, 205, 88, 0.1);
+    width: clamp(380px, 94vw, 1120px);
+    max-height: 96vh;
+    display: flex; flex-direction: column; gap: 10px;
+    background: linear-gradient(180deg, rgba(6, 20, 30, 0.96), rgba(4, 14, 22, 0.98));
+    border: 2px solid rgba(79, 195, 247, 0.45);
+    border-radius: 16px;
+    padding: 14px 18px;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(79, 195, 247, 0.08);
   }
   .game-logo-container {
     text-align: center;
@@ -690,11 +691,10 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background: linear-gradient(180deg, rgba(6, 20, 30, 0.95), rgba(4, 14, 22, 0.98));
-    border: 2px solid rgba(79, 195, 247, 0.45);
-    border-radius: 16px;
-    padding: 12px 14px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(79, 195, 247, 0.08);
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
   }
   .menu-map-header {
     display: flex;
@@ -702,17 +702,18 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 2px 6px;
+    padding: 2px 4px;
   }
   .map-header-left {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
   .map-title-icon { font-size: 18px; }
   .map-title-text {
-    font-size: 13px; font-weight: 900;
-    letter-spacing: 1px; color: var(--color-yellow-dien-dien);
+    font-size: 14px; font-weight: 900;
+    letter-spacing: 0.8px; color: var(--color-yellow-dien-dien);
   }
   .map-live-pill {
     font-size: 10px; font-weight: 800;
@@ -721,13 +722,55 @@
     padding: 1px 6px; border-radius: 10px;
     letter-spacing: 0.5px;
   }
+  .map-time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(243, 205, 88, 0.4);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFF;
+  }
+  .map-time-sub {
+    font-size: 10px;
+    color: #81D4FA;
+    font-weight: 500;
+  }
+  .map-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
   .map-hint-text {
     font-size: 11px; color: #81D4FA; font-weight: 500;
+  }
+  .menu-close-x-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .menu-close-x-btn:hover {
+    background: rgba(255, 82, 82, 0.3);
+    border-color: #FF5252;
+    color: #FF5252;
   }
   .menu-map-viewport {
     position: relative;
     width: 100%;
-    height: 330px;
+    height: clamp(380px, 66vh, 600px);
     border-radius: 12px;
     overflow: hidden;
     background: #081720;
@@ -888,51 +931,9 @@
 <div id="customer-warning-banner" class="threat-banner customer-banner">😤 CẢNH BÁO: KHÁCH BÀN ĂN SẮP HẾT KIÊN NHẪN BỎ VỀ!</div>
 <div id="sfx-captions-box" class="sfx-captions-box"></div>
 
-<!-- MAIN GAMEPLAY SELECTION MENU (TRANG CHỦ) -->
+<!-- MAIN GAMEPLAY SELECTION MENU (TRANG CHỦ - BẢN ĐỒ 3/4 ISOMETRIC) -->
 <div id="main-menu-overlay" class="visible">
   <div class="menu-content-box">
-    <div class="game-logo-container">
-      <div class="game-pre-title">🌾 MIỀN TÂY SÔNG NƯỚC · MEKONG EDITION 🌾</div>
-      <h1 class="game-title">QUÁN ĂN CHỢ NỔI</h1>
-      <div class="game-tagline">Lấy cảm hứng từ <em>Dave the Diver</em> · Lặn sông bắt cá ban ngày, mở quán ăn ghe ban đêm</div>
-    </div>
-
-    <!-- THANH ĐIỀU HÀNH THỜI GIAN & CHỌN KHU VỰC GÓC NHÌN NGAY TẠI TRANG CHỦ -->
-    <div class="menu-hub-control-bar">
-      <!-- Khối hiển thị Thời gian & Mặt Trời / Mặt Trăng -->
-      <div class="menu-celestial-box">
-        <div class="menu-celestial-orb-wrapper">
-          <span id="menu-celestial-orb" class="celestial-orb sun-glow">☀️</span>
-        </div>
-        <div class="menu-celestial-info">
-          <div class="menu-time-row">
-            <span id="menu-clock-time">08:30</span>
-            <span id="menu-clock-period" class="period-badge">SÁNG</span>
-          </div>
-          <div class="menu-sub-text" id="menu-day-sub">NGÀY 1 / 5 · 24H = 8 PHÚT (1S = 3 PHÚT)</div>
-        </div>
-      </div>
-
-      <!-- Khối Dropdown Di Chuyển Góc Nhìn Khu Vực -->
-      <div class="menu-area-selector-box">
-        <div class="menu-selector-label">
-          <span>📍 DI CHUYỂN GÓC NHÌN BẢN ĐỒ MEKONG:</span>
-        </div>
-        <div class="menu-dropdown-wrapper">
-          <select id="menu-camera-area-dropdown" class="styled-area-dropdown large-menu-dropdown" title="Chọn khu vực để di chuyển góc nhìn camera">
-            <option value="follow_player">👤 Theo chân Út Sen (Mặc định)</option>
-            <option value="ben_lan">⚓ Bến Lặn Sông Tiền (06:00 - 15:00)</option>
-            <option value="bai_hoa">🌼 Bãi Hoa Điên Điển & Bông Súng</option>
-            <option value="vung_sau">🐊 Vùng Sâu & Thủy Quái Năm Chèo (d = 20-28m)</option>
-            <option value="cho_chu_sau">🏮 Chợ Nổi Chú Sáu (15:00 - 22:00)</option>
-            <option value="quan_an">🍜 Quán Ăn Má Tư (18:00 - 23:00)</option>
-            <option value="ghe_nghi">🛏️ Ghe Nghỉ Út Sen (22:00 - 06:00)</option>
-          </select>
-          <button id="btn-menu-inspect-area" class="inspect-area-btn">👀 Quan Sát Góc Nhìn Này</button>
-        </div>
-      </div>
-    </div>
-
     <!-- BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG — GÓC NHÌN TRÊN XUỐNG 3/4 ISOMETRIC -->
     <div class="menu-map-section">
       <div class="menu-map-header">
@@ -940,76 +941,33 @@
           <span class="map-title-icon">🧭</span>
           <span class="map-title-text">BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG (GÓC NHÌN 3/4 TRÊN XUỐNG)</span>
           <span class="map-live-pill">🔴 TRỰC QUAN 24H</span>
+          <span class="map-time-badge">
+            <span id="menu-celestial-orb">☀️</span>
+            <span id="menu-clock-time">08:30</span>
+            <span id="menu-clock-period" class="period-badge">SÁNG</span>
+            <span id="menu-day-sub" class="map-time-sub">NGÀY 1/5 · 24H = 8P</span>
+          </span>
         </div>
         <div class="map-header-right">
           <span class="map-hint-text">💡 Nhấp chuột vào bất kỳ địa danh trên bản đồ 3/4 để di chuyển góc nhìn & xem chi tiết</span>
+          <button class="menu-close-x-btn" id="btn-close-menu-x" title="Đóng Menu (Tiếp tục chơi)">✕</button>
         </div>
       </div>
 
       <div class="menu-map-viewport">
-        <canvas id="menu-map-canvas" width="940" height="330"></canvas>
+        <canvas id="menu-map-canvas" width="1020" height="520"></canvas>
 
         <!-- Khung chi tiết địa danh khi được chọn (Inspector Popup) -->
         <div id="menu-map-zone-popup" class="map-zone-popup">
           <div class="popup-zone-badge" id="popup-zone-badge">🟢 ĐANG MỞ CỬA</div>
           <div class="popup-zone-title" id="popup-zone-title">⚓ Bến Lặn Sông Tiền</div>
           <div class="popup-zone-hours" id="popup-zone-hours">⏰ Hoạt động: 06:00 - 15:00</div>
-          <div class="popup-zone-desc" id="popup-zone-desc">Út Sen lặn sông bắt Cá Linh, Cá Lóc, Cá Kèo và hái Bông Điên Điển, Bông Súng mang về kho.</div>
+          <div class="popup-zone-desc" id="popup-zone-desc">Bến ghe mui lá dừa của Út Sen. Xuất phát lặn sông bắt Cá Linh, Cá Lóc, Cá Kèo và hái hoa về bến xuất kho.</div>
           <div class="popup-action-row">
             <button id="btn-popup-enter" class="popup-enter-btn">VÀO LẶN NGAY 🌊</button>
             <button id="btn-popup-pan" class="popup-pan-btn">🎥 Lướt Camera</button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="menu-modes-grid">
-      <!-- Mode 1: Gather -->
-      <div class="mode-card" id="card-mode-gather">
-        <div class="mode-header">
-          <div class="mode-icon">🌊</div>
-          <div>
-            <div class="mode-title">1. CA LẶN & SĂN BẮT</div>
-            <div class="mode-subtitle">Gathering & Fishing (Ban Ngày)</div>
-          </div>
-        </div>
-        <div class="mode-badge">06:00 - 15:00 · 3 phút thực</div>
-        <p class="mode-desc">
-          Út Sen bơi lặn sông sâu, quản lý bình Oxy, hái Bông Điên Điển, Bông Súng, săn đàn Cá Linh, Cá Lóc, Cá Kèo và né đòn táp của Cá Sấu Năm Chèo!
-        </p>
-        <button class="mode-play-btn" id="btn-play-gather">VÀO LẶN NGAY 🌊</button>
-      </div>
-
-      <!-- Mode 2: Quan -->
-      <div class="mode-card" id="card-mode-quan">
-        <div class="mode-header">
-          <div class="mode-icon">🏮</div>
-          <div>
-            <div class="mode-title">2. QUÁN ĂN CHỢ NỔI</div>
-            <div class="mode-subtitle">Floating Restaurant (Ban Đêm)</div>
-          </div>
-        </div>
-        <div class="mode-badge" style="border-color: var(--color-yellow-dien-dien); color: var(--color-yellow-dien-dien); background: rgba(243, 205, 88, 0.2);">18:00 - 23:00 · 3 phút thực</div>
-        <p class="mode-desc">
-          Quán Ăn Má Tư lên đèn đón khách ghe: nấu 2 bếp than hồng, bưng bê phục vụ 4 bàn, giữ chỗ nguyên liệu, thu tiền, nhận tip và tích lũy uy tín nhà hàng!
-        </p>
-        <button class="mode-play-btn" id="btn-play-quan" style="background: linear-gradient(135deg, #F3CD58, #FFA000); color: #000;">MỞ QUÁN NGAY 🏮</button>
-      </div>
-
-      <!-- Mode 3: Day Story -->
-      <div class="mode-card featured" id="card-mode-day">
-        <div class="mode-header">
-          <div class="mode-icon">🌅</div>
-          <div>
-            <div class="mode-title">3. CHU TRÌNH TRỌN NGÀY</div>
-            <div class="mode-subtitle">Full Day Loop (Phase 2 & 3)</div>
-          </div>
-        </div>
-        <div class="mode-badge" style="border-color: var(--color-accent-blue); color: var(--color-accent-blue); background: rgba(79, 195, 247, 0.2);">Chu kỳ 24H · 1 - 5 Ngày</div>
-        <p class="mode-desc">
-          Trải nghiệm trọn vẹn vòng lặp: Sáng lặn sông bắt cá ➔ Chiều ghé Chợ Chú Sáu sắm đồ ➔ Tối mở quán ăn ➔ Đêm về ghe ngủ hồi phục sinh lực.
-        </p>
-        <button class="mode-play-btn" id="btn-play-day" style="background: linear-gradient(135deg, #00E676, #00B0FF); color: #000;">BẮT ĐẦU VÒNG NGÀY 🌅</button>
       </div>
     </div>
 
@@ -1541,6 +1499,13 @@ addEventListener("keydown", (e) => {
   if (e.repeat) { if (k === " " || k.startsWith("arrow")) e.preventDefault(); return; }
   if (MOVE_KEYS[k]) {
     down.add(MOVE_KEYS[k]);
+    const menuEl = document.getElementById("main-menu-overlay");
+    if (menuEl && menuEl.classList.contains("visible")) {
+      closeMainMenu();
+    }
+    if (snap && snap.finished) {
+      restartGame();
+    }
     if (cameraMode !== "follow_player") {
       cameraMode = "follow_player";
       const drop = document.getElementById("camera-area-dropdown");
@@ -1630,8 +1595,9 @@ function openMainMenu() {
   }
 }
 function closeMainMenu() {
+  cameraMode = "follow_player";
   const dropHud = document.getElementById("camera-area-dropdown");
-  if (dropHud) dropHud.value = cameraMode;
+  if (dropHud) dropHud.value = "follow_player";
   document.getElementById("main-menu-overlay").classList.remove("visible");
 }
 function toggleMainMenu() {
@@ -1756,11 +1722,19 @@ function updateZonePopup(zone) {
     enterBtn.textContent = zone.btnText;
     enterBtn.onclick = () => {
       if (zone.mode === "gather") {
-        if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
-        else closeMainMenu();
+        if (snap && snap.mode !== "gather") {
+          switchModeAndPlay("gather");
+        } else {
+          if (snap && snap.finished) restartGame();
+          closeMainMenu();
+        }
       } else if (zone.mode === "quan") {
-        if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
-        else closeMainMenu();
+        if (snap && snap.mode !== "quan") {
+          switchModeAndPlay("quan");
+        } else {
+          if (snap && snap.finished) restartGame();
+          closeMainMenu();
+        }
       } else if (zone.mode === "shop") {
         closeMainMenu();
         const shopModal = document.getElementById("shop-modal");
@@ -1768,6 +1742,7 @@ function updateZonePopup(zone) {
       } else if (zone.mode === "day") {
         switchModeAndPlay("day");
       } else {
+        if (snap && snap.finished) restartGame();
         closeMainMenu();
       }
     };
@@ -1835,8 +1810,10 @@ if (menuMapCanvas) {
 
     // Hover detection trên canvas
     const rect = menuMapCanvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const scaleX = menuMapCanvas.width / (rect.width || 1);
+    const scaleY = menuMapCanvas.height / (rect.height || 1);
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
     const w = menuMapCanvas.width, h = menuMapCanvas.height;
 
     let found = null;
@@ -1855,8 +1832,10 @@ if (menuMapCanvas) {
       isMapDragging = false;
       if (!mapHasDragged && menuMapCanvas) {
         const rect = menuMapCanvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
+        const scaleX = menuMapCanvas.width / (rect.width || 1);
+        const scaleY = menuMapCanvas.height / (rect.height || 1);
+        const mx = (e.clientX - rect.left) * scaleX;
+        const my = (e.clientY - rect.top) * scaleY;
         const w = menuMapCanvas.width, h = menuMapCanvas.height;
 
         let closest = null;
@@ -2241,6 +2220,9 @@ function restartGame() {
   fetch("/restart", { method: "POST" });
   lastSent = "";
   down.clear();
+  cameraMode = "follow_player";
+  const dropHud = document.getElementById("camera-area-dropdown");
+  if (dropHud) dropHud.value = "follow_player";
   prevEventsCount = 0;
   prevHoldLength = 0;
   snap = null;
@@ -2259,10 +2241,27 @@ document.getElementById("btn-menu").addEventListener("click", () => {
   openMainMenu();
 });
 document.getElementById("btn-open-menu").addEventListener("click", toggleMainMenu);
-document.getElementById("btn-continue-game").addEventListener("click", closeMainMenu);
-document.getElementById("btn-play-gather").addEventListener("click", () => switchModeAndPlay("gather"));
-document.getElementById("btn-play-quan").addEventListener("click", () => switchModeAndPlay("quan"));
-document.getElementById("btn-play-day").addEventListener("click", () => switchModeAndPlay("day"));
+const btnContinueGame = document.getElementById("btn-continue-game");
+if (btnContinueGame) {
+  btnContinueGame.addEventListener("click", () => {
+    if (snap && snap.finished) restartGame();
+    closeMainMenu();
+  });
+}
+const btnCloseMenuX = document.getElementById("btn-close-menu-x");
+if (btnCloseMenuX) {
+  btnCloseMenuX.addEventListener("click", () => {
+    if (snap && snap.finished) restartGame();
+    closeMainMenu();
+  });
+}
+
+const btnPlayGather = document.getElementById("btn-play-gather");
+if (btnPlayGather) btnPlayGather.addEventListener("click", () => switchModeAndPlay("gather"));
+const btnPlayQuan = document.getElementById("btn-play-quan");
+if (btnPlayQuan) btnPlayQuan.addEventListener("click", () => switchModeAndPlay("quan"));
+const btnPlayDay = document.getElementById("btn-play-day");
+if (btnPlayDay) btnPlayDay.addEventListener("click", () => switchModeAndPlay("day"));
 document.getElementById("btn-buy-oxygen").addEventListener("click", () => {
   pendingBuy = "oxygen"; pushInput();
 });

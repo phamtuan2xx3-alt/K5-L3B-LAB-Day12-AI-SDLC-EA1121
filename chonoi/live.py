@@ -171,7 +171,24 @@ class _Handler(BaseHTTPRequestHandler):
                     self._send(200, f.read(), "text/html; charset=utf-8")
             except OSError:
                 self._send(404, b'{"error":"thieu index.html"}')
+        elif path == "/favicon.ico":
+            self._send(204, b"", "image/x-icon")
         else:
+            rel_path = path.lstrip("/")
+            full_path = os.path.join(WEB_DIR, rel_path)
+            if os.path.isfile(full_path):
+                ctype = "application/octet-stream"
+                if rel_path.endswith(".js"): ctype = "application/javascript"
+                elif rel_path.endswith(".css"): ctype = "text/css"
+                elif rel_path.endswith(".png"): ctype = "image/png"
+                elif rel_path.endswith(".svg"): ctype = "image/svg+xml"
+                elif rel_path.endswith(".ico"): ctype = "image/x-icon"
+                try:
+                    with open(full_path, "rb") as f:
+                        self._send(200, f.read(), ctype)
+                    return
+                except OSError:
+                    pass
             self._send(404, b'{"error":"khong co"}')
 
     def do_POST(self):
