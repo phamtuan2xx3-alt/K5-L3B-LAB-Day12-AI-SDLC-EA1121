@@ -129,8 +129,9 @@ class IngredientsV11(unittest.TestCase):
                          {"ca_keo": 2, "keo_neo": 1})
 
     def test_contract_p1_van_tu_choi_ca_keo(self):
+        p1 = {"menu": {k: MENU_V11[k] for k in ("ca_loc_nuong_trui", "goi_bong_sung", "lau_ca_linh_dien_dien")}}
         with self.assertRaises(BadInput):
-            validate_items({"ca_keo": 1}, kinds_for(load_contract()["tuning"]))
+            validate_items({"ca_keo": 1}, kinds_for(p1))
 
 
 if __name__ == "__main__":

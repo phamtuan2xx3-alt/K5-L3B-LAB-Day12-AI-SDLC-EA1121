@@ -47,8 +47,9 @@ class QuanSim:
         self.customers = cust.init_customers(self, scenario.get("customers", []), self.random_customers)
         for e in self.customers:
             ids.reserve(e["id"])
-        self.money = 0
-        self.earned = 0
+        # day (v1.1) bàn giao tiền/earned xuyên Ngày qua scenario nội bộ; quán độc lập bắt đầu từ 0.
+        self.money = scenario.get("money", 0)
+        self.earned = scenario.get("earned", 0)
         self.shift_earned = 0
         self.done = False
         self.reason = None

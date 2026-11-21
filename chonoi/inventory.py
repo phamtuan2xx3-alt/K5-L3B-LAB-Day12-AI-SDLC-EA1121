@@ -11,6 +11,8 @@ import tempfile
 from .errors import BadInput
 
 KINDS_P1 = ("ca_loc", "ca_linh", "bong_dien_dien", "bong_sung")
+KINDS_P2 = ("ca_loc", "ca_linh", "ca_keo", "bong_dien_dien", "bong_sung", "keo_neo")
+ALL_KINDS = KINDS_P2
 
 
 def kinds_for(tuning) -> tuple:
@@ -19,7 +21,7 @@ def kinds_for(tuning) -> tuple:
     return tuple(sorted(kinds)) if kinds else KINDS_P1
 
 
-def validate_items(items, kinds=KINDS_P1):
+def validate_items(items, kinds=ALL_KINDS):
     if not isinstance(items, dict):
         raise BadInput("items phải là object")
     out = {}
@@ -33,7 +35,7 @@ def validate_items(items, kinds=KINDS_P1):
     return out
 
 
-def read_inventory(path: str, kinds=KINDS_P1) -> dict:
+def read_inventory(path: str, kinds=ALL_KINDS) -> dict:
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)

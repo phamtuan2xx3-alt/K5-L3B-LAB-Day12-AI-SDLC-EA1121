@@ -150,3 +150,15 @@ def validate_tuning(t, version="1.0"):
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
+    if version >= "1.1":
+        if "day_plan" in t:
+            dp = t["day_plan"]
+            if not isinstance(dp, list) or len(dp) != 5:
+                raise BadInput("day_plan phải là mảng 5 ngày")
+            for item in dp:
+                if not isinstance(item, dict) or "day" not in item or "dishes" not in item or "ingredients" not in item:
+                    raise BadInput("mỗi mục day_plan phải có day, dishes, ingredients")
+        if "shop" in t:
+            sh = t["shop"]
+            if not isinstance(sh, dict) or "max_ticks" not in sh or "upgrades" not in sh:
+                raise BadInput("shop phải có max_ticks và upgrades")

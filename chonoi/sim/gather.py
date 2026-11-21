@@ -58,6 +58,8 @@ class GatherSim:
         self.zero_oxy_ticks = p.get("zero_oxy_ticks", 0)
         self.invuln_ticks = p.get("invuln_ticks", 0)
         self.catch_cd_ticks = p.get("catch_cd_ticks", 0)
+        self.depth_warned = False  # sáng tạo: cảnh báo khi vừa vượt qua ngưỡng áp suất dòng sâu (d > 18)
+        self.hold = list(scenario.get("hold", []))  # thứ tự nhặt, cuối mảng là mới nhất
         self.hold = list(scenario.get("hold", []))  # LIFO, cuối mảng là mới nhất
         self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * TICK)))
         self.phase_tick = 0

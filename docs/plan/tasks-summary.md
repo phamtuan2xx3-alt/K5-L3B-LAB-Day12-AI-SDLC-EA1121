@@ -10,7 +10,7 @@
 
 | STT | Tên Lát Gameplay | Module File | Thành viên nhận việc | GitHub Handle | Trạng thái | Hướng dẫn & Prompt AI |
 | :---: | :--- | :--- | :---: | :---: | :---: | :--- |
-| **DEV 1** | **Gameplay Lặn & Sinh Tồn**<br>*(Bơi, Oxy, Ngạt nước, Mất máu, Ngất xỉu, Cập bến ghe)* | `chonoi/sim/gather.py` | *(Chưa nhận)* | `@...` | `Trống` | [`task-1-gather-survival.md`](./task-1-gather-survival.md) |
+| **DEV 1** | **Gameplay Lặn & Sinh Tồn**<br>*(Bơi, Oxy, Ngạt nước, Mất máu, Ngất xỉu, Cập bến ghe)* | `chonoi/sim/gather.py` | Nguyễn Thanh Tùng (2A202603880) | `thanhtung578804` | `In Progress` | [`task-1-gather-survival.md`](./task-1-gather-survival.md) |
 | **DEV 2** | **Gameplay Sinh Thái & Săn Bắt**<br>*(Hái Bông Súng/Điên Điển mọc lại, Săn Cá Linh/Cá Lóc, Giỏ LIFO)* | `chonoi/sim/gather.py` | Phạm Quang Tuấn (2A202603824) | `phamtuan2xx3-alt` | `In Progress` | [`task-2-gather-harvest.md`](./task-2-gather-harvest.md) |
 | **DEV 3** | **Gameplay Thực Khách & Bàn Ăn**<br>*(Lịch đón khách ghé ghe, Xếp bàn ăn, Thanh kiên nhẫn, Khách giận bỏ về)* | `chonoi/sim/quan.py` | Lê Ngọc Khánh (2A202603804) | `lekhanh2k5-dotcom` | `In Progress` | [`task-3-quan-customers.md`](./task-3-quan-customers.md) |
 | **DEV 4** | **Gameplay Kho Nguyên Liệu & Menu**<br>*(Kho khả dụng, Kiểm tra công thức nấu, Khóa giữ chỗ nguyên liệu, Xử lý hết món)* | `chonoi/sim/quan.py` | *(Chưa nhận)* | `@...` | `Trống` | [`task-4-quan-inventory-menu.md`](./task-4-quan-inventory-menu.md) |

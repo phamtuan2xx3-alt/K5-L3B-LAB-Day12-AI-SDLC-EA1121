@@ -8,16 +8,17 @@ phải có đúng một món, khách eating thiếu giá/tip...) — xem PRD-0 m
 import json
 
 from .errors import BadInput
-from .inventory import kinds_for, validate_items
+from .inventory import ALL_KINDS, kinds_for, validate_items
 
-GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks"}
+GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "monsters", "time_left_ticks", "day"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
-                      "invuln_ticks", "catch_cd_ticks"}
-NODE_KINDS = ("bong_dien_dien", "bong_sung")
-FISH_KINDS = ("ca_linh", "ca_loc")
+                      "invuln_ticks", "catch_cd_ticks", "attack_cd_ticks"}
+NODE_KINDS = ("bong_dien_dien", "bong_sung", "keo_neo")
+FISH_KINDS = ("ca_linh", "ca_loc", "ca_keo")
 QUAN_PLAYER_KEYS = {"pos", "vel"}
 QUAN_KEYS = {"player", "stock", "hand", "stoves", "tables", "customers", "random_customers",
              "reputation", "time_left_ticks"}
+DAY_KEYS = {"day", "money", "earned", "reputation", "upgrades", "day_plan"}
 
 
 def _check_ids(name, arr):
@@ -32,6 +33,37 @@ def _check_ids(name, arr):
         seen.add(e["id"])
 
 
+def _validate_day(b, tuning):
+    if not isinstance(b, dict):
+        raise BadInput("khối day phải là object")
+    extra = set(b) - DAY_KEYS
+    if extra:
+        raise BadInput(f"trường lạ trong day: {sorted(extra)}")
+    if "day" in b:
+        d = b["day"]
+        if isinstance(d, bool) or not isinstance(d, int) or not (1 <= d <= 5):
+            raise BadInput("day.day phải là số nguyên trong [1, 5]")
+    money = b.get("money")
+    earned = b.get("earned")
+    if money is not None or earned is not None:
+        if money is None or earned is None:
+            raise BadInput("khi khai tiền đầu kỳ cần khai cả money và earned")
+        if isinstance(money, bool) or not isinstance(money, int) or money < 0:
+            raise BadInput("day.money phải là số nguyên >= 0")
+        if isinstance(earned, bool) or not isinstance(earned, int) or earned < 0:
+            raise BadInput("day.earned phải là số nguyên >= 0")
+        if money > earned:
+            raise BadInput("cần 0 <= money <= earned")
+    if "reputation" in b:
+        r = b["reputation"]
+        if isinstance(r, bool) or not isinstance(r, (int, float)) or not (0 <= r <= 5):
+            raise BadInput("day.reputation phải trong [0, 5]")
+    if "upgrades" in b and not isinstance(b["upgrades"], dict):
+        raise BadInput("day.upgrades phải là object")
+    if "day_plan" in b and not isinstance(b["day_plan"], list):
+        raise BadInput("day.day_plan phải là mảng")
+
+
 def load_scenario(path, mode: str, tuning: dict) -> dict:
     if path is None:
         return {}
@@ -40,7 +72,29 @@ def load_scenario(path, mode: str, tuning: dict) -> dict:
             data = json.load(f)
     except (OSError, ValueError) as e:
         raise BadInput(f"không đọc được scenario {path}: {e}")
-    if not isinstance(data, dict) or not set(data) <= {"gather", "quan"}:
+    if not isinstance(data, dict):
+        raise BadInput("scenario phải là object")
+
+    if mode == "day":
+        if not set(data) <= {"day", "gather", "quan"}:
+            raise BadInput(f"khối sai mode: chạy --mode day chỉ nhận khối 'day', 'gather', 'quan'")
+        if "quan" in data:
+            if not isinstance(data["quan"], dict):
+                raise BadInput("khối quan phải là object")
+            if "stock" in data["quan"]:
+                raise BadInput("cấm quan.stock khi chạy day")
+            if "reputation" in data["quan"]:
+                raise BadInput("cấm quan.reputation khi chạy day")
+            _validate_quan(data["quan"], tuning)
+        if "gather" in data:
+            if not isinstance(data["gather"], dict):
+                raise BadInput("khối gather phải là object")
+            _validate_gather(data["gather"], tuning)
+        if "day" in data:
+            _validate_day(data["day"], tuning)
+        return data
+
+    if not set(data) <= {"gather", "quan"}:
         raise BadInput("scenario chỉ được có khối 'gather' hoặc 'quan'")
     if set(data) - {mode}:
         raise BadInput(f"khối sai mode: chạy --mode {mode} chỉ nhận khối '{mode}'")

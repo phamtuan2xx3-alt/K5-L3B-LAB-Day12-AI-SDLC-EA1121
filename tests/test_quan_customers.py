@@ -52,9 +52,12 @@ class Arrivals(unittest.TestCase):
         self.assertEqual(s.snapshot()["customers"], [])
 
     def test_het_ban_bo_luot_khong_event(self):
-        s = Session("quan", TUNING, {"stock": {"ca_loc": 2}}, 1)
-        rows = run_until(s, FIRST + INTERVAL)
-        self.assertEqual(names(rows), [(FIRST, "customer_arrived")], "T1 đang có khách: lượt 1020 bị bỏ")
+        tables = [t["id"] for t in TUNING["quan"]["tables"]]
+        sc = {"stock": {"ca_loc": len(tables) + 1},
+              "customers": [{"id": f"C{i + 1}", "table_id": tb, "dish_id": "ca_loc_nuong_trui"}
+                            for i, tb in enumerate(tables)]}
+        s = Session("quan", TUNING, sc, 1)
+        self.assertEqual(run_until(s, FIRST), [], "mọi bàn đều có khách: lượt 120 bị bỏ, không event")
 
     def test_random_customers_false_tat_khach_tu_sinh(self):
         s = Session("quan", TUNING, {"stock": {"ca_loc": 1}, "random_customers": False}, 1)

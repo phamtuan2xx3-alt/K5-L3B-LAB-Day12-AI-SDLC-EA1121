@@ -34,6 +34,7 @@ class TestQuanKitchenServing(unittest.TestCase):
             "stoves": [{"id": "B1", "pos": [2, 8]}],
             "tables": [{"id": "T1", "pos": [9, 2]}],
             "time_left_ticks": 10000,
+            "random_customers": False,  # v1.1 có 4 bàn: tắt khách tự sinh để kiểm đúng một vòng
         }
         s = Session("quan", self.tuning, scenario, seed=1)
         li = LiveInputs()
