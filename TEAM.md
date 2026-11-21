@@ -7,7 +7,7 @@
 | Nguyễn Thanh Tùng (2A202603880) | thanhtung578804 | `sim/gather` | Gameplay Dev (Lặn & Sinh tồn) | `sim/gather` |
 | Phạm Quang Tuấn (2A202603824) | phamtuan2xx3-alt | `sim/gather` | Gameplay Dev (Hái hoa & Bắt cá) | `sim/quan` |
 | Lê Ngọc Khánh (2A202603804) | lekhanh2k5-dotcom | `sim/quan` | Gameplay Dev (Khách & Bàn ăn) | `sim/gather` |
-| (Thành viên 4) | member4 | `sim/quan` | Gameplay Dev (Kho & Giữ chỗ menu) | `sim/quan` |
+| Nguyễn Quốc Quang Anh (2A202604120) | QuangAnh28 | `sim/quan` | Gameplay Dev (Kho & Giữ chỗ menu) | `sim/quan` |
 | Chu Văn Nhật (2A202603848) | moyymochi11 | `sim/quan` | Gameplay Dev (Bếp nấu & Kinh tế) | `client/ui` |
 
 **Vai quy trình:** PO (đầu mối hỏi giảng viên, giữ `docs/clarify.md`) · Integrator (giữ `docs/contracts/`, gắn tag) · QA lead · Scrum/Release. Có thể kiêm.
