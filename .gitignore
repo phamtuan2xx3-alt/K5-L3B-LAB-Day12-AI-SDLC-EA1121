@@ -3,3 +3,11 @@ __pycache__/
 *.jsonl
 !tests/fixtures/*.jsonl
 .DS_Store
+*.mp4
+*.webm
+demo_recordings/
+temp_frames/
+*.png
+!docs/**/*.png
+test_state.py
+

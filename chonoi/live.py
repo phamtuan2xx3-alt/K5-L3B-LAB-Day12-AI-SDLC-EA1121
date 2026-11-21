@@ -61,7 +61,7 @@ class LiveGame:
         self.master_reputation = float(scenario.get("day", {}).get("reputation", scenario.get("quan", {}).get("reputation", tuning.get("quan", {}).get("reputation_initial", 3.0))))
         self.master_upgrades = dict(scenario.get("day", {}).get("upgrades", {}))
 
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._stop = threading.Event()
         self._thread = None
         self._reset()

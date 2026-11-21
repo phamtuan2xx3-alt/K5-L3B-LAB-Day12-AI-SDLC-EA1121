@@ -932,7 +932,7 @@
 <div id="sfx-captions-box" class="sfx-captions-box"></div>
 
 <!-- MAIN GAMEPLAY SELECTION MENU (TRANG CHỦ - BẢN ĐỒ 3/4 ISOMETRIC) -->
-<div id="main-menu-overlay" class="visible">
+<div id="main-menu-overlay">
   <div class="menu-content-box">
     <!-- BẢN ĐỒ THẾ GIỚI MỞ CHỢ NỔI MEKONG — GÓC NHÌN TRÊN XUỐNG 3/4 ISOMETRIC -->
     <div class="menu-map-section">
@@ -1563,6 +1563,9 @@ function openMainMenu() {
   const dropMenu = document.getElementById("menu-camera-area-dropdown");
   if (dropMenu) dropMenu.value = cameraMode;
   document.getElementById("main-menu-overlay").classList.add("visible");
+  if (typeof resizeMenuMap === "function") {
+    resizeMenuMap();
+  }
   if (typeof selectZoneOn3DMap === "function") {
     selectZoneOn3DMap(cameraMode === "follow_player" ? "ben_lan" : cameraMode);
   }
@@ -1677,15 +1680,12 @@ function updateZonePopup(zone) {
     };
   }
 
-  // Cập nhật trạng thái mở cửa theo giờ in-game
-  let clkH = 8;
-  if (snap && snap.clock) clkH = snap.clock.hour;
   let isOpen = true;
-  let openText = "🟢 ĐANG MỞ CỬA";
-  if (zone.id === "ben_lan" && (clkH < 6 || clkH >= 15)) {
-    isOpen = false; openText = "⏳ ĐÃ ĐÓNG CA LẶN (06:00-15:00)";
-  } else if (zone.id === "quan_an" && (clkH < 18 || clkH >= 23)) {
-    isOpen = false; openText = "⏳ QUÁN CHƯA MỞ (18:00-23:00)";
+  let openText = "🟢 SẴN SÀNG (CHƠI NGAY)";
+  if (zone.id === "ben_lan") {
+    openText = "🟢 SẴN SÀNG LẶN (DEV 1 & 2)";
+  } else if (zone.id === "quan_an") {
+    openText = "🟢 SẴN SÀNG MỞ QUÁN (DEV 3, 4 & 5)";
   }
 
   if (badgeEl) {
@@ -1799,8 +1799,13 @@ function draw3DMenuMap() {
   const overlay = document.getElementById("main-menu-overlay");
   if (!overlay || !overlay.classList.contains("visible")) return;
 
+  if (typeof resizeMenuMap === "function" && (menuMapCanvas.width <= 10 || menuMapCanvas.height <= 10)) {
+    resizeMenuMap();
+  }
+
   const w = menuMapCanvas.width;
   const h = menuMapCanvas.height;
+  if (w <= 10 || h <= 10) return;
   const tNow = performance.now() * 0.002;
 
   // LERP Camera bản đồ mượt mà
@@ -2032,21 +2037,22 @@ function draw3DMenuMap() {
 // Khởi tạo popup ban đầu với bến lặn
 updateZonePopup(MEKONG_ZONES_3D[0]);
 
+let resizeMenuMap = null;
 function init3DMenuMap() {
   if (!menuMapCanvas) return;
-  const resizeMap = () => {
+  resizeMenuMap = () => {
     const parent = menuMapCanvas.parentElement;
     if (parent) {
-      const pw = parent.clientWidth;
-      const ph = parent.clientHeight || 330;
-      if (menuMapCanvas.width !== pw || menuMapCanvas.height !== ph) {
+      const pw = parent.clientWidth || 1020;
+      const ph = parent.clientHeight || 520;
+      if (pw > 0 && ph > 0 && (menuMapCanvas.width !== pw || menuMapCanvas.height !== ph)) {
         menuMapCanvas.width = pw;
         menuMapCanvas.height = ph;
       }
     }
   };
-  resizeMap();
-  window.addEventListener("resize", resizeMap);
+  resizeMenuMap();
+  window.addEventListener("resize", resizeMenuMap);
 }
 init3DMenuMap();
 
@@ -2234,9 +2240,13 @@ async function poll() {
   try {
     const r = await fetch("/state", { cache: "no-store" });
     const newSnap = await r.json();
-    handleNewEvents(newSnap);
     snap = newSnap;
     offline = false;
+    try {
+      handleNewEvents(newSnap);
+    } catch (evErr) {
+      console.warn("Event handler error:", evErr);
+    }
   } catch (e) {
     offline = true;
   }
