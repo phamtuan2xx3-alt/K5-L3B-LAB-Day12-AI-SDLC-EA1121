@@ -1,6 +1,13 @@
 # Changelog
 ## Unreleased
 
+### Phase 4 — soak headless (DEV 3)
+- `soak_cmd` = `python3 -m chonoi.soak --seed <int> --days <N> --out soak.json` (khai ở gốc `game.contract.json`).
+  Chạy N Ngày trong một tiến trình bằng bot tất định (gather → quan → shop), xuất `days, days_completed,
+  crashes, results[{day, earned, reputation, score}], duration_s`. Seed 7, 10 Ngày: 10/10, 0 crash, ~2.5 s
+  (`docs/proof/phase-4/soak.json`).
+- `DaySim._get_plan`: Ngày 6–10 lặp kế hoạch D1–D5 (trước đây Ngày > 5 luôn dùng D1).
+
 ### Contract v1.2 — "Mùa Nước Nổi" (Phase 3) · BREAKING
 - **Kho đếm → kho cá thể.** File kho, `gather.hold`, `quan.stock`, snapshot `stock`/`hold` đổi từ object
   `{"kind": số}` sang mảng `[{"id","kind","fresh"}]`. Kho rỗng là `{"items":[]}`. Khi chạy contract 1.2,
