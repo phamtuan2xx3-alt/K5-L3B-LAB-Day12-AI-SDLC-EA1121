@@ -2,7 +2,7 @@
 
 > Tag bàn giao: `phase-4` / GitHub Release `v1.0.0`  
 > Test Contract: `v1.3`  
-> Trạng thái test suite: 146/146 test cases PASS (100%)  
+> Trạng thái test suite: 150/150 test cases PASS (100%)  
 > Bằng chứng nghiệm thu: `docs/proof/phase-4/bench.json`, `docs/proof/phase-4/soak.json`  
 
 ---
@@ -16,7 +16,7 @@
 | **AC-P4-03** | Cảnh báo dễ nhận biết & Chế độ Tương phản cao:<br>- 3 cảnh báo trực quan bằng chữ và biểu tượng:<br>  1. Thủy quái Cá Sấu ở gần: `🐊 CẢNH BÁO...`<br>  2. Bình Oxy sắp hết (≤ 20%): `🫁 NGUY HIỂM...`<br>  3. Khách bàn ăn sắp giận bỏ về (≤ 25%): `😤 CẢNH BÁO...`<br>- Chế độ Tương phản cao (High Contrast Mode) toggle qua nút HUD hoặc phím tắt `C` | Mở giao diện `chonoi.live`, kiểm tra DOM overlay và CSS `body.high-contrast` | `chonoi/web/index.html` (DOM IDs: `#threat-banner`, `#oxy-warning-banner`, `#customer-warning-banner`, `#btn-high-contrast`) | **ĐẠT** |
 | **AC-P4-04** | Mở rộng: Phụ đề SFX (Accessibility Closed Captions):<br>- Hiển thị phụ đề trực quan khi phát các hiệu ứng âm thanh (quăng lưới, hái hoa, nấu bếp, món chín, trả tiền & boa, v.v.)<br>- Chơi thử khi tắt âm lượng vẫn nhận biết đầy đủ sự kiện âm thanh | Thao tác tương tác trong game, quan sát popup phụ đề nổi `#sfx-captions-box` | `chonoi/web/index.html` (`SoundFX` class & `showSFXSubtitle(icon, text)`) | **ĐẠT** |
 | **AC-P4-05** | Soak headless: `<soak_cmd> --seed 7 --days 10 --out soak.json`<br>- Chạy 10 Ngày trong một tiến trình headless bằng bot tất định (gather → quan → shop).<br>- Kế hoạch D1–D5 lặp ở Ngày 6–10.<br>- Đạt: days_completed = days = 10, crashes = 0 | Chạy `python3 -m chonoi.soak --seed 7 --days 10 --out docs/proof/phase-4/soak.json` | `docs/proof/phase-4/soak.json`<br>- days: 10, days_completed: 10<br>- crashes: 0<br>- duration_s: ~3.42s | **ĐẠT** |
-| **AC-P4-06** | Đóng gói & Phát hành v1.0.0:<br>- Clone sạch chạy trong tối đa 3 lệnh trên macOS / Linux / Windows.<br>- Bộ test tự động 146/146 tests xanh 100%.<br>- Giữ vững tính tất định byte-for-byte và tính hồi quy các phase P1–P3 | Chạy smoke test, benchmark, soak và kiểm tra tài liệu phát hành | `tests/`, `README.md`, `CHANGELOG.md`, `game.contract.json` | **ĐẠT** |
+| **AC-P4-06** | Đóng gói & Phát hành v1.0.0:<br>- Clone sạch chạy trong tối đa 3 lệnh trên macOS / Linux / Windows.<br>- Bộ test tự động 150/150 tests xanh 100%.<br>- Giữ vững tính tất định byte-for-byte và tính hồi quy các phase P1–P3 | Chạy smoke test, benchmark, soak và kiểm tra tài liệu phát hành | `tests/`, `README.md`, `CHANGELOG.md`, `game.contract.json` | **ĐẠT** |
 
 ---
 
