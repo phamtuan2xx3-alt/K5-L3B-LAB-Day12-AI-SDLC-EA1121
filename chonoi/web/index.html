@@ -1395,6 +1395,13 @@ addEventListener("keydown", (e) => {
   if (e.repeat) { if (k === " " || k.startsWith("arrow")) e.preventDefault(); return; }
   if (MOVE_KEYS[k]) {
     down.add(MOVE_KEYS[k]);
+    const menuEl = document.getElementById("main-menu-overlay");
+    if (menuEl && menuEl.classList.contains("visible")) {
+      closeMainMenu();
+    }
+    if (snap && snap.finished) {
+      restartGame();
+    }
     if (cameraMode !== "follow_player") {
       cameraMode = "follow_player";
       const drop = document.getElementById("camera-area-dropdown");
@@ -1483,8 +1490,9 @@ function openMainMenu() {
   }
 }
 function closeMainMenu() {
+  cameraMode = "follow_player";
   const dropHud = document.getElementById("camera-area-dropdown");
-  if (dropHud) dropHud.value = cameraMode;
+  if (dropHud) dropHud.value = "follow_player";
   document.getElementById("main-menu-overlay").classList.remove("visible");
 }
 function toggleMainMenu() {
@@ -1609,11 +1617,19 @@ function updateZonePopup(zone) {
     enterBtn.textContent = zone.btnText;
     enterBtn.onclick = () => {
       if (zone.mode === "gather") {
-        if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
-        else closeMainMenu();
+        if (snap && snap.mode !== "gather") {
+          switchModeAndPlay("gather");
+        } else {
+          if (snap && snap.finished) restartGame();
+          closeMainMenu();
+        }
       } else if (zone.mode === "quan") {
-        if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
-        else closeMainMenu();
+        if (snap && snap.mode !== "quan") {
+          switchModeAndPlay("quan");
+        } else {
+          if (snap && snap.finished) restartGame();
+          closeMainMenu();
+        }
       } else if (zone.mode === "shop") {
         closeMainMenu();
         const shopModal = document.getElementById("shop-modal");
@@ -1621,6 +1637,7 @@ function updateZonePopup(zone) {
       } else if (zone.mode === "day") {
         switchModeAndPlay("day");
       } else {
+        if (snap && snap.finished) restartGame();
         closeMainMenu();
       }
     };
@@ -2098,6 +2115,9 @@ function restartGame() {
   fetch("/restart", { method: "POST" });
   lastSent = "";
   down.clear();
+  cameraMode = "follow_player";
+  const dropHud = document.getElementById("camera-area-dropdown");
+  if (dropHud) dropHud.value = "follow_player";
   prevEventsCount = 0;
   prevHoldLength = 0;
   snap = null;
@@ -2117,9 +2137,19 @@ document.getElementById("btn-menu").addEventListener("click", () => {
 });
 document.getElementById("btn-open-menu").addEventListener("click", toggleMainMenu);
 const btnContinueGame = document.getElementById("btn-continue-game");
-if (btnContinueGame) btnContinueGame.addEventListener("click", closeMainMenu);
+if (btnContinueGame) {
+  btnContinueGame.addEventListener("click", () => {
+    if (snap && snap.finished) restartGame();
+    closeMainMenu();
+  });
+}
 const btnCloseMenuX = document.getElementById("btn-close-menu-x");
-if (btnCloseMenuX) btnCloseMenuX.addEventListener("click", closeMainMenu);
+if (btnCloseMenuX) {
+  btnCloseMenuX.addEventListener("click", () => {
+    if (snap && snap.finished) restartGame();
+    closeMainMenu();
+  });
+}
 
 const btnPlayGather = document.getElementById("btn-play-gather");
 if (btnPlayGather) btnPlayGather.addEventListener("click", () => switchModeAndPlay("gather"));
