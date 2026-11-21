@@ -4,12 +4,16 @@ Luật PRD-0 mục F, Quán:
   Lát 3 (DEV 3): vòng đời khách — sim/customers.py (lịch, bàn, giữ chỗ, kiên nhẫn, rời, trả tiền).
   Lát 3 (DEV 4): kho khả dụng và tiêu phần giữ — _get_available_stock, _consume_reservation.
   Lát 4 (DEV 5): bếp, bưng, phục vụ, boa — _tick_stoves, _finish_cooking, _interact.
+  Phase 3 (DEV 3): độ tươi v1.2 — sim/freshness.py (kho cá thể, hao, ươn, giữ theo id, giá theo tươi).
 """
 
 import math
+from fractions import Fraction
 
 from ..ids import sort_by_id
+from ..inventory import kinds_for
 from . import customers as cust
+from . import freshness as fr
 from .ramp import ramp_velocity
 
 TICK = 60.0
@@ -33,7 +37,19 @@ class QuanSim:
         self._tgt = None
         self._ramp_left = 0
         # kho: --inventory HOẶC scenario.stock (cả hai -> cli đã báo mã 2)
-        self.stock = dict(inventory if inventory is not None else scenario.get("stock", {}))
+        raw_stock = inventory if inventory is not None else scenario.get("stock", {})
+        # v1.2: kho cá thể {id, kind, fresh}; v1.0/1.1: object đếm theo loại.
+        self.fresh = fr.config(tuning)
+        self.itemized = self.fresh is not None
+        if self.itemized:
+            items = fr.items_from_handoff(raw_stock, kinds_for(tuning), ids, self.fresh["initial"])
+            self.items = {it["id"]: it for it in items}
+            for iid in self.items:
+                ids.reserve(iid)
+            self.stock = None
+        else:
+            self.items = None
+            self.stock = dict(raw_stock)
         self.hand = scenario.get("hand")
         self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * 60)))
         self.reputation = scenario.get("reputation", t["reputation_initial"])
@@ -65,7 +81,9 @@ class QuanSim:
         return sort_by_id(list(by_id.values()))
 
     def _get_available_stock(self) -> dict:
-        """Tính phần kho chưa được khách giữ chỗ."""
+        """Tính phần kho chưa được khách giữ chỗ (v1.2: cá thể chưa ươn, chưa giữ, đếm theo loại)."""
+        if self.itemized:
+            return fr.counts(fr.available_items(self))
         available = dict(self.stock)
         for customer in self.customers:
             for ingredient, quantity in customer.get("reserved", {}).items():
@@ -91,6 +109,12 @@ class QuanSim:
     def _consume_reservation(self, customer) -> bool:
         """Trừ kho khi bếp bắt đầu nấu. Trả False nếu chưa thể trừ đủ."""
         reserved = customer.get("reserved", {})
+        if self.itemized:  # v1.2: tiêu đúng các id đang giữ
+            if not reserved or any(i not in self.items for i in reserved):
+                return False
+            customer["_used"] = fr.take(self, reserved)
+            customer["reserved"] = []
+            return True
         if not reserved or any(self.stock.get(ingredient, 0) < quantity
                                for ingredient, quantity in reserved.items()):
             return False
@@ -103,7 +127,8 @@ class QuanSim:
         occupied = {c["table_id"]: c["id"] for c in self.customers}
         return {
             "player": {"pos": self.pos},
-            "stock": {k: self.stock[k] for k in sorted(self.stock) if self.stock[k] > 0},
+            "stock": ([fr.out_item(it) for it in sort_by_id(list(self.items.values()))] if self.itemized
+                      else {k: self.stock[k] for k in sorted(self.stock) if self.stock[k] > 0}),
             "hand": self.hand,
             "stoves": [{k: s.get(k) for k in ("id", "pos", "state", "dish", "cook_ticks_left", "ready_ticks")}
                        for s in self.stoves],
@@ -118,6 +143,10 @@ class QuanSim:
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
         cust.tick_timers(self)
         self._tick_stoves()
+        if self.itemized:  # v1.2: hao tươi kho thô, phát spoiled theo id, rồi mới giữ lại cho đơn bị ươn
+            spoiled = fr.decay(self, events)
+            if spoiled:
+                fr.rehold(self, spoiled)
         # 2. xét bếp theo id: nấu xong -> ready, ready_ticks = 0 (lát 4)
         self._finish_cooking(events)
         # 3. di chuyển rồi tối đa MỘT interact (lát 4)
@@ -181,15 +210,21 @@ class QuanSim:
         if not orders:
             return
         c = min(orders, key=lambda c: (c["order_tick"], id_key(c["table_id"])))
-        items = sorted(k for k, n in c["reserved"].items() for _ in range(n))
+        if not self.itemized:
+            items = sorted(k for k, n in c["reserved"].items() for _ in range(n))
         if not self._consume_reservation(c):  # helper kho của DEV 4
             return
         dish = self.menu[c["dish_id"]]
-        c["order_status"], c["base_price"] = "assigned", dish["price"]
-        stove.update(state="cooking", dish={"order_id": c["id"], "dish_id": c["dish_id"], "base_price": dish["price"]},
+        price = dish["price"]
+        if self.itemized:  # v1.2: items là cá thể (kind rồi id), giá chốt theo trung bình fresh
+            used = c.pop("_used")
+            items = [fr.out_item(it) for it in used]
+            price = fr.fresh_price(dish["price"], used)
+        c["order_status"], c["base_price"] = "assigned", price
+        stove.update(state="cooking", dish={"order_id": c["id"], "dish_id": c["dish_id"], "base_price": price},
                      cook_ticks_left=int(round(dish["cook_s"] * TICK)), ready_ticks=0)
         events.append(("cook_started", {"stove_id": stove["id"], "order_id": c["id"], "dish_id": c["dish_id"],
-                                        "items": items, "base_price": dish["price"]}))
+                                        "items": items, "base_price": price}))
 
     def _pick_dish(self, stove, events):
         self.hand = stove["dish"]
@@ -205,8 +240,9 @@ class QuanSim:
             return
         base = self.hand["base_price"]
         full = cust.to_ticks(self.t["patience_s"])
-        tip = math.floor(base * self.t["tip_rate"]) \
-            if c["patience_ticks_left"] / full >= self.t["tip_min_patience_ratio"] else 0
+        # Fraction: floor(giá đã chốt × 0.2) và so tỷ lệ 0.5 chính xác, không lệch do float
+        tip = math.floor(Fraction(base) * fr.frac(self.t["tip_rate"])) \
+            if Fraction(c["patience_ticks_left"], full) >= fr.frac(self.t["tip_min_patience_ratio"]) else 0
         self.hand = None
         c.update(state="eating", order_status="served", eat_ticks_left=cust.to_ticks(self.t["eat_s"]),
                  base_price=base, tip=tip)
