@@ -374,8 +374,69 @@
     border-radius: 8px; padding: 6px 18px; color: #FFF; font-weight: bold;
     font-size: 14px; letter-spacing: 1px; z-index: 15;
     box-shadow: 0 4px 20px rgba(142, 36, 170, 0.8);
+    white-space: nowrap;
   }
   .threat-banner.visible { display: block; }
+  .threat-banner.oxy-banner {
+    background: rgba(2, 136, 209, 0.95);
+    border-color: #81D4FA;
+    box-shadow: 0 4px 20px rgba(3, 169, 244, 0.8);
+    top: 110px;
+    animation: threat-pulse 0.8s infinite alternate;
+  }
+  .threat-banner.customer-banner {
+    background: rgba(230, 81, 0, 0.95);
+    border-color: #FFB74D;
+    box-shadow: 0 4px 20px rgba(255, 112, 67, 0.8);
+    top: 65px;
+    animation: threat-pulse 0.8s infinite alternate;
+  }
+  .sfx-captions-box {
+    display: none;
+    position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85); border: 1.5px solid rgba(243, 205, 88, 0.8);
+    border-radius: 20px; padding: 6px 20px; color: #F3CD58; font-weight: bold;
+    font-size: 13px; z-index: 50; pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    align-items: center; gap: 8px;
+    transition: opacity 0.2s ease;
+  }
+  .sfx-captions-box.visible { display: flex; }
+
+  /* ========== HIGH CONTRAST ACCESSIBILITY MODE ========== */
+  body.high-contrast {
+    background: #000000 !important;
+    color: #FFFFFF !important;
+  }
+  body.high-contrast .hud-panel,
+  body.high-contrast #main-menu-overlay .menu-content-box {
+    background: #000000 !important;
+    border: 3px solid #FFFF00 !important;
+    box-shadow: 0 0 20px #FFFF00 !important;
+  }
+  body.high-contrast .threat-banner {
+    border: 4px solid #FFFFFF !important;
+    background: #D50000 !important;
+    color: #FFFF00 !important;
+    font-size: 16px !important;
+    text-shadow: 2px 2px #000000 !important;
+  }
+  body.high-contrast .threat-banner.oxy-banner {
+    background: #0091EA !important;
+    border-color: #FFFF00 !important;
+    color: #FFFFFF !important;
+  }
+  body.high-contrast .threat-banner.customer-banner {
+    background: #FF6D00 !important;
+    border-color: #FFFFFF !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+  }
+  body.high-contrast .sfx-captions-box {
+    background: #000000 !important;
+    border: 3px solid #FFFF00 !important;
+    color: #FFFF00 !important;
+  }
 
   /* ========== PAUSE OVERLAY MODAL ========== */
   #pause-modal {
@@ -598,7 +659,10 @@
 <body>
 <canvas id="c"></canvas>
 <div id="threat-vignette"></div>
-<div id="threat-banner" class="threat-banner">⚠️ THỦY QUÁI CÁ SẤU NĂM CHÈO ĐANG RƯỢT ĐUỔI!</div>
+<div id="threat-banner" class="threat-banner">🐊 CẢNH BÁO: CÁ SẤU NĂM CHÈO Ở GẦN ĐANG RƯỢT ĐUỔI!</div>
+<div id="oxy-warning-banner" class="threat-banner oxy-banner">🫁 NGUY HIỂM: BÌNH OXY SẮP HẾT (&lt; 20%)! BƠI LÊN GHE NGAY!</div>
+<div id="customer-warning-banner" class="threat-banner customer-banner">😤 CẢNH BÁO: KHÁCH BÀN ĂN SẮP HẾT KIÊN NHẪN BỎ VỀ!</div>
+<div id="sfx-captions-box" class="sfx-captions-box"></div>
 
 <!-- MAIN GAMEPLAY SELECTION MENU (TRANG CHỦ) -->
 <div id="main-menu-overlay" class="visible">
@@ -713,7 +777,8 @@
       <div style="font-size: 11px; color: #81D4FA;">
         <span>Sâu:</span> <strong id="depth-display" style="font-size: 13px; color: #FFF;">0.0 m</strong>
       </div>
-      <button id="btn-open-menu" class="tier-btn" style="background: rgba(243, 205, 88, 0.25); border-color: var(--color-yellow-dien-dien); color: var(--color-yellow-dien-dien); font-weight: bold; cursor: pointer;" title="Phím tắt: H">🏠 Menu (H)</button>
+      <button id="btn-open-menu" class="tier-btn" style="background: rgba(243, 205, 88, 0.25); border-color: var(--color-yellow-dien-dien); color: var(--color-yellow-dien-dien); font-weight: bold; cursor: pointer;" title="Phím tắt: H">🏠 Menu</button>
+      <button id="btn-high-contrast" class="tier-btn" style="background: rgba(0,0,0,0.6); border-color: #FFEB3B; color: #FFEB3B; font-weight: bold; cursor: pointer;" title="Chế độ tương phản cao (Phím C)">👁️ Tương Phản</button>
       <div class="perf-pill">
         <span id="fps-display">60 FPS</span>
         <button id="tier-toggle" class="tier-btn" title="Chuyển đổi chất lượng đồ họa">CAO</button>
@@ -949,7 +1014,36 @@ tierBtn.addEventListener("click", () => {
   tierBtn.textContent = `Tier: ${qualityTier === "HIGH" ? "CAO" : qualityTier === "MEDIUM" ? "VỪA" : "THẤP"}`;
 });
 
-// ---------- SOUND FX (WEB AUDIO API SYNTHESIZER) ----------
+// ---------- HIGH CONTRAST MODE TOGGLE (PHASE 4 ACCESSIBILITY) ----------
+function toggleHighContrast() {
+  document.body.classList.toggle("high-contrast");
+  const isHc = document.body.classList.contains("high-contrast");
+  const btn = document.getElementById("btn-high-contrast");
+  if (btn) {
+    btn.textContent = isHc ? "👁️ Tương Phản: BẬT" : "👁️ Tương Phản";
+    btn.style.background = isHc ? "#FFFF00" : "rgba(0,0,0,0.6)";
+    btn.style.color = isHc ? "#000000" : "#FFEB3B";
+  }
+  showSFXSubtitle("👁️", isHc ? "Đã BẬT Chế Độ Tương Phản Cao" : "Đã TẮT Chế Độ Tương Phản Cao");
+}
+const btnHighContrast = document.getElementById("btn-high-contrast");
+if (btnHighContrast) {
+  btnHighContrast.addEventListener("click", toggleHighContrast);
+}
+
+// ---------- SOUND FX & PHỤ ĐỀ SFX (ACCESSIBILITY CAPTIONS) ----------
+let subtitleTimeout = null;
+function showSFXSubtitle(icon, text) {
+  const box = document.getElementById("sfx-captions-box");
+  if (!box) return;
+  box.innerHTML = `<span style="font-size:16px;">${icon}</span> <span>${text}</span>`;
+  box.classList.add("visible");
+  if (subtitleTimeout) clearTimeout(subtitleTimeout);
+  subtitleTimeout = setTimeout(() => {
+    box.classList.remove("visible");
+  }, 2200);
+}
+
 class SoundFX {
   constructor() {
     this.ctx = null;
@@ -962,6 +1056,7 @@ class SoundFX {
     if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
   }
   playBubble() {
+    showSFXSubtitle("🫧", "[Tiếng bọt khí lặn sông Mekong]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
@@ -975,6 +1070,7 @@ class SoundFX {
     osc.start(t); osc.stop(t + 0.1);
   }
   playCatch() {
+    showSFXSubtitle("🐟", "[Tiếng quăng lưới: Bắt cá]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
@@ -989,6 +1085,7 @@ class SoundFX {
     osc.start(t); osc.stop(t + 0.22);
   }
   playPluck() {
+    showSFXSubtitle("🌸", "[Tiếng ngắt hoa: Bông súng / Điên điển]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
@@ -1002,6 +1099,7 @@ class SoundFX {
     osc.start(t); osc.stop(t + 0.11);
   }
   playDock() {
+    showSFXSubtitle("⚓", "[Tiếng ghe cập bến thành công]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     [440, 554, 659, 880].forEach((freq, i) => {
@@ -1016,6 +1114,7 @@ class SoundFX {
     });
   }
   playBuzzer() {
+    showSFXSubtitle("⚠️", "[Tiếng còi cảnh báo / Khách giận!]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
@@ -1028,6 +1127,7 @@ class SoundFX {
     osc.start(t); osc.stop(t + 0.15);
   }
   playSizzle() {
+    showSFXSubtitle("🔥", "[Tiếng xèo xèo: Bếp than đang nấu món]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const bufferSize = Math.floor(this.ctx.sampleRate * 0.3);
@@ -1047,6 +1147,7 @@ class SoundFX {
     noise.start(t);
   }
   playDing() {
+    showSFXSubtitle("🔔", "[Tiếng chuông đing: Món ăn đã chín]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     [1046.5, 1318.5, 2093].forEach((f, i) => {
@@ -1061,6 +1162,7 @@ class SoundFX {
     });
   }
   playCoin() {
+    showSFXSubtitle("🪙", "[Tiếng leng keng: Thu tiền món & Tip!]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     [987.77, 1318.51, 1567.98].forEach((f, i) => {
@@ -1075,6 +1177,7 @@ class SoundFX {
     });
   }
   playPick() {
+    showSFXSubtitle("🍲", "[Tiếng nhấc đĩa món chín lên tay]");
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
@@ -1145,6 +1248,7 @@ addEventListener("keydown", (e) => {
   else if (k === " ") { down.add("catch"); e.preventDefault(); }
   else if (k === "m") { toggleHubModal(); e.preventDefault(); }
   else if (k === "h") { toggleMainMenu(); e.preventDefault(); }
+  else if (k === "c") { toggleHighContrast(); e.preventDefault(); }
   else if (k === "p" || k === "escape") { pendingPause = true; e.preventDefault(); }
   else if (k === "r") { restartGame(); }
   pushInput();
@@ -2255,6 +2359,36 @@ function updateHUDOverlay(p, meta) {
 
   // 7. Mini-map
   drawMiniMap(p);
+
+  // 8. Ba Cảnh Báo Trực Quan (Phase 4: Thủy quái, Oxy sắp hết, Khách sắp giận)
+  // 8.1. Cảnh báo Oxy sắp hết
+  const oxyBanner = document.getElementById("oxy-warning-banner");
+  if (oxyBanner) {
+    const oxy = p.oxygen_ticks !== undefined ? p.oxygen_ticks : (snap.player ? snap.player.oxygen_ticks : 1800);
+    const maxOxy = p.oxygen_max_ticks || (snap.player ? snap.player.oxygen_max_ticks : 1800);
+    const isOxyCritical = (snap.mode === "gather" || snap.phase === "gather") && (maxOxy > 0 && oxy / maxOxy <= 0.20);
+    if (isOxyCritical) {
+      oxyBanner.classList.add("visible");
+    } else {
+      oxyBanner.classList.remove("visible");
+    }
+  }
+
+  // 8.2. Cảnh báo Khách sắp giận (DEV 5 - Quán Ăn)
+  const custBanner = document.getElementById("customer-warning-banner");
+  if (custBanner) {
+    if (snap.mode === "quan" || snap.phase === "quan") {
+      const angryCust = (snap.customers || []).find(c => c.state === "waiting" && c.patience_ticks_left !== undefined && c.patience_ticks_left <= 675);
+      if (angryCust) {
+        custBanner.textContent = `😤 CẢNH BÁO: KHÁCH BÀN ${angryCust.table_id} SẮP HẾT KIÊN NHẪN BỎ VỀ!`;
+        custBanner.classList.add("visible");
+      } else {
+        custBanner.classList.remove("visible");
+      }
+    } else {
+      custBanner.classList.remove("visible");
+    }
+  }
 }
 
 // Mini-map Canvas

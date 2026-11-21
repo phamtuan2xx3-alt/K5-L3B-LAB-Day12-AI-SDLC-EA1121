@@ -1,15 +1,10 @@
 # moyymochi11 (Chu Văn Nhật - 2A202603848) — phản tư cá nhân (≤ 200 từ)
 
-- Module phụ trách: DEV 5 — Gameplay Bếp Nấu, Bưng Bê & Kinh Tế Quán (`chonoi/sim/quan.py`)
-- Tôi đã làm (kèm link commit):
-  + Phase 1: Triển khai logic đun nấu bếp than, bốc món chín, phục vụ món tại bàn và thanh toán hóa đơn kèm tiền boa (tip), cộng điểm uy tín nhà hàng (`chonoi/sim/quan.py`).
-  + Phase 2: Nâng cấp hỗ trợ 2 bếp than B1/B2 và 4 bàn T1-T4, đồng bộ doanh thu với chế độ Shop cuối ngày.
-  + Phase 3: Triển khai và xác thực cơ chế Bếp nấu chốt giá theo độ tươi cá thể (Freshness Pricing: `base_price = floor(price * avg_fresh / 100)`) và tính tiền boa động dựa trên giá đã chốt (`tip = floor(base_price * 0.2)`).
-  + Đóng góp phần việc chung Frontend/UI (`chonoi/web/index.html`): Nâng cấp đồ họa Quán Ăn Chợ Nổi với sàn bè gỗ nổi bập bềnh, đèn lồng bão vàng ấm, hiệu ứng khói bếp than hồng & tàn lửa, bong bóng gọi món kèm thanh đo kiên nhẫn, và bộ âm thanh Web Audio API sống động (tiếng xèo xèo nấu bếp, chuông món chín, tiền xu leng keng).
-  + Mở rộng bộ kiểm thử `tests/test_quan_kitchen_serving.py` bao phủ toàn diện các ca kiểm thử độ tươi v1.2 và ngăn chặn nấu nguyên liệu ươn (< 30).
-- Tôi đã review (kèm link):
-  + Review contract v1.2, cơ chế hao mòn tươi `freshness.py` và tích hợp giữa Bếp nấu với kho cá thể.
-- AI sai ở đâu và tôi phát hiện thế nào:
-  + AI ban đầu giả định nguyên liệu ươn bị xóa ngay lập tức khỏi snapshot `stock`, nhưng contract v1.2 quy định cá thể vẫn lưu trong kho cho đến khi dọn, chỉ là trạng thái khả dụng bị vô hiệu hóa (`available_stock = {}`). Tôi đã nhắc AI sửa lại assert kiểm tra đúng contract.
-- Điều tôi học được:
-  + Nắm vững quy trình làm việc nhóm theo mô hình feature branch trong Git, cách kiểm thử tính toán tài chính với số thập phân/phân số chính xác (Fraction) và phối hợp nhịp nhàng với AI Agent theo hợp đồng contract qua các phase.
+- **Vai trò:** DEV 5 — Bếp Nấu, Bưng Bê & Kinh Tế Quán (`chonoi/sim/quan.py`), Frontend & Release QA.
+- **Phần tôi làm:**
+  + P1–P3: Bếp than B1/B2, bàn T1–T4, chốt giá độ tươi v1.2, tiền boa động, test `test_quan_kitchen_serving.py`.
+  + P4: Benchmark `chonoi/bench.py` (avg 63.73 FPS) tại `docs/proof/phase-4/bench.json`, test `test_bench.py`.
+  + FE & UI: 3 cảnh báo trực quan (thủy quái 🐊, oxy 🫁, khách giận 😤), chế độ Tương Phản Cao (phím C / HUD) và Phụ đề âm thanh SFX Captions (`chonoi/web/index.html`).
+- **Đã giúp ai:** Hỗ trợ DEV 3 kiểm chứng soak 10 ngày (`chonoi/soak.py`), phối hợp cập nhật contract v1.3.
+- **AI sai ở đâu:** AI tạo `InputState` sai tham số trong `bench.py`; tôi sửa dùng `LiveInputs().advance()` chuẩn contract.
+- **Bài học:** Kiểm thử hồi quy liên tục, thiết kế tiếp cận (accessibility) và tuân thủ contract giúp phát hành v1.0.0 thành công.
