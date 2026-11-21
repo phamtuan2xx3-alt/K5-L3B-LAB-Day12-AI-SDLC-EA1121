@@ -1,11 +1,12 @@
 """Buổi tối — Mở Quán. KHUNG: đi lại, chặn biên, đồng hồ, kho nạp từ file/scenario.
 
-Nhóm viết tiếp (PRD-0 mục F, Quán):
-  TODO(nhóm, lát 3): khách đến theo lịch, chọn món nấu được, giữ chỗ nguyên liệu, kiên nhẫn,
-                     bỏ đi (customer_left), no_dish, vòng đời khách.
-  TODO(nhóm, lát 4): interact tại bếp/bàn (cook_started, dish_ready, dish_picked, served),
-                     ăn xong trả tiền (paid), boa, uy tín, hết ca (quan_end).
+Luật PRD-0 mục F, Quán:
+  Lát 3 (DEV 3): vòng đời khách — sim/customers.py (lịch, bàn, giữ chỗ, kiên nhẫn, rời, trả tiền).
+  Lát 3 (DEV 4): kho khả dụng và tiêu phần giữ — _get_available_stock, _consume_reservation.
+  Lát 4 (DEV 5): bếp, bưng, phục vụ, boa — _tick_stoves, _finish_cooking, _interact.
 """
+
+import math
 
 from ..ids import sort_by_id
 from . import customers as cust
@@ -113,11 +114,13 @@ class QuanSim:
         self.phase_tick += 1
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
         cust.tick_timers(self)
-        # TODO(nhóm, lát 4): nấu (cook_ticks_left), tăng ready_ticks cho món ready từ đầu bước.
-        # 2. TODO(nhóm, lát 4): xét bếp theo id, nấu xong -> ready, ready_ticks = 0.
-        # 3. di chuyển rồi tối đa MỘT interact
+        self._tick_stoves()
+        # 2. xét bếp theo id: nấu xong -> ready, ready_ticks = 0 (lát 4)
+        self._finish_cooking(events)
+        # 3. di chuyển rồi tối đa MỘT interact (lát 4)
         self._move(inp)
-        # TODO(nhóm, lát 4): interact theo (khoảng cách, bếp trước bàn, id): nấu / lấy món / phục vụ.
+        if inp.pressed("interact"):
+            self._interact(events)
         # 4. theo id bàn: ăn xong trả tiền, hết kiên nhẫn rời, đóng ca dọn khách (lát 3)
         closing = self.time_left_ticks <= 0
         cust.settle_tables(self, events, closing)
@@ -130,6 +133,82 @@ class QuanSim:
             # 5. lượt khách mới theo lịch, no_dish (lát 3)
             cust.maybe_spawn(self, events)
         return events
+
+    # ------------------------------------------------------------ lát 4: bếp, bưng, phục vụ
+    # Ý tưởng và test gốc của DEV 5 (moyymochi11); chỉnh theo PRD-0 F/E khi tích hợp với lát 3:
+    # payload món {order_id,dish_id,base_price}, bếp lấy đơn reserved cũ nhất, boa chốt lúc phục vụ.
+
+    def _tick_stoves(self):
+        """Bước 1: giảm timer nấu; chỉ tăng ready_ticks cho món đã ready từ đầu bước."""
+        for s in self.stoves:
+            if s["state"] == "cooking":
+                s["cook_ticks_left"] = max(0, s["cook_ticks_left"] - 1)
+            elif s["state"] == "ready":
+                s["ready_ticks"] += 1
+
+    def _finish_cooking(self, events):
+        for s in sort_by_id(self.stoves):
+            if s["state"] == "cooking" and s["cook_ticks_left"] == 0:
+                s["state"], s["ready_ticks"] = "ready", 0
+                events.append(("dish_ready", {"stove_id": s["id"], "order_id": s["dish"]["order_id"],
+                                              "dish_id": s["dish"]["dish_id"]}))
+
+    def _interact(self, events):
+        """Chọn MỘT đối tượng trong bán kính theo (khoảng cách, bếp trước bàn, id); không làm được thì bỏ lượt."""
+        from ..ids import id_key
+        radius = self.t["interact_radius"]
+        cands = [(math.dist(self.pos, o["pos"]), rank, id_key(o["id"]), kind, o)
+                 for rank, kind, objs in ((0, "stove", self.stoves), (1, "table", self.tables))
+                 for o in objs if math.dist(self.pos, o["pos"]) <= radius]
+        if not cands:
+            return
+        _, _, _, kind, target = min(cands, key=lambda c: c[:3])
+        if kind == "stove":
+            if target["state"] == "idle":
+                self._start_cooking(target, events)
+            elif target["state"] == "ready" and self.hand is None:
+                self._pick_dish(target, events)
+        else:
+            self._serve(target, events)
+
+    def _start_cooking(self, stove, events):
+        """Bếp idle lấy đơn reserved cũ nhất (order_tick rồi id bàn), tiêu đúng phần giữ, chốt giá."""
+        from ..ids import id_key
+        orders = [c for c in self.customers if c["order_status"] == "reserved" and c["reserved"]]
+        if not orders:
+            return
+        c = min(orders, key=lambda c: (c["order_tick"], id_key(c["table_id"])))
+        items = sorted(k for k, n in c["reserved"].items() for _ in range(n))
+        if not self._consume_reservation(c):  # helper kho của DEV 4
+            return
+        dish = self.menu[c["dish_id"]]
+        c["order_status"], c["base_price"] = "assigned", dish["price"]
+        stove.update(state="cooking", dish={"order_id": c["id"], "dish_id": c["dish_id"], "base_price": dish["price"]},
+                     cook_ticks_left=int(round(dish["cook_s"] * TICK)), ready_ticks=0)
+        events.append(("cook_started", {"stove_id": stove["id"], "order_id": c["id"], "dish_id": c["dish_id"],
+                                        "items": items, "base_price": dish["price"]}))
+
+    def _pick_dish(self, stove, events):
+        self.hand = stove["dish"]
+        stove.update(state="idle", dish=None, cook_ticks_left=0, ready_ticks=0)
+        events.append(("dish_picked", {"stove_id": stove["id"], "order_id": self.hand["order_id"],
+                                       "dish_id": self.hand["dish_id"]}))
+
+    def _serve(self, table, events):
+        """Bàn nhận đúng order_id: khách ăn với timer đầy; boa chốt theo kiên nhẫn còn lại sau bước 1."""
+        c = next((x for x in self.customers if x["table_id"] == table["id"]), None)
+        if c is None or c["state"] != "waiting" or not isinstance(self.hand, dict) \
+                or self.hand["order_id"] != c["id"]:
+            return
+        base = self.hand["base_price"]
+        full = cust.to_ticks(self.t["patience_s"])
+        tip = math.floor(base * self.t["tip_rate"]) \
+            if c["patience_ticks_left"] / full >= self.t["tip_min_patience_ratio"] else 0
+        self.hand = None
+        c.update(state="eating", order_status="served", eat_ticks_left=cust.to_ticks(self.t["eat_s"]),
+                 base_price=base, tip=tip)
+        events.append(("served", {"order_id": c["id"], "table_id": table["id"], "dish_id": c["dish_id"],
+                                  "patience_ticks_left": c["patience_ticks_left"], "base_price": base, "tip": tip}))
 
     def _move(self, inp):
         speed = self.t["walk_speed"]
