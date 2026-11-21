@@ -1166,6 +1166,66 @@ class SoundFX {
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(t); osc.stop(t + 0.15);
   }
+  playSizzle() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.3);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 2200;
+    filter.Q.value = 1.0;
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.09, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+    noise.start(t);
+  }
+  playDing() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    [1046.5, 1318.5, 2093].forEach((f, i) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0.08, t + i * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.04 + 0.5);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(t + i * 0.04); osc.stop(t + i * 0.04 + 0.5);
+    });
+  }
+  playCoin() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    [987.77, 1318.51, 1567.98].forEach((f, i) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0.12, t + i * 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.28);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(t + i * 0.06); osc.stop(t + i * 0.06 + 0.28);
+    });
+  }
+  playPick() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(380, t);
+    osc.frequency.exponentialRampToValueAtTime(760, t + 0.08);
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.linearRampToValueAtTime(0.001, t + 0.08);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(t); osc.stop(t + 0.08);
+  }
 }
 const sfx = new SoundFX();
 
@@ -1497,6 +1557,37 @@ function handleNewEvents(newSnap) {
       else if (e.name === "node_regrown") {
         // Subtle water blossom effect
         addBubble(p[0], 0, 4);
+      }
+      else if (e.name === "cook_started") {
+        sfx.playSizzle();
+        addFloatingText("🔥 Bắt đầu nấu!", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#FF9800");
+      }
+      else if (e.name === "dish_ready") {
+        sfx.playDing();
+        addFloatingText("✨ Món đã chín!", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#FFEB3B");
+      }
+      else if (e.name === "dish_picked") {
+        sfx.playPick();
+        addFloatingText("🍲 Đã bưng món", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#81D4FA");
+      }
+      else if (e.name === "served") {
+        sfx.playCoin();
+        addFloatingText("🍽 Phục vụ thành công!", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#00E676");
+      }
+      else if (e.name === "paid") {
+        sfx.playCoin();
+        const tipVal = e.data && e.data.tip ? e.data.tip : 0;
+        const tipStr = tipVal > 0 ? ` (+${tipVal} tip)` : "";
+        const amt = e.data ? (e.data.amount || e.data.total_price || e.data.base_price || 0) : 0;
+        addFloatingText(`💰 +${amt} xu${tipStr}!`, p[0], p[1] + (newSnap.mode === "quan" ? 1.2 : -1.2), "#FFD54F");
+      }
+      else if (e.name === "customer_left") {
+        sfx.playBuzzer();
+        addFloatingText("😤 Khách bỏ về (-Uy tín)!", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#FF5252");
+      }
+      else if (e.name === "customer_arrived") {
+        sfx.playBubble();
+        addFloatingText("🛶 Khách ghé bàn!", p[0], p[1] + (newSnap.mode === "quan" ? 0.8 : -0.8), "#80D8FF");
       }
     }
     prevEventsCount = evs.length;
@@ -2444,102 +2535,505 @@ function drawMiniMap(p) {
 }
 
 // =========================================================================
-// RENDER QUÁN ĐÊM — SÀN GỖ NỔI & ĐÈN LỒNG BÃO
+// RENDER QUÁN ĐÊM — SÀN GỖ NỔI & ĐÈN LỒNG BÃO (MEKONG NIGHT EDITION)
 // =========================================================================
+
+const MEKONG_DISHES = {
+  ca_loc_nuong_trui: { name: "Cá Lóc Nướng Trui", icon: "🐟", color: "#FF7043", accent: "#BF360C" },
+  goi_bong_sung: { name: "Gỏi Bông Súng", icon: "🥗", color: "#66BB6A", accent: "#1B5E20" },
+  lau_ca_linh_dien_dien: { name: "Lẩu Cá Linh", icon: "🍲", color: "#FDD835", accent: "#E65100" },
+  canh_chua_ca_loc: { name: "Canh Chua Cá Lóc", icon: "🍲", color: "#FFA726", accent: "#E65100" },
+  ca_keo_nuong: { name: "Cá Kèo Nướng", icon: "🍢", color: "#FF8A65", accent: "#5D4037" },
+  lau_mam: { name: "Lẩu Mắm Miền Tây", icon: "🍲", color: "#FFE082", accent: "#4E342E" }
+};
+
+function getDishInfo(dish) {
+  if (!dish) return { name: "Món Ăn", icon: "🍲", color: "#FFD54F", accent: "#FF8F00" };
+  const id = typeof dish === "object" ? (dish.dish_id || dish.dish || "") : String(dish);
+  return MEKONG_DISHES[id] || { name: id.replace(/_/g, " "), icon: "🍲", color: "#FFD54F", accent: "#FF8F00" };
+}
+
+const quanParticles = [];
+const quanFireflies = [];
+for (let i = 0; i < 22; i++) {
+  quanFireflies.push({
+    x: Math.random() * 20 - 2,
+    z: Math.random() * 14 - 2,
+    vx: (Math.random() - 0.5) * 0.25,
+    vz: (Math.random() - 0.5) * 0.25,
+    phase: Math.random() * Math.PI * 2,
+    size: 1.5 + Math.random() * 2
+  });
+}
+
 function drawQuan(w, h) {
   const meta = snap.meta || {};
   const b = meta.bounds || { x: [0, 16], z: [0, 10] };
   const X = b.x[1], Z = b.z[1], top = 64, bottom = 40;
   const s = Math.max(1, Math.min((w - 40) / X, (h - top - bottom) / Z));
   const ox = (w - s * X) / 2, oy = top;
-  const sx = (x) => ox + x * s, sy = (z) => oy + (Z - z) * s;
 
-  // Nước đêm
+  const tNow = performance.now();
+  const bobY = Math.sin(tNow * 0.0016) * 2.2;
+  const sx = (x) => ox + x * s;
+  const sy = (z) => oy + (Z - z) * s + bobY;
+
+  // 1. MẶT NƯỚC ĐÊM SÔNG TIỀN
   const waterNight = ctx.createLinearGradient(0, 0, 0, h);
-  waterNight.addColorStop(0, "#030C14"); waterNight.addColorStop(1, "#071927");
+  waterNight.addColorStop(0, "#020A13");
+  waterNight.addColorStop(0.5, "#041422");
+  waterNight.addColorStop(1, "#071B2B");
   ctx.fillStyle = waterNight;
   ctx.fillRect(0, 0, w, h);
 
-  // Sàn nổi
-  ctx.fillStyle = "#8D6E4B";
-  ctx.fillRect(sx(0), sy(Z), X * s, Z * s);
-
-  ctx.strokeStyle = "rgba(62, 39, 35, 0.45)"; ctx.lineWidth = 1;
-  for (let gx = 0; gx <= X; gx += 1) {
-    ctx.beginPath(); ctx.moveTo(sx(gx), sy(Z)); ctx.lineTo(sx(gx), sy(0)); ctx.stroke();
-  }
-  ctx.strokeStyle = "#3E2723"; ctx.lineWidth = 5;
-  ctx.strokeRect(sx(0), sy(Z), X * s, Z * s);
-
-  // Đèn lồng vàng ấm
+  // Sóng nước dập dềnh quanh bè
   ctx.save();
-  const lightGrad = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, w / 1.5);
-  lightGrad.addColorStop(0, "rgba(255, 213, 79, 0.15)");
-  lightGrad.addColorStop(1, "rgba(0, 0, 0, 0.4)");
-  ctx.fillStyle = lightGrad; ctx.fillRect(0, 0, w, h);
+  ctx.lineWidth = 1.5;
+  for (let wy = 15; wy < h; wy += 38) {
+    ctx.strokeStyle = "rgba(79, 195, 247, 0.045)";
+    ctx.beginPath();
+    for (let wx = 0; wx <= w; wx += 25) {
+      const dy = Math.sin(wx * 0.02 + tNow * 0.0012 + wy * 0.05) * 4;
+      if (wx === 0) ctx.moveTo(wx, wy + dy);
+      else ctx.lineTo(wx, wy + dy);
+    }
+    ctx.stroke();
+  }
   ctx.restore();
 
-  // Bếp
+  // Đom đóm đêm bay ngoài sông
+  ctx.save();
+  for (const f of quanFireflies) {
+    f.x += f.vx / 60; f.z += f.vz / 60;
+    if (f.x < -3) f.x = X + 3; if (f.x > X + 3) f.x = -3;
+    if (f.z < -3) f.z = Z + 3; if (f.z > Z + 3) f.z = -3;
+    const fx = sx(f.x), fz = sy(f.z);
+    const pulse = 0.3 + 0.7 * Math.abs(Math.sin(tNow * 0.003 + f.phase));
+    const rad = ctx.createRadialGradient(fx, fz, 0, fx, fz, 10);
+    rad.addColorStop(0, `rgba(205, 220, 57, ${0.85 * pulse})`);
+    rad.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = rad;
+    ctx.beginPath(); ctx.arc(fx, fz, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = `rgba(240, 255, 100, ${pulse})`;
+    ctx.beginPath(); ctx.arc(fx, fz, f.size, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+
+  // 2. SÀN BÈ GỖ NỔI CHỢ NỔI (FLOATING RAFT)
+  const deckX = sx(0), deckY = sy(Z), deckW = X * s, deckH = Z * s;
+
+  // Bóng đổ của bè xuống nước
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 12;
+  ctx.fillStyle = "#3E2723";
+  ctx.fillRect(deckX, deckY, deckW, deckH);
+  ctx.restore();
+
+  // Khung dầm gỗ viền bè (Teak Beams)
+  ctx.fillStyle = "#4E342E";
+  ctx.fillRect(deckX - 6, deckY - 6, deckW + 12, deckH + 12);
+  ctx.strokeStyle = "#2B1B17";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(deckX - 6, deckY - 6, deckW + 12, deckH + 12);
+
+  // Từng tấm ván sàn gỗ
+  const plankW = 1.0;
+  for (let gx = 0; gx < X; gx += plankW) {
+    const px = sx(gx), pw = s * plankW;
+    const shade = (Math.round(gx) % 3 === 0) ? "#8D6E4B" : (Math.round(gx) % 3 === 1) ? "#7E5E3C" : "#977754";
+    ctx.fillStyle = shade;
+    ctx.fillRect(px, deckY, pw, deckH);
+
+    // Đường rãnh giữa các thanh ván
+    ctx.strokeStyle = "rgba(43, 27, 23, 0.65)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(px, deckY); ctx.lineTo(px, deckY + deckH); ctx.stroke();
+
+    // Đinh tán đồng cố định hai đầu ván
+    ctx.fillStyle = "rgba(43, 27, 23, 0.7)";
+    ctx.beginPath(); ctx.arc(px + pw / 2, deckY + 6, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px + pw / 2, deckY + deckH - 6, 2, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Lan can gỗ xung quanh bè
+  ctx.strokeStyle = "#D7CCC8"; ctx.lineWidth = 2;
+  ctx.strokeRect(deckX, deckY, deckW, deckH);
+
+  // 3. ĐÈN LỒNG BÃO TREO 4 GÓC (WARM AMBIENT LANTERNS)
+  const corners = [[0, 0], [X, 0], [0, Z], [X, Z]];
+  corners.forEach(([cx, cz], idx) => {
+    const lx = sx(cx), lz = sy(cz);
+    const flicker = 0.85 + 0.15 * Math.sin(tNow * 0.008 + idx * 1.6);
+
+    ctx.save();
+    const warmLight = ctx.createRadialGradient(lx, lz, 12, lx, lz, 220);
+    warmLight.addColorStop(0, `rgba(255, 213, 79, ${0.32 * flicker})`);
+    warmLight.addColorStop(0.5, `rgba(255, 143, 0, ${0.12 * flicker})`);
+    warmLight.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = warmLight;
+    ctx.fillRect(lx - 220, lz - 220, 440, 440);
+
+    // Thân đèn lồng
+    ctx.fillStyle = "#D32F2F";
+    ctx.beginPath(); ctx.arc(lx, lz, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = `rgba(255, 235, 59, ${flicker})`;
+    ctx.beginPath(); ctx.arc(lx, lz, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#FFD54F"; ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // 4. BẾP NẤU (TERRACOTTA STOVES B1, B2)
   (snap.stoves || []).forEach((st) => {
     const isCooking = st.state === "cooking";
     const isReady = st.state === "ready";
-    ctx.fillStyle = isCooking ? "#FF6D00" : isReady ? "#00E676" : "#455A64";
-    ctx.fillRect(sx(st.pos[0]) - 0.8 * s, sy(st.pos[1]) - 0.8 * s, 1.6 * s, 1.6 * s);
-    ctx.strokeStyle = "#FFF"; ctx.lineWidth = 2;
-    ctx.strokeRect(sx(st.pos[0]) - 0.8 * s, sy(st.pos[1]) - 0.8 * s, 1.6 * s, 1.6 * s);
+    const bx = sx(st.pos[0]), by = sy(st.pos[1]);
+    const stoveR = 0.82 * s;
+    const dishMeta = getDishInfo(st.dish);
 
-    ctx.fillStyle = "#FFF";
-    ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
-    ctx.fillText("Bếp " + st.id, sx(st.pos[0]), sy(st.pos[1]) + 4);
-    if (st.dish) {
-      const stDishName = typeof st.dish === "object" && st.dish !== null ? (st.dish.dish_id || "món") : st.dish;
-      ctx.fillText("🍲 " + stDishName, sx(st.pos[0]), sy(st.pos[1]) - 1.0 * s);
+    // Lò đất nung đỏ gạch
+    ctx.save();
+    ctx.shadowColor = isCooking ? "rgba(255, 109, 0, 0.6)" : isReady ? "rgba(0, 230, 118, 0.5)" : "rgba(0,0,0,0.4)";
+    ctx.shadowBlur = isCooking ? 18 : isReady ? 16 : 8;
+
+    const clayGrad = ctx.createRadialGradient(bx, by, stoveR * 0.2, bx, by, stoveR);
+    clayGrad.addColorStop(0, isCooking ? "#E64A19" : isReady ? "#2E7D32" : "#5D4037");
+    clayGrad.addColorStop(1, isCooking ? "#BF360C" : isReady ? "#1B5E20" : "#3E2723");
+    ctx.fillStyle = clayGrad;
+    ctx.beginPath(); ctx.arc(bx, by, stoveR, 0, Math.PI * 2); ctx.fill();
+
+    // Vành lò đất
+    ctx.strokeStyle = isCooking ? "#FFAB00" : isReady ? "#69F0AE" : "#795548";
+    ctx.lineWidth = 3; ctx.stroke();
+
+    // Than hồng / Lòng bếp
+    const emberGrad = ctx.createRadialGradient(bx, by, 0, bx, by, stoveR * 0.65);
+    emberGrad.addColorStop(0, isCooking ? "#FFF" : isReady ? "#B9F6CA" : "#FF7043");
+    emberGrad.addColorStop(0.5, isCooking ? "#FF3D00" : isReady ? "#00E676" : "#BF360C");
+    emberGrad.addColorStop(1, isCooking ? "#BF360C" : isReady ? "#1B5E20" : "#261A17");
+    ctx.fillStyle = emberGrad;
+    ctx.beginPath(); ctx.arc(bx, by, stoveR * 0.65, 0, Math.PI * 2); ctx.fill();
+
+    // Tên bếp
+    ctx.fillStyle = "#FFF"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+    ctx.fillText("Bếp " + st.id, bx, by - stoveR - 6);
+
+    // Hiệu ứng đang nấu (Cooking)
+    if (isCooking) {
+      // Vòng tròn đếm ngược (Circular Progress Ring)
+      const cookSec = Math.ceil(st.cook_ticks_left / 60);
+      const totalTicks = (st.cook_ticks_total || 360);
+      const prog = Math.max(0, Math.min(1, 1 - (st.cook_ticks_left / totalTicks)));
+
+      ctx.strokeStyle = "#FFD600"; ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(bx, by, stoveR + 6, -Math.PI / 2, -Math.PI / 2 + prog * Math.PI * 2);
+      ctx.stroke();
+
+      // Nồi lẩu / vỉ nướng sôi sùng sục
+      ctx.fillStyle = "#FFF"; ctx.font = "18px system-ui";
+      ctx.fillText(dishMeta.icon, bx, by + 6);
+
+      // Nhãn món đang nấu + thời gian
+      ctx.fillStyle = "#FFD54F"; ctx.font = "bold 12px system-ui";
+      ctx.fillText(`⏳ ${cookSec}s`, bx, by + stoveR + 14);
+      ctx.fillStyle = "#FFF"; ctx.font = "11px system-ui";
+      ctx.fillText(dishMeta.name, bx, by - stoveR - 20);
+
+      // Sinh khói và tàn lửa bay lên
+      if (Math.random() < 0.28) {
+        quanParticles.push({
+          x: st.pos[0] + (Math.random() - 0.5) * 0.5,
+          z: st.pos[1] + (Math.random() - 0.5) * 0.3,
+          vx: (Math.random() - 0.5) * 0.2,
+          vz: 0.6 + Math.random() * 0.6,
+          r: 0.16 + Math.random() * 0.16,
+          alpha: 0.65,
+          kind: "smoke"
+        });
+      }
+      if (Math.random() < 0.18) {
+        quanParticles.push({
+          x: st.pos[0] + (Math.random() - 0.5) * 0.4,
+          z: st.pos[1] + (Math.random() - 0.5) * 0.4,
+          vx: (Math.random() - 0.5) * 0.5,
+          vz: 0.8 + Math.random() * 0.8,
+          r: 0.05,
+          alpha: 0.9,
+          kind: "spark"
+        });
+      }
     }
-    if (isCooking && st.cook_ticks_left !== undefined) {
-      ctx.fillStyle = "#FFEB3B";
-      ctx.fillText(Math.ceil(st.cook_ticks_left / 60) + "s", sx(st.pos[0]), sy(st.pos[1]) + 1.3 * s);
+    // Hiệu ứng món chín (Ready)
+    else if (isReady) {
+      const pulse = 0.8 + 0.2 * Math.sin(tNow * 0.009);
+      ctx.fillStyle = `rgba(0, 230, 118, ${0.25 * pulse})`;
+      ctx.beginPath(); ctx.arc(bx, by, stoveR + 8, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = "#FFF"; ctx.font = "20px system-ui";
+      ctx.fillText(dishMeta.icon, bx, by + 7);
+
+      // Badge nhắc nhở bưng món
+      ctx.fillStyle = "#00E676"; ctx.font = "bold 12px system-ui";
+      ctx.fillText("✨ BẤM E BƯNG MÓN", bx, by + stoveR + 15);
+      ctx.fillStyle = "#FFF"; ctx.font = "bold 11px system-ui";
+      ctx.fillText(dishMeta.name, bx, by - stoveR - 20);
+    } else {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; ctx.font = "11px system-ui";
+      ctx.fillText("Sẵn sàng", bx, by + 4);
     }
+    ctx.restore();
   });
 
-  // Bàn ăn
+  // 5. BÀN ĂN & KHÁCH (TABLES & CUSTOMERS)
   const byTable = {};
   (snap.customers || []).forEach((c) => (byTable[c.table_id] = c));
-  (snap.tables || []).forEach((tb) => {
-    ctx.fillStyle = "#5D4037"; ctx.beginPath(); ctx.arc(sx(tb.pos[0]), sy(tb.pos[1]), 0.9 * s, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "#8D6E63"; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = "#FFF"; ctx.font = "bold 13px system-ui"; ctx.textAlign = "center";
-    ctx.fillText("Bàn " + tb.id, sx(tb.pos[0]), sy(tb.pos[1]) + 4);
 
+  (snap.tables || []).forEach((tb) => {
+    const tx = sx(tb.pos[0]), ty = sy(tb.pos[1]);
+    const tableR = 0.92 * s;
+
+    // Bóng bàn
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.45)"; ctx.shadowBlur = 10;
+    // Bàn gỗ tròn
+    const tableGrad = ctx.createRadialGradient(tx, ty, tableR * 0.2, tx, ty, tableR);
+    tableGrad.addColorStop(0, "#795548"); tableGrad.addColorStop(1, "#4E342E");
+    ctx.fillStyle = tableGrad;
+    ctx.beginPath(); ctx.arc(tx, ty, tableR, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#8D6E63"; ctx.lineWidth = 3; ctx.stroke();
+
+    // 4 ghế đẩu xung quanh bàn
+    const stoolDist = tableR + 0.3 * s;
+    [[0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dz]) => {
+      ctx.fillStyle = "#5D4037";
+      ctx.beginPath();
+      ctx.arc(tx + dx * stoolDist, ty + dz * stoolDist, 0.25 * s, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#8D6E63"; ctx.lineWidth = 1.5; ctx.stroke();
+    });
+
+    // Mặt bàn: khăn trải / lá chuối xanh
+    ctx.fillStyle = "rgba(46, 125, 50, 0.45)";
+    ctx.beginPath(); ctx.arc(tx, ty, tableR * 0.55, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = "#FFF"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+    ctx.fillText("Bàn " + tb.id, tx, ty + 4);
+    ctx.restore();
+
+    // Khách ngồi tại bàn
     const c = byTable[tb.id];
     if (c) {
-      const cx = sx(tb.pos[0]), cy = sy(tb.pos[1]) - 1.6 * s;
-      ctx.fillStyle = c.state === "eating" ? "#66BB6A" : "#FFA726";
-      ctx.beginPath(); ctx.arc(cx, cy, 0.65 * s, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#FFF"; ctx.font = "bold 11px system-ui";
-      ctx.fillText("👤 " + (c.dish_id || c.dish || "?"), cx, cy - 0.8 * s);
+      const cx = tx, cy = ty - tableR - 0.45 * s;
+      const dishMeta = getDishInfo(c.dish_id || c.dish);
+
+      // Khách ngồi ghế
+      ctx.save();
+      ctx.fillStyle = "#3E2723"; // Tóc / nón
+      ctx.beginPath(); ctx.arc(cx, cy, 0.52 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = c.state === "eating" ? "#4CAF50" : "#FF9800"; // Áo bà ba
+      ctx.beginPath(); ctx.arc(cx, cy + 4, 0.45 * s, 0, Math.PI); ctx.fill();
+      ctx.strokeStyle = "#FFF"; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.restore();
+
+      // KHÁCH ĐANG ĂN (EATING)
+      if (c.state === "eating") {
+        ctx.fillStyle = "#00E676"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+        ctx.fillText("😋 Ngon quá! ❤️", cx, cy - 18);
+        ctx.fillStyle = "#FFF"; ctx.font = "16px system-ui";
+        ctx.fillText(dishMeta.icon, tx, ty + 5);
+      }
+      // KHÁCH ĐANG CHỜ (WAITING — BONG BÓNG GỌI MÓN & THANH KIÊN NHẪN)
+      else {
+        const bubbleY = cy - 28;
+        const bW = 108, bH = 46;
+
+        // Bubble nền trắng kem
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.4)"; ctx.shadowBlur = 8;
+        ctx.fillStyle = "#FFFDF9";
+        ctx.strokeStyle = "#4E342E"; ctx.lineWidth = 1.5;
+
+        // Vẽ hộp bong bóng bo tròn
+        ctx.beginPath();
+        ctx.roundRect(cx - bW / 2, bubbleY - bH, bW, bH, [8]);
+        ctx.fill(); ctx.stroke();
+
+        // Mũi nhọn chỉ xuống khách
+        ctx.beginPath();
+        ctx.moveTo(cx - 6, bubbleY);
+        ctx.lineTo(cx, bubbleY + 6);
+        ctx.lineTo(cx + 6, bubbleY);
+        ctx.fillStyle = "#FFFDF9"; ctx.fill(); ctx.stroke();
+        ctx.restore();
+
+        // Tên và Icon món
+        ctx.fillStyle = "#2E1C14"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+        ctx.fillText(`${dishMeta.icon} ${dishMeta.name}`, cx, bubbleY - bH + 16);
+
+        // THANH ĐO KIÊN NHẪN (PATIENCE BAR)
+        const maxPatience = (meta.tuning && meta.tuning.customers && meta.tuning.customers.patience_s * 60) || 2700;
+        const patTicks = Math.max(0, c.patience_ticks_left ?? maxPatience);
+        const pRatio = Math.max(0, Math.min(1, patTicks / maxPatience));
+        const barW = bW - 16, barH = 7, barX = cx - barW / 2, barY = bubbleY - 14;
+
+        // Nền thanh
+        ctx.fillStyle = "#EEEEEE";
+        ctx.fillRect(barX, barY, barW, barH);
+
+        // Màu thanh theo mức kiên nhẫn
+        const patColor = pRatio >= 0.5 ? "#00E676" : pRatio >= 0.25 ? "#FFD600" : "#FF1744";
+        ctx.fillStyle = patColor;
+        ctx.fillRect(barX, barY, barW * pRatio, barH);
+        ctx.strokeStyle = "#424242"; ctx.lineWidth = 0.5;
+        ctx.strokeRect(barX, barY, barW, barH);
+
+        // Giây còn lại + Tip tag
+        ctx.fillStyle = patColor; ctx.font = "bold 9px system-ui";
+        const tipBadge = pRatio >= 0.5 ? " (+20% Tip)" : "";
+        ctx.fillText(`${Math.ceil(patTicks / 60)}s${tipBadge}`, cx, barY - 2);
+      }
     }
   });
 
-  // Người chạy bàn
+  // 6. NHÂN VIÊN ÚT SEN (PLAYER — MEKONG DIVER & SERVER)
   const p = snap.player;
   if (p) {
     const px = sx(p.pos[0]), py = sy(p.pos[1]);
-    ctx.fillStyle = "#FF9800";
-    ctx.beginPath(); ctx.arc(px, py, 0.65 * s, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "#FFF"; ctx.lineWidth = 2; ctx.stroke();
+    const pRadius = 0.65 * s;
+
+    // Bóng người đổ xuống sàn gỗ
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    ctx.beginPath();
+    ctx.ellipse(px, py + pRadius * 0.4, pRadius * 0.9, pRadius * 0.45, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Thân áo bà ba
+    ctx.fillStyle = "#2E7D32"; // Áo bà ba xanh ngọc miền Tây
+    ctx.beginPath(); ctx.arc(px, py, pRadius * 0.75, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#1B5E20"; ctx.lineWidth = 2; ctx.stroke();
+
+    // Nón lá vàng truyền thống miền Tây
+    const nonLaGrad = ctx.createRadialGradient(px, py - 2, 2, px, py, pRadius * 0.9);
+    nonLaGrad.addColorStop(0, "#FFF9C4");
+    nonLaGrad.addColorStop(0.6, "#FBC02D");
+    nonLaGrad.addColorStop(1, "#F57F17");
+    ctx.fillStyle = nonLaGrad;
+    ctx.beginPath(); ctx.arc(px, py, pRadius * 0.9, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#E65100"; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Vòng tròn highlight chóp nón
+    ctx.fillStyle = "#FFFDE7";
+    ctx.beginPath(); ctx.arc(px, py - 2, pRadius * 0.25, 0, Math.PI * 2); ctx.fill();
+
+    // ĐANG BƯNG ĐĨA THỨC ĂN TRÊN TAY (HOLDING DISH)
     if (snap.hand) {
-      const handDishName = typeof snap.hand === "object" && snap.hand !== null ? (snap.hand.dish_id || "món") : snap.hand;
-      ctx.fillStyle = "#FFEB3B"; ctx.font = "bold 14px system-ui"; ctx.textAlign = "center";
-      ctx.fillText("🍲 " + handDishName, px, py - 0.9 * s);
+      const handDishMeta = getDishInfo(snap.hand);
+      // Khay sơn mài đen cầm trước người
+      const trayY = py - pRadius - 8;
+      ctx.fillStyle = "#212121";
+      ctx.beginPath(); ctx.roundRect(px - 18, trayY - 10, 36, 20, [4]); ctx.fill();
+      ctx.strokeStyle = "#FFD700"; ctx.lineWidth = 1.5; ctx.stroke();
+
+      // Món ăn bốc khói nghi ngút
+      ctx.fillStyle = "#FFF"; ctx.font = "16px system-ui"; ctx.textAlign = "center";
+      ctx.fillText(handDishMeta.icon, px, trayY + 5);
+
+      // Nhãn tên món
+      ctx.fillStyle = "#FFF"; ctx.font = "bold 12px system-ui";
+      ctx.shadowColor = "#000"; ctx.shadowBlur = 6;
+      ctx.fillText("🍲 " + handDishMeta.name, px, trayY - 14);
     }
+
+    // Vòng gợi ý khoảng cách tương tác [Phím E]
+    ctx.strokeStyle = "rgba(255, 235, 59, 0.4)"; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.arc(px, py, 1.6 * s, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
   }
 
-  // HUD Quán
-  ctx.fillStyle = "#FFF";
-  ctx.font = "bold 18px system-ui"; ctx.textAlign = "left";
-  ctx.fillText("⏱ " + fmtTime(snap.time_left_ticks), 20, 36);
-  ctx.fillText(`💰 Doanh thu: ${snap.money ?? 0} xu  ·  ⭐ Uy tín: ${(snap.reputation ?? 0).toFixed(1)}/5.0`, 130, 36);
-  updateHUDOverlay(snap.player || { pos: [0, 0] }, snap.meta || {});
+  // 7. PARTICLES TRONG QUÁN (SMOKE & SPARKS)
+  ctx.save();
+  for (let i = quanParticles.length - 1; i >= 0; i--) {
+    const pt = quanParticles[i];
+    pt.x += pt.vx / 60;
+    pt.z += pt.vz / 60;
+    pt.alpha -= (pt.kind === "smoke" ? 0.009 : 0.02);
+    if (pt.kind === "smoke") pt.r += 0.004;
+
+    if (pt.alpha <= 0) {
+      quanParticles.splice(i, 1);
+      continue;
+    }
+
+    const px = sx(pt.x), py = sy(pt.z);
+    ctx.globalAlpha = Math.max(0, pt.alpha);
+    if (pt.kind === "smoke") {
+      ctx.fillStyle = "rgba(230, 230, 230, 0.8)";
+      ctx.beginPath(); ctx.arc(px, py, pt.r * s, 0, Math.PI * 2); ctx.fill();
+    } else {
+      ctx.fillStyle = "#FFAB00";
+      ctx.beginPath(); ctx.arc(px, py, pt.r * s, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  // 8. TEXT BAY PHẢN HỒI (FLOATING FEEDBACK IN QUAN)
+  ctx.save();
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    const ft = floatingTexts[i];
+    ft.y += ft.vy / 60;
+    ft.alpha -= 0.015;
+    if (ft.alpha <= 0) {
+      floatingTexts.splice(i, 1);
+      continue;
+    }
+    ctx.globalAlpha = Math.max(0, ft.alpha);
+    ctx.fillStyle = ft.color;
+    ctx.font = "bold 16px system-ui"; ctx.textAlign = "center";
+    ctx.shadowColor = "#000"; ctx.shadowBlur = 8;
+    ctx.fillText(ft.text, sx(ft.x), sy(ft.y));
+  }
+  ctx.restore();
+
+  // 9. BẢNG ĐIỀU HÀNH QUÁN ĐÊM (TOP HUD BAR)
+  ctx.save();
+  const hudW = Math.min(w - 32, 920), hudH = 46, hudX = (w - hudW) / 2, hudY = 10;
+  ctx.fillStyle = "rgba(16, 46, 62, 0.9)";
+  ctx.strokeStyle = "rgba(243, 205, 88, 0.35)"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(hudX, hudY, hudW, hudH, [10]); ctx.fill(); ctx.stroke();
+
+  // Đồng hồ ca đêm
+  ctx.fillStyle = "#81D4FA"; ctx.font = "bold 15px system-ui"; ctx.textAlign = "left";
+  ctx.fillText("⏳ Ca Đêm: " + fmtTime(snap.time_left_ticks), hudX + 16, hudY + 28);
+
+  // Tiền doanh thu
+  ctx.fillStyle = "#FFD54F"; ctx.font = "bold 16px system-ui";
+  ctx.fillText(`💰 Doanh Thu: ${snap.money ?? 0} xu`, hudX + 175, hudY + 28);
+
+  // Điểm uy tín 5 sao
+  const rep = snap.reputation ?? 0;
+  const stars = "⭐".repeat(Math.min(5, Math.max(1, Math.round(rep))));
+  ctx.fillStyle = "#FFF"; ctx.font = "bold 14px system-ui";
+  ctx.fillText(`Uy Tín: ${rep.toFixed(1)}/5.0 ${stars}`, hudX + 375, hudY + 28);
+
+  // Kho nhanh tóm tắt
+  const stock = snap.stock || {};
+  const stockStr = Object.entries(stock).filter(([_, cnt]) => cnt > 0).map(([k, cnt]) => {
+    const icon = k.includes("ca") ? "🐟" : "🌸";
+    return `${icon} ${cnt}`;
+  }).slice(0, 4).join("  ");
+  if (stockStr) {
+    ctx.fillStyle = "#B0BEC5"; ctx.font = "12px system-ui"; ctx.textAlign = "right";
+    ctx.fillText("Kho: " + stockStr, hudX + hudW - 16, hudY + 28);
+  }
+  ctx.restore();
+  if (typeof updateHUDOverlay === "function") {
+    updateHUDOverlay(snap.player || { pos: [0, 0] }, snap.meta || {});
+  }
 }
 
 function fmtTime(ticks) {
