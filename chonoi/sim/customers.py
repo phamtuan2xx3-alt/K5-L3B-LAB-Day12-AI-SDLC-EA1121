@@ -12,6 +12,7 @@ Kho: sim.stock là tồn VẬT LÝ (gồm cả phần giữ chỗ). Khả dụng
 
 from ..errors import BadInput
 from ..ids import id_key, sort_by_id
+from . import freshness as fr
 
 TICK = 60
 
@@ -45,7 +46,9 @@ def reserved_total(customers) -> dict:
 
 
 def available_stock(sim) -> dict:
-    """Tồn vật lý trừ phần đang giữ chỗ."""
+    """Tồn vật lý trừ phần đang giữ chỗ. v1.2: đếm cá thể chưa ươn, chưa bị giữ."""
+    if getattr(sim, "itemized", False):
+        return fr.counts(fr.available_items(sim))
     held = reserved_total(sim.customers)
     return {k: sim.stock.get(k, 0) - held.get(k, 0) for k in set(sim.stock) | set(held)}
 
@@ -108,7 +111,12 @@ def init_customers(sim, raw_customers, random_customers=True):
             v = c[key]
             if not _is_int(v) or v < 0 or (hi is not None and v > hi):
                 _bad(cid, f"{key} phải là số nguyên trong [0, {hi if hi is not None else '∞'}]")
-        if c["reserved"] is not None:
+        if c["reserved"] is not None and sim.itemized:
+            r = c["reserved"]
+            if not isinstance(r, list) or any(not isinstance(i, str) or not i for i in r) or len(set(r)) != len(r):
+                _bad(cid, "reserved phải là mảng id cá thể khác nhau (contract 1.2)")
+            c["reserved"] = list(r)
+        elif c["reserved"] is not None:
             r = c["reserved"]
             if not isinstance(r, dict) or any(k not in _kinds(sim) or not _is_int(n) or n < 0
                                               for k, n in r.items()):
@@ -130,9 +138,17 @@ def init_customers(sim, raw_customers, random_customers=True):
                 _bad(cid, "khách chưa ăn thì eat_ticks_left = 0")
         if c["order_status"] != "reserved" and c["reserved"]:
             _bad(cid, f"đơn {c['order_status']} không còn giữ chỗ")
-        if c["order_status"] == "reserved" and c["reserved"] is not None \
-                and c["reserved"] != sim.menu[c["dish_id"]]["recipe"]:
-            _bad(cid, "giữ chỗ khác công thức món")
+        if c["order_status"] == "reserved" and c["reserved"] is not None:
+            if sim.itemized:
+                for iid in c["reserved"]:
+                    if iid not in sim.items:
+                        _bad(cid, f"reserved trỏ tới cá thể không có trong kho: {iid}")
+                    if fr.is_spoiled(sim, sim.items[iid]):
+                        _bad(cid, f"reserved trỏ tới cá thể đã ươn: {iid}")
+                if fr.recipe_of_ids(sim, c["reserved"]) != sim.menu[c["dish_id"]]["recipe"]:
+                    _bad(cid, "giữ chỗ khác công thức món")
+            elif c["reserved"] != sim.menu[c["dish_id"]]["recipe"]:
+                _bad(cid, "giữ chỗ khác công thức món")
         out.append(c)
 
     # Đơn reserved thiếu reserved: cấp theo công thức, theo order_tick rồi id bàn.
@@ -140,7 +156,11 @@ def init_customers(sim, raw_customers, random_customers=True):
                      key=lambda c: (c["order_tick"], id_key(c["table_id"])))
     for c in out:
         if c["reserved"] is None and c["order_status"] != "reserved":
-            c["reserved"] = {}
+            c["reserved"] = [] if sim.itemized else {}
+    if sim.itemized:
+        _allocate_itemized(sim, out, pending)
+        _check_dish_links(sim, out)
+        return sort_by_id(out)
     for c in pending:
         if c["order_status"] == "reserved":
             c["reserved"] = dict(sim.menu[c["dish_id"]]["recipe"])
@@ -150,6 +170,24 @@ def init_customers(sim, raw_customers, random_customers=True):
             raise BadInput(f"tổng giữ chỗ {kind}={n} vượt tồn kho {sim.stock.get(kind, 0)}")
     _check_dish_links(sim, out)
     return sort_by_id(out)
+
+
+def _allocate_itemized(sim, out, pending):
+    """v1.2: id giữ chỗ không dùng chung giữa các đơn; đơn reserved thiếu reserved được cấp theo
+    order_tick rồi id bàn, mỗi loại lấy cá thể chưa ươn tươi nhất rồi id nhỏ. Thiếu -> mã 2."""
+    held = [i for c in out for i in (c["reserved"] or [])]
+    if len(held) != len(set(held)):
+        raise BadInput("hai đơn giữ chung một cá thể")
+    taken = set(held)
+    for c in pending:
+        if c["order_status"] != "reserved":
+            continue
+        pool = [it for it in sim.items.values() if it["id"] not in taken and not fr.is_spoiled(sim, it)]
+        ids_ = fr.pick(sim, sim.menu[c["dish_id"]]["recipe"], pool=pool)
+        if ids_ is None:
+            _bad(c["id"], "kho không đủ cá thể chưa ươn để giữ chỗ")
+        c["reserved"] = ids_
+        taken |= set(ids_)
 
 
 def _kinds(sim):
@@ -204,7 +242,7 @@ def _drop_order_dish(sim, order_id):
 
 def remove_customer(sim, c, reason, events):
     """Khách chưa được phục vụ rời quán (patience/closing): nhả giữ chỗ, bỏ món, có thể trừ uy tín."""
-    c["reserved"] = {}
+    c["reserved"] = [] if getattr(sim, "itemized", False) else {}
     _drop_order_dish(sim, c["id"])
     if reason == "patience":
         sim.reputation = _clamp_rep(sim, sim.reputation + sim.t["left_reputation_delta"])
@@ -278,7 +316,8 @@ def maybe_spawn(sim, events):
         "patience_ticks_left": to_ticks(t["patience_s"]),
         "eat_ticks_left": 0,
         "order_status": "reserved",
-        "reserved": dict(sim.menu[dish_id]["recipe"]),
+        "reserved": (fr.pick(sim, sim.menu[dish_id]["recipe"]) if getattr(sim, "itemized", False)
+                     else dict(sim.menu[dish_id]["recipe"])),
         "base_price": None,
         "tip": None,
     })

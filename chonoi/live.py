@@ -24,7 +24,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from .contract import load_contract
 from .errors import BadInput
 from .inputs import LiveInputs
-from .inventory import kinds_for, read_inventory
+from .inventory import is_itemized, kinds_for, read_inventory
 from .runner import Session
 from .scenario import load_scenario
 
@@ -230,7 +230,7 @@ def main(argv=None) -> int:
             raise BadInput("--inventory-out chỉ dùng với gather")
         tuning = load_contract()["tuning"]
         scenario = load_scenario(a.scenario, a.mode, tuning)
-        inventory = read_inventory(a.inventory, kinds_for(tuning)) if a.inventory else None
+        inventory = read_inventory(a.inventory, kinds_for(tuning), is_itemized(tuning)) if a.inventory else None
         if inventory is not None and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
         game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out)

@@ -10,3 +10,7 @@
 | 6 | 21/11 10:15 | Khi giỏ gần đầy (11/12) mà bắt Cá Linh (yield 3), xử lý thế nào ở Phase 2? | Contract v1.1 quy định cần đủ chỗ cho cả đàn (`space >= y`), nếu thiếu chỗ thì phát `hold_full` và giữ đàn cá trong sông. | Giảng viên / PHARSE2.md |
 | 7 | 21/11 10:20 | Rơi nguyên liệu khi bị Cá Sấu Năm Chèo táp? | Mất 1 Máu và bỏ `floor(hold / 2)` nguyên liệu theo chuẩn LIFO (nhặt sau mất trước). | PO / TICKET-02 |
 | 8 | 21/11 10:30 | Hiệu lực của nâng cấp Shop mua cuối ngày? | Trừ tiền ngay, hiển thị cấp mới trong snapshot nhưng chỉ có hiệu lực thực tế (oxy, máu) từ Ngày kế tiếp. | Integrator / PHARSE2.md |
+| 9 | P3 | Đọc lại `fresh` từ file kho bằng float có làm lệch nhánh ở ngưỡng 30 không? | Lưu độ tươi bằng phân số chính xác. Float đọc vào mà sát một bội của 1/240 (đơn vị hao mỗi tick) thì đưa về đúng bội đó, nên giá trị và nhánh 30 giữ nguyên sau khi ghi/đọc. Số thập phân khác giữ nguyên chính xác. | DEV 3 |
+| 10 | P3 | Đơn chuyển `unfulfillable` (giữ lại không đủ sau khi hàng ươn) có phát event không? | PRD không có event cho việc này: không phát. Đơn không được giữ lại lần nữa, khách chờ tới hết kiên nhẫn. | DEV 3, chờ Anh Năm xác nhận |
+| 11 | P3 | `customers[].reserved` (mảng id) sắp theo thứ tự nào? | Theo id (`ids.sort_by_id`). `cook_started.items` thì theo đề: kind rồi id. | DEV 3 |
+| 12 | P3 | Trong lúc chuyển schema, `day` còn bàn giao kho đếm cho quán chạy v1.2 thì sao? | Quán đổi tạm sang cá thể với id mới và `fresh` = 100 để `main` không gãy. Khi phía Lặn ghi mảng cá thể thì nhánh này không dùng nữa. | DEV 3 |
