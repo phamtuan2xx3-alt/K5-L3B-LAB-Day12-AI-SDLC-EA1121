@@ -180,12 +180,22 @@ class LiveGame:
                         except OSError as e:
                             sys.stderr.write(f"lỗi ghi kho: {e}\n")
 
+                    # Tự động cập bến và sang phase prep (15:00 - 18:00)
+                    self.master_phase = "prep"
+                    self.master_phase_tick = 0
+                    self.events.append(("phase_start", {"phase": "prep"}))
+
                 elif self.master_phase == "quan":
                     self.master_money = getattr(s.sim, "money", self.master_money)
                     self.master_earned = getattr(s.sim, "earned", self.master_earned)
                     self.master_reputation = getattr(s.sim, "reputation", self.master_reputation)
                     if hasattr(s.sim, "stock"):
                         self.master_stock = dict(s.sim.stock)
+
+                    # Tự động đóng quán và sang phase sleep (23:00 - 06:00)
+                    self.master_phase = "sleep"
+                    self.master_phase_tick = 0
+                    self.events.append(("phase_start", {"phase": "sleep"}))
 
     def goto_phase(self, new_phase):
         with self._lock:

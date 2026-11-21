@@ -1051,7 +1051,7 @@
         <span id="clock-text">08:30 (SÁNG)</span>
       </div>
       <div class="area-pill" id="clock-area-tag">🟢 Bến Lặn Đang Mở</div>
-      <button class="hub-toggle-btn" id="btn-toggle-hub" title="Phím tắt: M">🗺️ Khu Vực (M)</button>
+      <button class="hub-toggle-btn" id="btn-toggle-hub" title="Mở Bản Đồ Chính 3/4 (Phím M hoặc H)">🗺️ Map Chính 3/4 (M)</button>
     </div>
   </div>
 
@@ -1136,7 +1136,8 @@
     </div>
   </div>
   <div style="display: flex; gap: 8px;">
-    <button id="btn-goto-prep" class="restart-btn" style="flex: 1; background: linear-gradient(135deg, #4FC3F7, #0288D1); color: #FFF;">ĐẾN CHỢ CHUẨN BỊ ĐỒ ➡️</button>
+    <button id="btn-return-map" class="restart-btn" style="flex: 1.3; background: linear-gradient(135deg, #00E676, #00B0FF); color: #000; font-weight: bold;">🗺️ VỀ BẢN ĐỒ CHÍNH (MAP 3/4) ➡️</button>
+    <button id="btn-goto-prep" class="restart-btn" style="flex: 1; background: linear-gradient(135deg, #4FC3F7, #0288D1); color: #FFF;">🏮 GHÉ CHỢ CHÚ SÁU ➡️</button>
     <button id="btn-restart" class="tier-btn" style="padding: 10px 14px; font-size: 13px;">Chơi lại (R)</button>
   </div>
 </div>
@@ -1503,13 +1504,6 @@ addEventListener("keydown", (e) => {
   if (e.repeat) { if (k === " " || k.startsWith("arrow")) e.preventDefault(); return; }
   if (MOVE_KEYS[k]) {
     down.add(MOVE_KEYS[k]);
-    const menuEl = document.getElementById("main-menu-overlay");
-    if (menuEl && menuEl.classList.contains("visible")) {
-      closeMainMenu();
-    }
-    if (snap && snap.finished) {
-      restartGame();
-    }
     if (cameraMode !== "follow_player") {
       cameraMode = "follow_player";
       const drop = document.getElementById("camera-area-dropdown");
@@ -1519,12 +1513,14 @@ addEventListener("keydown", (e) => {
     }
     e.preventDefault();
   }
-  else if (k === "e") down.add("interact");
+  else if (k === "e") {
+    down.add("interact");
+    if (typeof handleDockReturn === "function") handleDockReturn();
+  }
   else if (k === " ") { down.add("catch"); e.preventDefault(); }
   else if (k === "q") { down.add("attack"); e.preventDefault(); }
   else if (k === "f") { down.add("photo"); e.preventDefault(); }
-  else if (k === "m") { toggleHubModal(); e.preventDefault(); }
-  else if (k === "h") { toggleMainMenu(); e.preventDefault(); }
+  else if (k === "m" || k === "h") { toggleMainMenu(); e.preventDefault(); }
   else if (k === "c") { toggleHighContrast(); e.preventDefault(); }
   else if (k === "p" || k === "escape") { pendingPause = true; e.preventDefault(); }
   else if (k === "r") { restartGame(); }
@@ -2216,8 +2212,7 @@ async function switchModeAndPlay(mode) {
 }
 
 function toggleHubModal() {
-  const modal = document.getElementById("hub-modal");
-  modal.classList.toggle("visible");
+  toggleMainMenu();
 }
 
 function updateZoneCard(id, isOpen, openText, closedText) {
@@ -2302,8 +2297,49 @@ document.getElementById("btn-shop-done").addEventListener("click", async () => {
   }
   document.getElementById("shop-modal").classList.remove("visible");
 });
-document.getElementById("btn-toggle-hub").addEventListener("click", toggleHubModal);
-document.getElementById("btn-close-hub").addEventListener("click", toggleHubModal);
+document.getElementById("btn-toggle-hub").addEventListener("click", toggleMainMenu);
+document.getElementById("btn-close-hub").addEventListener("click", toggleMainMenu);
+
+function handleDockReturn() {
+  if (!snap) return;
+  const p = snap.player ? snap.player.pos : [2, 0];
+  const inDock = Math.hypot(p[0] - 2, p[1] - 0) <= 3.5;
+  const atSurface = p[1] <= 0.6;
+  if ((inDock && atSurface) || snap.finished || (snap.clock && snap.clock.hour >= 15)) {
+    sfx.playDock();
+    const curHold = snap.hold || [];
+    showDiveLog("docked", curHold);
+    fetch("/next_phase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phase: "prep" })
+    }).catch(() => {});
+  }
+}
+
+const btnReturnMap = document.getElementById("btn-return-map");
+if (btnReturnMap) {
+  btnReturnMap.addEventListener("click", async () => {
+    document.getElementById("dive-log-modal").classList.remove("visible");
+    try {
+      await fetch("/next_phase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phase: "prep" })
+      });
+    } catch (e) {}
+    openMainMenu();
+  });
+}
+
+const actionHarvestEl = document.getElementById("action-harvest");
+if (actionHarvestEl) {
+  actionHarvestEl.style.cursor = "pointer";
+  actionHarvestEl.addEventListener("click", () => {
+    handleDockReturn();
+  });
+}
+
 document.getElementById("btn-goto-prep").addEventListener("click", async () => {
   document.getElementById("dive-log-modal").classList.remove("visible");
   try {
