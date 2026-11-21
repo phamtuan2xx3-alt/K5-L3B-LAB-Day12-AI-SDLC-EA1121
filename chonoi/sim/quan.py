@@ -19,10 +19,12 @@ class QuanSim:
     mode = "quan"
     phase = "quan"
 
-    def __init__(self, tuning, scenario, streams, ids, inventory=None):
+    def __init__(self, tuning, scenario, streams, ids, inventory=None, allowed_dishes=None):
         t = tuning["quan"]
         self.t = t
         self.menu = tuning["menu"]
+        # v1.1 --mode day: id món trong kế hoạch Ngày (list hoặc map id -> suất). None = cả menu.
+        self.allowed_dishes = None if allowed_dishes is None else sorted(allowed_dishes)
         self.rng = streams
         self.ids = ids
         p = scenario.get("player", {})
