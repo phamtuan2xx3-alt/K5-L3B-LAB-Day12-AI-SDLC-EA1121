@@ -1,6 +1,16 @@
 # Changelog
 ## Unreleased
 
+### Phase 4 — Phát hành v1.0.0 (DEV 5 & QA)
+- `contract_version` = `"1.3"`, khai báo `bench_cmd` và `soak_cmd` ở gốc `game.contract.json`.
+- `bench_cmd` = `python3 -m chonoi.bench --seed <int> --duration <giây> --out bench.json`:
+  Đo hiệu năng cảnh lặn ban ngày seed 42 tại 1280x720, làm nóng 3s, đo 30s. Kết quả: avg 63.73 FPS (>= 60),
+  1% low 60.64 FPS (>= 30), load 1ms (<= 10s) tại `docs/proof/phase-4/bench.json`.
+- Ba cảnh báo trực quan dễ nhận biết: Thủy quái Cá Sấu ở gần (🐊), Bình oxy sắp hết (🫁 <= 20%), Khách bàn ăn sắp giận bỏ về (😤 <= 25%).
+- Chế độ Tương Phản Cao (High Contrast Mode) toggle qua nút HUD hoặc phím tắt `C`.
+- Phụ đề âm thanh SFX Captions hiển thị trực quan các sự kiện âm thanh phục vụ tính tiếp cận (Accessibility).
+- Bộ test hồi quy `tests/test_bench.py` và duy trì 146/146 unit test xanh 100%.
+
 ### Phase 4 — soak headless (DEV 3)
 - `soak_cmd` = `python3 -m chonoi.soak --seed <int> --days <N> --out soak.json` (khai ở gốc `game.contract.json`).
   Chạy N Ngày trong một tiến trình bằng bot tất định (gather → quan → shop), xuất `days, days_completed,
