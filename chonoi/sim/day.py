@@ -128,6 +128,81 @@ class DaySim:
             return self.shop_time_left
         return 0
 
+    def get_clock(self) -> dict:
+        """Tính toán đồng hồ in-game 24H chuẩn:
+        - 1 Ngày in-game 24H = 8 phút đời thực (480s = 28.800 ticks).
+        - 1s đời thực = 3 phút in-game (1 tick = 3s in-game).
+        - gather: 06:00 -> 15:00 (9h in-game = 540 phút game)
+        - shop/prep: 15:00 -> 18:00 (3h in-game)
+        - quan: 18:00 -> 23:00 (5h in-game = 300 phút game)
+        - sleep/summary: 23:00 -> 06:00 (7h in-game)
+        """
+        if self.phase == "gather":
+            sub_ticks = getattr(self.sub_sim, "ticks_run", self.phase_tick)
+            tick_lim = getattr(self.sub_sim, "tick_limit", 10800)
+            prog = min(1.0, sub_ticks / max(1, tick_lim))
+            mins = 6 * 60 + int(prog * 540)
+            period = "morning" if mins < 12 * 60 else "afternoon"
+        elif self.phase == "quan":
+            sub_ticks = getattr(self.sub_sim, "ticks_run", self.phase_tick)
+            tick_lim = getattr(self.sub_sim, "tick_limit", 10800)
+            prog = min(1.0, sub_ticks / max(1, tick_lim))
+            mins = 18 * 60 + int(prog * 300)
+            period = "evening"
+        elif self.phase == "shop":
+            prog = min(1.0, (600 - getattr(self, "shop_time_left", 600)) / 600.0)
+            mins = 23 * 60 + int(prog * 60)
+            period = "night"
+        else:
+            mins = 6 * 60
+            period = "morning"
+
+        hour = (mins // 60) % 24
+        minute = mins % 60
+        return {
+            "hour": hour,
+            "minute": minute,
+            "time_str": f"{hour:02d}:{minute:02d}",
+            "period": period,
+            "real_minutes_per_24h": 8.0,
+            "ratio_desc": "24h game = 8 phut doi thuc (1s thuc = 3 phut game)"
+        }
+
+    def get_areas(self) -> dict:
+        """Trạng thái mở/đóng của 4 khu vực thế giới mở theo khung giờ in-game."""
+        clk = self.get_clock()
+        h = clk["hour"]
+        return {
+            "ben_lan": {
+                "id": "ben_lan",
+                "name": "Bến Lặn Sông Tiền",
+                "open": 6 <= h < 15,
+                "hours": "06:00 - 15:00",
+                "desc": "Lặn bắt cá Linh, Cá Lóc, Cá Kèo và hái hoa"
+            },
+            "cho_chu_sau": {
+                "id": "cho_chu_sau",
+                "name": "Chợ Nổi Chú Sáu",
+                "open": 15 <= h < 22,
+                "hours": "15:00 - 22:00",
+                "desc": "Mua bán nguyên liệu, nâng cấp ghe và trang bị"
+            },
+            "quan_an": {
+                "id": "quan_an",
+                "name": "Quán Ăn Má Tư",
+                "open": 18 <= h < 23,
+                "hours": "18:00 - 23:00",
+                "desc": "Tiếp khách ghe, nấu nướng và phục vụ"
+            },
+            "ghe_nghi": {
+                "id": "ghe_nghi",
+                "name": "Ghe Nghỉ Út Sen",
+                "open": (h >= 22 or h < 6),
+                "hours": "22:00 - 06:00",
+                "desc": "Nghỉ ngơi, hồi phục thể lực và sang ngày mới"
+            }
+        }
+
     def snapshot(self) -> dict:
         snap = {
             "day": self.current_day,
@@ -135,7 +210,9 @@ class DaySim:
             "upgrades": self.upgrades,
             "active_upgrades": self.active_upgrades,
             "days_completed": self.days_completed,
-            "paused": self.paused
+            "paused": self.paused,
+            "clock": self.get_clock(),
+            "areas": self.get_areas()
         }
         if self.phase in ("gather", "quan") and hasattr(self, "sub_sim"):
             snap.update(self.sub_sim.snapshot())
