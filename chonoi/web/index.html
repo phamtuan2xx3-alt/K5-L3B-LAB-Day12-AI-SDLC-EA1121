@@ -978,6 +978,8 @@
         <span><kbd>W A S D</kbd> Di chuyển</span>
         <span><kbd>E</kbd> Hái / Cập bến</span>
         <span><kbd>SPACE</kbd> Bắt cá</span>
+        <span><kbd>Q</kbd> Lao xua</span>
+        <span><kbd>F</kbd> Chụp ảnh</span>
         <span><kbd>M</kbd> Bản đồ Hub</span>
         <span><kbd>P</kbd> Tạm dừng</span>
         <span><kbd>H</kbd> Menu Chính</span>
@@ -1459,6 +1461,8 @@ function currentInput() {
     move: [dx, dy],
     interact: down.has("interact"),
     catch: down.has("catch"),
+    attack: down.has("attack"),
+    photo: down.has("photo"),
     pause: false,
     shop_done: false
   };
@@ -1517,6 +1521,8 @@ addEventListener("keydown", (e) => {
   }
   else if (k === "e") down.add("interact");
   else if (k === " ") { down.add("catch"); e.preventDefault(); }
+  else if (k === "q") { down.add("attack"); e.preventDefault(); }
+  else if (k === "f") { down.add("photo"); e.preventDefault(); }
   else if (k === "m") { toggleHubModal(); e.preventDefault(); }
   else if (k === "h") { toggleMainMenu(); e.preventDefault(); }
   else if (k === "c") { toggleHighContrast(); e.preventDefault(); }
@@ -1529,6 +1535,8 @@ addEventListener("keyup", (e) => {
   if (MOVE_KEYS[k]) down.delete(MOVE_KEYS[k]);
   else if (k === "e") down.delete("interact");
   else if (k === " ") down.delete("catch");
+  else if (k === "q") down.delete("attack");
+  else if (k === "f") down.delete("photo");
   pushInput();
 });
 addEventListener("blur", () => { down.clear(); pushInput(); });

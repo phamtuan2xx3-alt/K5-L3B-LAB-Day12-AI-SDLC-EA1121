@@ -184,9 +184,25 @@ class LiveGame:
                     self.master_money = getattr(s.sim, "money", self.master_money)
                     self.master_earned = getattr(s.sim, "earned", self.master_earned)
                     self.master_reputation = getattr(s.sim, "reputation", self.master_reputation)
+                    if hasattr(s.sim, "stock"):
+                        self.master_stock = dict(s.sim.stock)
 
     def goto_phase(self, new_phase):
         with self._lock:
+            # Thu gom an toàn nếu đang chuyển từ gather sang phase khác
+            if self.master_phase == "gather" and new_phase != "gather":
+                if hasattr(self.session.sim, "inventory_items"):
+                    collected = self.session.sim.inventory_items()
+                else:
+                    collected = [it["kind"] if isinstance(it, dict) else it for it in getattr(self.session.sim, "hold", [])]
+                if isinstance(self.master_stock, dict) and isinstance(collected, dict):
+                    for k, v in collected.items():
+                        self.master_stock[k] = self.master_stock.get(k, 0) + v
+                elif isinstance(self.master_stock, dict) and isinstance(collected, list):
+                    for it in collected:
+                        k = it["kind"] if isinstance(it, dict) else it
+                        self.master_stock[k] = self.master_stock.get(k, 0) + 1
+
             if new_phase in ("prep", "shop"):
                 self.master_phase = "prep"
                 self.master_phase_tick = 0
@@ -202,6 +218,7 @@ class LiveGame:
                 q_scen = dict(self.scenario.get("quan", {}))
                 q_scen["stock"] = self.master_stock
                 q_scen["money"] = self.master_money
+                q_scen["earned"] = self.master_earned
                 q_scen["reputation"] = self.master_reputation
                 self.scenario["quan"] = q_scen
                 self._args = ("quan", self.tuning, self.scenario, self.seed, self.master_stock)
