@@ -1,6 +1,9 @@
 # Changelog
 ## Unreleased
 
+## v1.0.1 — 2026-11-21
+Xem `docs/release-v1.0.1.md`: bật độ tươi v1.2 cho contract 1.3, thêm `LICENSE` (MIT), hoàn thiện `CREDITS.md`.
+
 ### Sửa sau v1.0.0 — bật độ tươi cho contract 1.3 (DEV 3)
 - `game.contract.json` thêm `tuning.freshness {initial:100, gather_decay_per_s:0.5, quan_decay_per_s:0.25,
   spoiled_below:30}`. `inventory.is_itemized`: mọi contract ≥ 1.2 dùng kho cá thể. Trước đây chỉ đúng `"1.2"`,
