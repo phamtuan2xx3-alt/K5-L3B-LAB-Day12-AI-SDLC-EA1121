@@ -275,16 +275,74 @@
   .restart-btn:hover {
     transform: scale(1.02); filter: brightness(1.1);
   }
+
+  /* ========== PURPLE THREAT VIGNETTE ========== */
+  #threat-vignette {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 5;
+    opacity: 0; transition: opacity 0.3s ease;
+    box-shadow: inset 0 0 100px rgba(171, 71, 188, 0.85), inset 0 0 40px rgba(142, 36, 170, 0.9);
+  }
+  #threat-vignette.threat-active {
+    opacity: 1;
+    animation: threat-pulse 1s infinite alternate;
+  }
+  @keyframes threat-pulse {
+    0% { box-shadow: inset 0 0 60px rgba(171, 71, 188, 0.6); }
+    100% { box-shadow: inset 0 0 120px rgba(171, 71, 188, 0.95); }
+  }
+  .threat-banner {
+    display: none;
+    position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+    background: rgba(142, 36, 170, 0.9); border: 2px solid #E1BEE7;
+    border-radius: 8px; padding: 6px 18px; color: #FFF; font-weight: bold;
+    font-size: 14px; letter-spacing: 1px; z-index: 15;
+    box-shadow: 0 4px 20px rgba(142, 36, 170, 0.8);
+  }
+  .threat-banner.visible { display: block; }
+
+  /* ========== PAUSE OVERLAY MODAL ========== */
+  #pause-modal {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(6, 17, 28, 0.95); backdrop-filter: blur(12px);
+    border: 2px solid var(--color-yellow-dien-dien); border-radius: 16px;
+    padding: 30px; width: 340px; text-align: center; z-index: 60;
+    display: none; flex-direction: column; gap: 16px; pointer-events: auto;
+  }
+  #pause-modal.visible { display: flex; }
+
+  /* ========== SHOP MODAL ========== */
+  #shop-modal {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(10, 30, 42, 0.96); backdrop-filter: blur(14px);
+    border: 2px solid var(--color-yellow-dien-dien); border-radius: 16px;
+    padding: 24px; width: clamp(380px, 50vw, 600px); z-index: 55;
+    display: none; flex-direction: column; gap: 14px; pointer-events: auto;
+  }
+  #shop-modal.visible { display: flex; }
+  .shop-card {
+    background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .shop-buy-btn {
+    background: #4FC3F7; border: none; border-radius: 6px; padding: 6px 14px;
+    font-weight: bold; color: #000; cursor: pointer; transition: all 0.2s;
+  }
+  .shop-buy-btn:hover { background: #81D4FA; transform: scale(1.05); }
+  .shop-buy-btn.disabled { opacity: 0.5; pointer-events: none; background: #78909C; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="threat-vignette"></div>
+<div id="threat-banner" class="threat-banner">⚠️ THỦY QUÁI CÁ SẤU NĂM CHÈO ĐANG RƯỢT ĐUỔI!</div>
 
 <!-- HUD DOM OVERLAY -->
 <div id="hud">
   <!-- TOP LEFT -->
   <div class="top-left hud-panel">
     <div class="vital-row">
+      <div id="day-badge" style="font-size: 13px; font-weight: bold; color: var(--color-yellow-dien-dien); display: none;">NGÀY 1 / 5</div>
       <div id="hp-container" class="hp-hearts">❤️❤️❤️</div>
       <div class="perf-pill">
         <span id="fps-display">60 FPS</span>
@@ -373,12 +431,54 @@
       <span>🐊 Cá Lóc:</span>
       <strong id="count-ca-loc">0</strong>
     </div>
+    <div class="breakdown-row">
+      <span>🌱 Kèo Nèo:</span>
+      <strong id="count-keo-neo">0</strong>
+    </div>
+    <div class="breakdown-row">
+      <span>🐟 Cá Kèo:</span>
+      <strong id="count-ca-keo">0</strong>
+    </div>
     <div class="breakdown-row" style="border-top: 1px solid rgba(243,205,88,0.4); padding-top: 6px; font-weight: bold; color: var(--color-yellow-dien-dien);">
       <span>Tổng số lượng xuất kho:</span>
       <strong id="count-total">0/12</strong>
     </div>
   </div>
   <button id="btn-restart" class="restart-btn">CHƠI LƯỢT MỚI (PHÍM R)</button>
+</div>
+
+<!-- PAUSE MODAL -->
+<div id="pause-modal">
+  <h2 class="modal-title">TẠM DỪNG (PAUSED)</h2>
+  <p style="color: #81D4FA; margin: 0;">Trò chơi đang dừng. Nghỉ tay hớp ngụm trà sen!</p>
+  <button id="btn-resume" class="restart-btn">TIẾP TỤC CHƠI (PHÍM P)</button>
+  <button id="btn-menu" class="tier-btn" style="padding: 8px 16px; font-size: 13px;">Chơi lại từ đầu</button>
+</div>
+
+<!-- SHOP MODAL (PHASE 2) -->
+<div id="shop-modal">
+  <h2 class="modal-title">CHỢ QUÊ — NÂNG CẤP DỤNG CỤ LẶN</h2>
+  <div style="display: flex; justify-content: space-between; font-size: 15px; color: #F3CD58; margin-bottom: 8px;">
+    <span>Tiền tiết kiệm của Út Sen:</span>
+    <strong id="shop-money">0 xu</strong>
+  </div>
+  <div class="shop-card">
+    <div>
+      <div style="font-weight: bold; color: #81D4FA;">Bình Dưỡng Khí Oxy</div>
+      <div style="font-size: 12px; color: #B0BEC5;">Cấp 1: 45s (200 xu) · Cấp 2: 60s (400 xu)</div>
+      <div id="shop-oxy-level" style="font-size: 12px; color: #00E676; margin-top: 2px;">Cấp hiện tại: 0</div>
+    </div>
+    <button id="btn-buy-oxygen" class="shop-buy-btn">Mua Nâng Cấp</button>
+  </div>
+  <div class="shop-card">
+    <div>
+      <div style="font-weight: bold; color: #81D4FA;">Áo Phao Thêm Máu (HP)</div>
+      <div style="font-size: 12px; color: #B0BEC5;">Cấp 1: 4 Máu (250 xu) · Cấp 2: 5 Máu (500 xu)</div>
+      <div id="shop-hp-level" style="font-size: 12px; color: #00E676; margin-top: 2px;">Cấp hiện tại: 0</div>
+    </div>
+    <button id="btn-buy-hp" class="shop-buy-btn">Mua Nâng Cấp</button>
+  </div>
+  <button id="btn-shop-done" class="restart-btn" style="margin-top: 8px;">XONG SHOP — BƯỚC SANG NGÀY KẾ</button>
 </div>
 
 <script>
@@ -487,17 +587,24 @@ const sfx = new SoundFX();
 const down = new Set();
 const MOVE_KEYS = { w: "u", arrowup: "u", s: "d", arrowdown: "d", a: "l", arrowleft: "l", d: "r", arrowright: "r" };
 let queue = [], inflight = false, lastSent = "";
+let pendingBuy = null;
+let pendingShopDone = false;
+let pendingPause = false;
 
 function currentInput() {
   const mode = snap ? snap.mode : "gather";
   const dx = (down.has("r") ? 1 : 0) - (down.has("l") ? 1 : 0);
   let dy = (down.has("d") ? 1 : 0) - (down.has("u") ? 1 : 0);
   if (mode === "quan") dy = -dy;
-  return { move: [dx, dy], interact: down.has("interact"), catch: down.has("catch") };
+  const inp = { move: [dx, dy], interact: down.has("interact"), catch: down.has("catch") };
+  if (pendingPause) { inp.pause = true; pendingPause = false; }
+  if (pendingShopDone) { inp.shop_done = true; pendingShopDone = false; }
+  if (pendingBuy) { inp.buy = pendingBuy; pendingBuy = null; }
+  return inp;
 }
 function pushInput() {
   const s = JSON.stringify(currentInput());
-  if (s === lastSent) return;
+  if (s === lastSent && !pendingBuy && !pendingShopDone && !pendingPause) return;
   lastSent = s;
   queue.push(s);
   flush();
@@ -520,6 +627,7 @@ addEventListener("keydown", (e) => {
   if (MOVE_KEYS[k]) { down.add(MOVE_KEYS[k]); e.preventDefault(); }
   else if (k === "e") down.add("interact");
   else if (k === " ") { down.add("catch"); e.preventDefault(); }
+  else if (k === "p" || k === "escape") { pendingPause = true; e.preventDefault(); }
   else if (k === "r") { restartGame(); }
   pushInput();
 });
@@ -537,8 +645,23 @@ function restartGame() {
   lastSent = "";
   down.clear();
   document.getElementById("dive-log-modal").classList.remove("visible");
+  document.getElementById("pause-modal").classList.remove("visible");
+  document.getElementById("shop-modal").classList.remove("visible");
 }
 document.getElementById("btn-restart").addEventListener("click", restartGame);
+document.getElementById("btn-resume").addEventListener("click", () => {
+  pendingPause = true; pushInput();
+});
+document.getElementById("btn-menu").addEventListener("click", restartGame);
+document.getElementById("btn-buy-oxygen").addEventListener("click", () => {
+  pendingBuy = "oxygen"; pushInput();
+});
+document.getElementById("btn-buy-hp").addEventListener("click", () => {
+  pendingBuy = "hp"; pushInput();
+});
+document.getElementById("btn-shop-done").addEventListener("click", () => {
+  pendingShopDone = true; pushInput();
+});
 
 // ---------- SNAPSHOT POLLING & EVENT HANDLING ----------
 let prevEventsCount = 0;
@@ -597,20 +720,24 @@ function handleNewEvents(newSnap) {
 
       if (e.name === "gather") {
         sfx.playPluck();
-        const flowerName = e.data.kind === "bong_dien_dien" ? "Bông Điên Điển" : "Bông Súng";
+        const flowerName = e.data.kind === "bong_dien_dien" ? "Bông Điên Điển" : (e.data.kind === "keo_neo" ? "Kèo Nèo" : "Bông Súng");
         addFloatingText("+1 " + flowerName, p[0], p[1] - 0.8, "#F3CD58");
       }
       else if (e.name === "fish_caught") {
         sfx.playCatch();
         // QUY TẮC NGHIÊN CỨU SECTION 4: TÍNH DELTA THỰC TẾ CỦA HOLD!
         const actualYield = Math.max(1, curHoldLen - prevHoldLength);
-        const fishName = e.data.kind === "ca_linh" ? "Cá Linh" : "Cá Lóc";
-        const label = `+${actualYield} ${fishName}${actualYield < 3 && e.data.kind === "ca_linh" ? " (Giỏ đầy)" : ""}`;
+        const fishName = e.data.kind === "ca_linh" ? "Cá Linh" : (e.data.kind === "ca_keo" ? "Cá Kèo" : "Cá Lóc");
+        const label = `+${actualYield} ${fishName}${actualYield < (e.data.kind === "ca_linh" ? 3 : e.data.kind === "ca_keo" ? 2 : 1) ? " (Giỏ đầy)" : ""}`;
         addFloatingText(label, p[0], p[1] - 0.8, "#00E676");
+      }
+      else if (e.name === "monster_hit") {
+        sfx.playBuzzer();
+        addFloatingText("BỊ CÁ SẤU NĂM CHÈO TÁP (-1 MÁU)!", p[0], p[1] - 1.2, "#FF1744");
       }
       else if (e.name === "hold_full") {
         sfx.playBuzzer();
-        addFloatingText("GIỎ ĐÃ ĐẦY 12/12!", p[0], p[1] - 1.0, "#EC695F");
+        addFloatingText("GIỎ ĐÃ ĐẦY!", p[0], p[1] - 1.0, "#EC695F");
         const basket = document.getElementById("basket-panel");
         basket.classList.remove("full-shake");
         void basket.offsetWidth; // Force reflow
@@ -640,23 +767,30 @@ function showDiveLog(reason, hold) {
   } else if (reason === "time") {
     reasonText.textContent = "⏱ Hết thời gian ca lặn! Tự động kết thúc chuyến săn bắt.";
     reasonText.style.color = "#F3CD58";
+  } else if (reason === "fainted") {
+    reasonText.textContent = "⚠️ Út Sen bị ngất dưới sông Mekong! Toàn bộ giỏ đồ đã bị chìm.";
+    reasonText.style.color = "#EC695F";
   } else {
     reasonText.textContent = `Ca lặn kết thúc (${reason}).`;
     reasonText.style.color = "#EC695F";
   }
 
-  let cDienDien = 0, cSung = 0, cCaLinh = 0, cCaLoc = 0;
+  let cDienDien = 0, cSung = 0, cKeoNeo = 0, cCaLinh = 0, cCaLoc = 0, cCaKeo = 0;
   hold.forEach(item => {
     if (item === "bong_dien_dien") cDienDien++;
     else if (item === "bong_sung") cSung++;
+    else if (item === "keo_neo") cKeoNeo++;
     else if (item === "ca_linh") cCaLinh++;
     else if (item === "ca_loc") cCaLoc++;
+    else if (item === "ca_keo") cCaKeo++;
   });
 
   document.getElementById("count-dien-dien").textContent = cDienDien;
   document.getElementById("count-sung").textContent = cSung;
+  document.getElementById("count-keo-neo").textContent = cKeoNeo;
   document.getElementById("count-ca-linh").textContent = cCaLinh;
   document.getElementById("count-ca-loc").textContent = cCaLoc;
+  document.getElementById("count-ca-keo").textContent = cCaKeo;
   document.getElementById("count-total").textContent = `${hold.length}/12 món`;
 
   modal.classList.add("visible");
@@ -823,6 +957,16 @@ function drawGather(w, h) {
       }
       ctx.fillStyle = "#F6EAD2"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
       ctx.fillText("Bông Điên Điển", 0, -S * 0.4);
+    } else if (n.kind === "keo_neo") {
+      // Bụi Kèo Nèo mặt nước
+      ctx.fillStyle = "#33691E";
+      ctx.beginPath(); ctx.ellipse(-S * 0.2, 4, S * 0.35, S * 0.12, -0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(S * 0.2, 4, S * 0.35, S * 0.12, 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = isReady ? "#DCE775" : "#F0F4C3"; // Hoa kèo nèo vàng chanh non
+      ctx.beginPath(); ctx.arc(0, -4, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#FFF9C4"; ctx.beginPath(); ctx.arc(0, -4, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#F6EAD2"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+      ctx.fillText("Kèo Nèo", 0, -S * 0.4);
     } else {
       ctx.fillStyle = "#1B5E20"; // Lá súng
       ctx.beginPath(); ctx.ellipse(0, 4, S * 0.45, S * 0.18, 0, 0, Math.PI * 2); ctx.fill();
@@ -847,9 +991,9 @@ function drawGather(w, h) {
   // 6. ĐÀN CÁ: AMBIENT ROAMING & SCHOOLING AI & PROXIMITY FLINCH
   (snap.fish || []).forEach((f, idx) => {
     const seed = (f.id.charCodeAt(0) * 17 + (f.id.charCodeAt(1) || 0) * 31 + idx * 13) % 100;
-    const roamSpeed = f.kind === "ca_linh" ? 1.4 + (seed % 10) * 0.08 : 0.8 + (seed % 10) * 0.05;
-    const roamRadiusX = f.kind === "ca_linh" ? 0.85 : 0.55;
-    const roamRadiusD = f.kind === "ca_linh" ? 0.28 : 0.16;
+    const roamSpeed = f.kind === "ca_linh" ? 1.4 + (seed % 10) * 0.08 : (f.kind === "ca_keo" ? 1.2 : 0.8 + (seed % 10) * 0.05);
+    const roamRadiusX = f.kind === "ca_linh" ? 0.85 : (f.kind === "ca_keo" ? 0.7 : 0.55);
+    const roamRadiusD = f.kind === "ca_linh" ? 0.28 : (f.kind === "ca_keo" ? 0.2 : 0.16);
     const phase = seed * 0.628;
 
     let offX = Math.sin(time * roamSpeed + phase) * roamRadiusX;
@@ -906,6 +1050,20 @@ function drawGather(w, h) {
 
       ctx.fillStyle = "#CFD8DC"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
       ctx.fillText("Đàn Cá Linh (+3)", 0, -S * 0.45);
+    } else if (f.kind === "ca_keo") {
+      // Cá Kèo da trơn thon dài vùng nước sâu đáy bùn
+      ctx.fillStyle = "#795548"; // Thân nâu đốm bùn
+      ctx.beginPath(); ctx.ellipse(0, 0, S * 0.65, S * 0.14, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#4E342E";
+      for (let j = -2; j <= 2; j++) ctx.fillRect(j * (S * 0.16), -S * 0.10, 3, S * 0.20);
+      ctx.fillStyle = "#8D6E63"; // Vây lưng mảnh
+      ctx.fillRect(-S * 0.3, -S * 0.18, S * 0.5, S * 0.06);
+      ctx.fillStyle = "#3E2723"; // Đuôi quẫy
+      ctx.beginPath(); ctx.moveTo(-S * 0.6, 0); ctx.lineTo(-S * 0.95, -S * 0.18 + swimCycle * 4); ctx.lineTo(-S * 0.95, S * 0.18 + swimCycle * 4); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#FFB300"; ctx.beginPath(); ctx.arc(S * 0.5, -S * 0.04, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(S * 0.5, -S * 0.04, 1.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#D7CCC8"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+      ctx.fillText("Cá Kèo (+2)", 0, -S * 0.35);
     } else {
       // Cá Lóc săn mồi rằn ri
       ctx.fillStyle = "#4E6B3E";
@@ -922,6 +1080,94 @@ function drawGather(w, h) {
     }
     ctx.restore();
   });
+
+  // 6b. THỦY QUÁI CÁ SẤU NĂM CHÈO (MONSTERS M1, M2)
+  let monsterNearby = false;
+  (snap.monsters || []).forEach((m) => {
+    const mx = sx(m.pos[0]);
+    const my = sy(m.pos[1]);
+    const isChasing = m.state === "chase";
+    const isRecoil = m.state === "recoil";
+
+    const distToPlayer = Math.hypot(m.pos[0] - p.pos[0], m.pos[1] - p.pos[1]);
+    if (distToPlayer <= 10.0 && p.pos[1] >= 10.0) {
+      monsterNearby = true;
+    }
+
+    const mFacing = p.pos[0] >= m.pos[0] ? 1 : -1;
+    const crokCycle = Math.sin(time * 6 + m.pos[0]);
+
+    ctx.save();
+    ctx.translate(mx, my);
+    ctx.scale(mFacing, 1);
+    if (isRecoil) ctx.globalAlpha = 0.6 + Math.sin(time * 20) * 0.4;
+
+    // Thân cá sấu vảy gai
+    ctx.fillStyle = "#1B331B";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, S * 1.5, S * 0.42, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sống lưng gai nhọn
+    ctx.fillStyle = "#0D1E0D";
+    for (let g = -S * 1.0; g <= S * 0.8; g += S * 0.25) {
+      ctx.beginPath();
+      ctx.moveTo(g, -S * 0.4);
+      ctx.lineTo(g + S * 0.1, -S * 0.65);
+      ctx.lineTo(g + S * 0.2, -S * 0.4);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Đuôi quẫy
+    ctx.fillStyle = "#1B331B";
+    ctx.beginPath();
+    ctx.moveTo(-S * 1.4, 0);
+    ctx.lineTo(-S * 2.3, -S * 0.25 + crokCycle * 8);
+    ctx.lineTo(-S * 2.1, 0);
+    ctx.lineTo(-S * 2.3, S * 0.25 + crokCycle * 8);
+    ctx.closePath();
+    ctx.fill();
+
+    // Mõm cá sấu
+    ctx.fillStyle = "#274727";
+    ctx.beginPath();
+    ctx.moveTo(S * 1.2, -S * 0.2);
+    ctx.lineTo(S * 2.1, isChasing ? -S * 0.35 : -S * 0.1);
+    ctx.lineTo(S * 2.1, isChasing ? S * 0.35 : S * 0.1);
+    ctx.lineTo(S * 1.2, S * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Răng nanh trắng
+    ctx.fillStyle = "#FFF";
+    for (let r = S * 1.3; r < S * 2.0; r += S * 0.18) {
+      ctx.fillRect(r, isChasing ? -S * 0.15 : -S * 0.05, 3, 5);
+      ctx.fillRect(r, isChasing ? S * 0.08 : 0, 3, 5);
+    }
+
+    // Mắt rực lửa
+    ctx.fillStyle = isChasing ? "#FF1744" : "#FFC107";
+    ctx.beginPath(); ctx.arc(S * 1.1, -S * 0.25, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(S * 1.1, -S * 0.25, 1.8, 0, Math.PI * 2); ctx.fill();
+
+    // Bảng tên
+    ctx.fillStyle = isChasing ? "#FF5252" : "#CE93D8";
+    ctx.font = "bold 13px system-ui"; ctx.textAlign = "center";
+    ctx.fillText(`Cá Sấu Năm Chèo (${m.id}) [${m.state.toUpperCase()}]`, 0, -S * 0.8);
+    ctx.restore();
+  });
+
+  // Threat vignette & banner update
+  const vignette = document.getElementById("threat-vignette");
+  const threatBanner = document.getElementById("threat-banner");
+  if (monsterNearby) {
+    vignette.classList.add("threat-active");
+    threatBanner.classList.add("visible");
+  } else {
+    vignette.classList.remove("threat-active");
+    threatBanner.classList.remove("visible");
+  }
 
   // 7. NHÂN VẬT ÚT SEN (ÁO BÀ BA, NÓN LÁ, CHÂN VỊT, BÌNH OXY)
   const px = sx(p.pos[0]);
@@ -1072,13 +1318,47 @@ function updateHUDOverlay(p, meta) {
       slot.classList.add("filled");
       if (item === "ca_linh") slot.textContent = "🐟";
       else if (item === "ca_loc") slot.textContent = "🐊";
+      else if (item === "ca_keo") slot.textContent = "🐡";
       else if (item === "bong_dien_dien") slot.textContent = "🌼";
       else if (item === "bong_sung") slot.textContent = "🪷";
+      else if (item === "keo_neo") slot.textContent = "🌱";
       else slot.textContent = "📦";
     } else {
       slot.classList.remove("filled");
       slot.textContent = "";
     }
+  }
+
+  // Day badge & Phase Modals
+  const dayBadge = document.getElementById("day-badge");
+  if (snap.day !== undefined) {
+    dayBadge.style.display = "block";
+    dayBadge.textContent = `NGÀY ${snap.day} / 5`;
+  } else {
+    dayBadge.style.display = "none";
+  }
+
+  const shopModal = document.getElementById("shop-modal");
+  if (snap.phase === "shop") {
+    shopModal.classList.add("visible");
+    document.getElementById("shop-money").textContent = `${snap.money || 0} xu`;
+    const oxyLvl = (snap.upgrades && snap.upgrades.oxygen) || 0;
+    const hpLvl = (snap.upgrades && snap.upgrades.hp) || 0;
+    document.getElementById("shop-oxy-level").textContent = `Cấp hiện tại: ${oxyLvl}/2`;
+    document.getElementById("shop-hp-level").textContent = `Cấp hiện tại: ${hpLvl}/2`;
+    const buyOxyBtn = document.getElementById("btn-buy-oxygen");
+    const buyHpBtn = document.getElementById("btn-buy-hp");
+    if (oxyLvl >= 2) buyOxyBtn.classList.add("disabled"); else buyOxyBtn.classList.remove("disabled");
+    if (hpLvl >= 2) buyHpBtn.classList.add("disabled"); else buyHpBtn.classList.remove("disabled");
+  } else {
+    shopModal.classList.remove("visible");
+  }
+
+  const pauseModal = document.getElementById("pause-modal");
+  if (snap.paused) {
+    pauseModal.classList.add("visible");
+  } else {
+    pauseModal.classList.remove("visible");
   }
 
   // 6. Action Contextual Cards
@@ -1145,14 +1425,20 @@ function drawMiniMap(p) {
 
   // Hoa
   (snap.nodes || []).forEach(n => {
-    miniCtx.fillStyle = n.kind === "bong_dien_dien" ? "#F3CD58" : "#E91E63";
+    miniCtx.fillStyle = n.kind === "bong_dien_dien" ? "#F3CD58" : (n.kind === "keo_neo" ? "#DCE775" : "#E91E63");
     miniCtx.fillRect((n.pos[0] / 100) * mw - 1, 7, 3, 3);
   });
 
   // Cá
   (snap.fish || []).forEach(f => {
-    miniCtx.fillStyle = f.kind === "ca_linh" ? "#B0BEC5" : "#7CB342";
+    miniCtx.fillStyle = f.kind === "ca_linh" ? "#B0BEC5" : (f.kind === "ca_keo" ? "#8D6E63" : "#7CB342");
     miniCtx.fillRect((f.pos[0] / 100) * mw - 1, 8 + (f.pos[1] / 30) * (mh - 10), 3, 3);
+  });
+
+  // Quái vật (Cá Sấu Năm Chèo)
+  (snap.monsters || []).forEach(m => {
+    miniCtx.fillStyle = "#AB47BC";
+    miniCtx.fillRect((m.pos[0] / 100) * mw - 2, 8 + (m.pos[1] / 30) * (mh - 10) - 2, 5, 5);
   });
 
   // Người chơi
