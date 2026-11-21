@@ -35,7 +35,7 @@
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     z-index: 10; pointer-events: none;
     display: grid;
-    grid-template-columns: 280px 1fr 280px;
+    grid-template-columns: 330px 1fr 280px;
     grid-template-rows: auto 1fr auto;
     padding: clamp(10px, 1.5vw, 20px);
     gap: 12px;
@@ -54,8 +54,84 @@
   /* ========== TOP LEFT: VITAL STATS & PERF ========== */
   .top-left {
     grid-column: 1; grid-row: 1;
-    display: flex; flex-direction: column; gap: 8px;
+    display: flex; flex-direction: column; gap: 7px;
     align-self: start;
+  }
+
+  /* ========== CELESTIAL CLOCK (GÓC TRÁI: THỜI GIAN & MẶT TRỜI / MẶT TRĂNG) ========== */
+  .celestial-clock-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(8, 28, 38, 0.95), rgba(4, 14, 22, 0.98));
+    border: 1px solid rgba(243, 205, 88, 0.4);
+    border-radius: 8px;
+    padding: 5px 10px;
+    box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.1);
+  }
+  .celestial-orb-wrapper {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(0, 0, 0, 0.5) 100%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  }
+  .celestial-orb {
+    font-size: 22px;
+    user-select: none;
+    transition: transform 0.3s;
+  }
+  .celestial-orb.sun-glow {
+    filter: drop-shadow(0 0 8px #FFD54F);
+    animation: pulse-sun 2s infinite alternate ease-in-out;
+  }
+  .celestial-orb.moon-glow {
+    filter: drop-shadow(0 0 8px #81D4FA);
+    animation: pulse-moon 2.5s infinite alternate ease-in-out;
+  }
+  @keyframes pulse-sun {
+    0% { transform: scale(0.95); filter: drop-shadow(0 0 4px #FFA000); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 12px #FFD54F); }
+  }
+  @keyframes pulse-moon {
+    0% { transform: scale(0.95); filter: drop-shadow(0 0 4px #0288D1); }
+    100% { transform: scale(1.12); filter: drop-shadow(0 0 12px #81D4FA); }
+  }
+  .celestial-text-group {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .time-main {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 18px; font-weight: 900; color: #FFF;
+    letter-spacing: 1px; font-family: 'Segoe UI', system-ui, monospace;
+  }
+  .period-badge {
+    font-size: 10px; font-weight: 800; padding: 1px 6px;
+    border-radius: 4px; background: rgba(243, 205, 88, 0.2);
+    color: var(--color-yellow-dien-dien); border: 1px solid var(--color-yellow-dien-dien);
+    letter-spacing: 0.5px;
+  }
+  .day-sub {
+    font-size: 10px; color: #81D4FA; letter-spacing: 0.5px; font-weight: 600;
+  }
+
+  /* ========== AREA DROPDOWN (GIAO DIỆN DI CHUYỂN GÓC NHÌN) ========== */
+  .area-dropdown-row {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0, 0, 0, 0.4); border-radius: 6px; padding: 4px 8px;
+    border: 1px solid rgba(79, 195, 247, 0.35);
+  }
+  .dropdown-icon { font-size: 13px; }
+  .styled-area-dropdown {
+    flex: 1;
+    background: transparent;
+    color: var(--color-cream-text);
+    border: none;
+    font-size: 11px; font-weight: bold;
+    cursor: pointer; outline: none;
+  }
+  .styled-area-dropdown option {
+    background: #0A192F; color: #FFF; font-weight: 500;
   }
   .vital-row {
     display: flex; justify-content: space-between; align-items: center;
@@ -601,20 +677,47 @@
 
 <!-- HUD DOM OVERLAY -->
 <div id="hud">
-  <!-- TOP LEFT -->
+  <!-- TOP LEFT: CELESTIAL CLOCK (SUN/MOON) & AREA DROPDOWN & STATS -->
   <div class="top-left hud-panel">
+    <!-- HÀNG 1: THỜI GIAN VÀ MẶT TRỜI / MẶT TRĂNG (CELESTIAL CLOCK) -->
+    <div class="celestial-clock-row">
+      <div class="celestial-orb-wrapper">
+        <span id="celestial-orb" class="celestial-orb sun-glow">☀️</span>
+      </div>
+      <div class="celestial-text-group">
+        <div class="time-main">
+          <span id="corner-clock-time">08:30</span>
+          <span id="corner-clock-period" class="period-badge">SÁNG</span>
+        </div>
+        <div class="day-sub" id="corner-day-sub">NGÀY 1 / 5 · 24H = 8 PHÚT</div>
+      </div>
+    </div>
+
+    <!-- HÀNG 2: DROPDOWN CHỌN KHU VỰC DI CHUYỂN GÓC NHÌN -->
+    <div class="area-dropdown-row">
+      <span class="dropdown-icon">📍</span>
+      <select id="camera-area-dropdown" class="styled-area-dropdown" title="Chọn khu vực để di chuyển góc nhìn camera">
+        <option value="follow_player">👤 Theo chân Út Sen (Mặc định)</option>
+        <option value="ben_lan">⚓ Bến Lặn Sông Tiền (06:00 - 15:00)</option>
+        <option value="bai_hoa">🌼 Bãi Hoa Điên Điển & Bông Súng</option>
+        <option value="vung_sau">🐊 Vùng Sâu & Cá Sấu (d = 20-28m)</option>
+        <option value="cho_chu_sau">🏮 Chợ Nổi Chú Sáu (15:00 - 22:00)</option>
+        <option value="quan_an">🍜 Quán Ăn Má Tư (18:00 - 23:00)</option>
+        <option value="ghe_nghi">🛏️ Ghe Nghỉ Út Sen (22:00 - 06:00)</option>
+      </select>
+    </div>
+
+    <!-- HÀNG 3: CHỈ SỐ MÁU, ĐỘ SÂU & NÚT MENU -->
     <div class="vital-row">
-      <div id="day-badge" style="font-size: 13px; font-weight: bold; color: var(--color-yellow-dien-dien); display: none;">NGÀY 1 / 5</div>
       <div id="hp-container" class="hp-hearts">❤️❤️❤️</div>
+      <div style="font-size: 11px; color: #81D4FA;">
+        <span>Sâu:</span> <strong id="depth-display" style="font-size: 13px; color: #FFF;">0.0 m</strong>
+      </div>
       <button id="btn-open-menu" class="tier-btn" style="background: rgba(243, 205, 88, 0.25); border-color: var(--color-yellow-dien-dien); color: var(--color-yellow-dien-dien); font-weight: bold; cursor: pointer;" title="Phím tắt: H">🏠 Menu (H)</button>
       <div class="perf-pill">
         <span id="fps-display">60 FPS</span>
-        <button id="tier-toggle" class="tier-btn" title="Chuyển đổi chất lượng đồ họa">Tier: CAO</button>
+        <button id="tier-toggle" class="tier-btn" title="Chuyển đổi chất lượng đồ họa">CAO</button>
       </div>
-    </div>
-    <div class="vital-row" style="font-size: 12px; color: #81D4FA;">
-      <span>Độ Sâu (Depth):</span>
-      <strong id="depth-display" style="font-size: 14px; color: #FFF;">0.0 m</strong>
     </div>
   </div>
 
@@ -928,6 +1031,7 @@ class SoundFX {
 const sfx = new SoundFX();
 
 // ---------- INPUT CONTROLS ----------
+let cameraMode = "follow_player";
 const down = new Set();
 const MOVE_KEYS = { w: "u", arrowup: "u", s: "d", arrowdown: "d", a: "l", arrowleft: "l", d: "r", arrowright: "r" };
 let queue = [], inflight = false, lastSent = "";
@@ -968,7 +1072,15 @@ addEventListener("keydown", (e) => {
   sfx.init();
   const k = keyName(e);
   if (e.repeat) { if (k === " " || k.startsWith("arrow")) e.preventDefault(); return; }
-  if (MOVE_KEYS[k]) { down.add(MOVE_KEYS[k]); e.preventDefault(); }
+  if (MOVE_KEYS[k]) {
+    down.add(MOVE_KEYS[k]);
+    if (cameraMode !== "follow_player") {
+      cameraMode = "follow_player";
+      const drop = document.getElementById("camera-area-dropdown");
+      if (drop) drop.value = "follow_player";
+    }
+    e.preventDefault();
+  }
   else if (k === "e") down.add("interact");
   else if (k === " ") { down.add("catch"); e.preventDefault(); }
   else if (k === "m") { toggleHubModal(); e.preventDefault(); }
@@ -985,6 +1097,22 @@ addEventListener("keyup", (e) => {
   pushInput();
 });
 addEventListener("blur", () => { down.clear(); pushInput(); });
+
+const areaDropdown = document.getElementById("camera-area-dropdown");
+if (areaDropdown) {
+  areaDropdown.addEventListener("change", (e) => {
+    const val = e.target.value;
+    cameraMode = val;
+    if (val === "quan_an") {
+      if (snap && snap.mode !== "quan") switchModeAndPlay("quan");
+    } else if (val === "cho_chu_sau") {
+      const shopModal = document.getElementById("shop-modal");
+      if (shopModal) shopModal.classList.add("visible");
+    } else if (val === "ben_lan") {
+      if (snap && snap.mode !== "gather") switchModeAndPlay("gather");
+    }
+  });
+}
 
 function openMainMenu() {
   document.getElementById("main-menu-overlay").classList.add("visible");
@@ -1234,9 +1362,18 @@ function drawGather(w, h) {
   const time = now * 0.002;
   const p = snap.player || { pos: [2, 0], heading_deg: 0 };
 
-  // Camera LERP
-  cam.x += (p.pos[0] - cam.x) * 0.08;
-  cam.y += (p.pos[1] - cam.y) * 0.08;
+  // Camera LERP theo người chơi hoặc khu vực được chọn từ Dropdown
+  let targetX = p.pos[0];
+  let targetY = p.pos[1];
+  if (cameraMode === "ben_lan") { targetX = 2; targetY = 0; }
+  else if (cameraMode === "bai_hoa") { targetX = 22; targetY = 0; }
+  else if (cameraMode === "vung_sau") { targetX = 62; targetY = 22; }
+  else if (cameraMode === "cho_chu_sau") { targetX = 85; targetY = 0; }
+  else if (cameraMode === "quan_an") { targetX = 94; targetY = 0; }
+  else if (cameraMode === "ghe_nghi") { targetX = 6; targetY = 0; }
+
+  cam.x += (targetX - cam.x) * 0.08;
+  cam.y += (targetY - cam.y) * 0.08;
 
   const meta = snap.meta || {};
   const b = meta.bounds || { x: [0, 100], d: [0, 30] };
@@ -1350,6 +1487,71 @@ function drawGather(w, h) {
   ctx.setLineDash([8, 6]);
   ctx.beginPath(); ctx.arc(dockX, dockY, dockRadius, 0, Math.PI * 2); ctx.stroke();
   ctx.setLineDash([]);
+
+  // 4b. CÁC ĐỊA DANH KHU VỰC THẾ GIỚI MỞ MEKONG (PHASE 3 LANDMARKS)
+  // [A] GHE NGHỈ ÚT SEN (X=6, D=0)
+  const bedX = sx(6);
+  ctx.save();
+  ctx.translate(bedX, surfY - 4);
+  ctx.fillStyle = "#5D4037";
+  ctx.beginPath();
+  ctx.moveTo(-S * 1.2, 0); ctx.lineTo(S * 1.2, 0); ctx.lineTo(S * 0.9, S * 0.35); ctx.lineTo(-S * 0.9, S * 0.35); ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#4FC3F7"; ctx.fillRect(-S * 0.4, -S * 0.3, S * 0.8, S * 0.3); // Mui ghe nghỉ
+  ctx.fillStyle = "#FFF"; ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🛏️ Ghe Nghỉ Út Sen", 0, -S * 0.45);
+  ctx.restore();
+
+  // [B] BIỂN CHỈ DẪN BÃI HOA ĐIÊN ĐIỂN (X=22, D=0)
+  const flowerZoneX = sx(22);
+  ctx.save();
+  ctx.translate(flowerZoneX, surfY - 8);
+  ctx.fillStyle = "rgba(243, 205, 88, 0.9)";
+  ctx.font = "bold 11px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🌼 BÃI HOA ĐIÊN ĐIỂN & SÚNG", 0, -S * 0.4);
+  ctx.restore();
+
+  // [C] VỰC NƯỚC SÂU & THỦY QUÁI CÁ SẤU (X=62, D=22)
+  const abyssX = sx(62), abyssY = sy(22);
+  ctx.save();
+  ctx.translate(abyssX, abyssY);
+  ctx.fillStyle = "rgba(255, 23, 68, 0.15)";
+  ctx.beginPath(); ctx.arc(0, 0, S * 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#FF5252"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("⚠️ VỰC SÂU NĂM CHÈO (d > 20m)", 0, -S * 0.6);
+  ctx.restore();
+
+  // [D] CHỢ NỔI CHÚ SÁU — BÉO HÀNG & LỒNG ĐÈN (X=85, D=0)
+  const shopZoneX = sx(85);
+  ctx.save();
+  ctx.translate(shopZoneX, surfY - 6);
+  ctx.fillStyle = "#8D6E63";
+  ctx.beginPath();
+  ctx.moveTo(-S * 2.2, 0); ctx.quadraticCurveTo(0, S * 0.6, S * 2.2, 0);
+  ctx.lineTo(S * 1.8, -S * 0.25); ctx.lineTo(-S * 1.8, -S * 0.25); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "#4E342E"; ctx.lineWidth = 2; ctx.stroke();
+  // Cây bẹo treo nông sản
+  ctx.strokeStyle = "#D7CCC8"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(-S * 1.2, 0); ctx.lineTo(-S * 1.2, -S * 1.8); ctx.stroke();
+  ctx.fillStyle = "#FF9800"; ctx.beginPath(); ctx.arc(-S * 1.2, -S * 1.6, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#4CAF50"; ctx.beginPath(); ctx.arc(-S * 1.2, -S * 1.2, 7, 0, Math.PI * 2); ctx.fill();
+  // Lồng đèn đỏ
+  ctx.fillStyle = "#FF1744"; ctx.beginPath(); ctx.arc(S * 1.2, -S * 0.8, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#F3CD58"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🏮 CHỢ NỔI CHÚ SÁU", 0, -S * 0.8);
+  ctx.fillStyle = "#81D4FA"; ctx.font = "10px system-ui";
+  ctx.fillText("(Nâng cấp & Chuẩn bị 15:00-22:00)", 0, -S * 0.45);
+  ctx.restore();
+
+  // [E] QUÁN ĂN MÁ TƯ (X=94, D=0)
+  const quanZoneX = sx(94);
+  ctx.save();
+  ctx.translate(quanZoneX, surfY - 8);
+  ctx.fillStyle = "#4E342E";
+  ctx.fillRect(-S * 2.0, -S * 0.3, S * 4.0, S * 0.6);
+  ctx.fillStyle = "#FFD54F"; ctx.font = "bold 12px system-ui"; ctx.textAlign = "center";
+  ctx.fillText("🍜 QUÁN ĂN MÁ TƯ (MỞ 18:00)", 0, -S * 0.8);
+  ctx.restore();
 
   // 5. CÁC BỤI HOA (BÔNG ĐIÊN ĐIỂN & BÔNG SÚNG)
   (snap.nodes || []).forEach((n) => {
@@ -1681,34 +1883,50 @@ function drawGather(w, h) {
 // =========================================================================
 function updateHUDOverlay(p, meta) {
   // 1. Độ sâu & Cảnh báo áp suất nước sâu
-  const depth = p.pos ? p.pos[1] : 0;
   const depthEl = document.getElementById("depth-display");
-  const isDeep = depth > 18.0;
-  depthEl.textContent = isDeep ? `${depth.toFixed(1)} m ⚠ ÁP SUẤT VÙNG SÂU` : `${depth.toFixed(1)} m`;
-  depthEl.style.color = isDeep ? "#FF1744" : "#FFF";
-  depthEl.style.textShadow = isDeep ? "0 0 8px rgba(255,23,68,0.8)" : "none";
+  if (depthEl) {
+    if (snap && snap.mode === "quan") {
+      depthEl.textContent = "Nhà Hàng";
+      depthEl.style.color = "var(--color-yellow-dien-dien)";
+      depthEl.style.textShadow = "none";
+    } else {
+      const depth = p.pos ? p.pos[1] : 0;
+      const isDeep = depth > 18.0;
+      depthEl.textContent = isDeep ? `${depth.toFixed(1)} m ⚠ ÁP SUẤT VÙNG SÂU` : `${depth.toFixed(1)} m`;
+      depthEl.style.color = isDeep ? "#FF1744" : "#FFF";
+      depthEl.style.textShadow = isDeep ? "0 0 8px rgba(255,23,68,0.8)" : "none";
+    }
+  }
 
   // 2. Bình Oxy
-  const oxy = p.oxygen_ticks || 1800;
-  const maxOxy = p.oxygen_max_ticks || 1800;
-  const oxyRatio = Math.max(0, Math.min(1, oxy / maxOxy));
   const oxyFill = document.getElementById("oxy-fill");
-  oxyFill.style.width = `${(oxyRatio * 100).toFixed(1)}%`;
-  const isLow = oxyRatio < 0.25;
-  if (isLow) oxyFill.classList.add("low"); else oxyFill.classList.remove("low");
-  document.getElementById("oxy-seconds").textContent = `${Math.ceil(oxy / 60)}s (${Math.round(oxyRatio * 100)}%)`;
+  const oxySeconds = document.getElementById("oxy-seconds");
+  if (oxyFill && oxySeconds) {
+    const oxy = p.oxygen_ticks || 1800;
+    const maxOxy = p.oxygen_max_ticks || 1800;
+    const oxyRatio = Math.max(0, Math.min(1, oxy / maxOxy));
+    oxyFill.style.width = `${(oxyRatio * 100).toFixed(1)}%`;
+    const isLow = oxyRatio < 0.25;
+    if (isLow) oxyFill.classList.add("low"); else oxyFill.classList.remove("low");
+    oxySeconds.textContent = `${Math.ceil(oxy / 60)}s (${Math.round(oxyRatio * 100)}%)`;
+  }
 
   // 3. Tim máu HP
   const hpCont = document.getElementById("hp-container");
-  let hpStr = "";
-  const curHp = p.hp !== undefined ? p.hp : 3;
-  for (let i = 0; i < (p.hp_max || 3); i++) hpStr += i < curHp ? "❤️" : "🖤";
-  hpCont.textContent = hpStr;
+  if (hpCont) {
+    let hpStr = "";
+    const curHp = p.hp !== undefined ? p.hp : 3;
+    for (let i = 0; i < (p.hp_max || 3); i++) hpStr += i < curHp ? "❤️" : "🖤";
+    hpCont.textContent = hpStr;
+  }
 
   // 4. Đồng hồ ca lặn
-  const timeLeft = snap.time_left_ticks || 0;
-  const s = Math.ceil(timeLeft / 60);
-  document.getElementById("time-left-display").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const timeLeftEl = document.getElementById("time-left-display");
+  if (timeLeftEl) {
+    const timeLeft = snap.time_left_ticks || 0;
+    const s = Math.ceil(timeLeft / 60);
+    timeLeftEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  }
 
   // 5. Giỏ đồ 12 slot (LIFO)
   const hold = snap.hold || [];
@@ -1817,8 +2035,37 @@ function updateHUDOverlay(p, meta) {
 
   const icon = isMorning ? "☀️" : (isAfternoon ? "🌇" : (isEvening ? "🏮" : "🌙"));
   const periodLabel = isMorning ? "SÁNG" : (isAfternoon ? "CHIỀU" : (isEvening ? "TỐI" : "ĐÊM"));
-  document.getElementById("clock-icon").textContent = icon;
-  document.getElementById("clock-text").textContent = `${clk.time_str} (${periodLabel})`;
+  const clockIconEl = document.getElementById("clock-icon");
+  const clockTextEl = document.getElementById("clock-text");
+  if (clockIconEl) clockIconEl.textContent = icon;
+  if (clockTextEl) clockTextEl.textContent = `${clk.time_str} (${periodLabel})`;
+
+  // Cập nhật Góc trái: Thời gian & Mặt Trời / Mặt Trăng (Celestial Clock)
+  const orbEl = document.getElementById("celestial-orb");
+  const cornerTimeEl = document.getElementById("corner-clock-time");
+  const cornerPeriodEl = document.getElementById("corner-clock-period");
+  const cornerDaySubEl = document.getElementById("corner-day-sub");
+  if (cornerTimeEl) cornerTimeEl.textContent = clk.time_str;
+  if (cornerPeriodEl) cornerPeriodEl.textContent = periodLabel;
+  if (cornerDaySubEl) {
+    const dayNum = snap.day !== undefined ? snap.day : 1;
+    cornerDaySubEl.textContent = `NGÀY ${dayNum} / 5 · 24H = 8 PHÚT`;
+  }
+  if (orbEl) {
+    if (isMorning) {
+      orbEl.textContent = "☀️";
+      orbEl.className = "celestial-orb sun-glow";
+    } else if (isAfternoon) {
+      orbEl.textContent = "🌅";
+      orbEl.className = "celestial-orb sun-glow";
+    } else if (isEvening) {
+      orbEl.textContent = "🏮";
+      orbEl.className = "celestial-orb sun-glow";
+    } else {
+      orbEl.textContent = "🌙";
+      orbEl.className = "celestial-orb moon-glow";
+    }
+  }
 
   // Cập nhật thẻ trạng thái khu vực hiện tại trên HUD
   const areaTag = document.getElementById("clock-area-tag");
@@ -1872,8 +2119,6 @@ function updateHUDOverlay(p, meta) {
   }
 
   // 7. Action Contextual Cards
-  const inDock = Math.hypot(p.pos[0] - (meta.dock_pos ? meta.dock_pos[0] : 2), p.pos[1] - (meta.dock_pos ? meta.dock_pos[1] : 0)) <= (meta.dock_radius || 3);
-  const atSurface = p.pos[1] <= (meta.surface_depth || 0.5);
   const cardHarvest = document.getElementById("action-harvest");
   const labelHarvest = document.getElementById("label-harvest");
   const cardCatch = document.getElementById("action-catch");
@@ -1881,35 +2126,40 @@ function updateHUDOverlay(p, meta) {
   const cdBar = document.getElementById("cd-bar-container");
   const cdFill = document.getElementById("cd-bar-fill");
 
-  // Reset classes
-  cardHarvest.className = "action-card";
-  cardCatch.className = "action-card";
+  if (cardHarvest && cardCatch && labelHarvest && labelCatch && cdBar && cdFill) {
+    const inDock = Math.hypot(p.pos[0] - (meta.dock_pos ? meta.dock_pos[0] : 2), p.pos[1] - (meta.dock_pos ? meta.dock_pos[1] : 0)) <= (meta.dock_radius || 3);
+    const atSurface = p.pos[1] <= (meta.surface_depth || 0.5);
 
-  if (inDock && atSurface) {
-    cardHarvest.classList.add("active-dock");
-    labelHarvest.textContent = "Cập Bến Ghe";
-  } else if (atSurface) {
-    cardHarvest.classList.add("active-harvest");
-    labelHarvest.textContent = "Hái Nông Sản (E)";
-  } else {
-    labelHarvest.textContent = "Hái (Chỉ Mặt Nước)";
-  }
+    // Reset classes
+    cardHarvest.className = "action-card";
+    cardCatch.className = "action-card";
 
-  const catchCd = snap.catch_cd_ticks || 0;
-  if (!atSurface) {
-    if (catchCd > 0) {
-      cardCatch.classList.add("cooldown");
-      labelCatch.textContent = `Hồi Chiêu ${(catchCd / 60).toFixed(1)}s`;
-      cdBar.style.display = "block";
-      cdFill.style.width = `${((30 - catchCd) / 30) * 100}%`;
+    if (inDock && atSurface) {
+      cardHarvest.classList.add("active-dock");
+      labelHarvest.textContent = "Cập Bến Ghe";
+    } else if (atSurface) {
+      cardHarvest.classList.add("active-harvest");
+      labelHarvest.textContent = "Hái Nông Sản (E)";
     } else {
-      cardCatch.classList.add("active-catch");
-      labelCatch.textContent = "Quăng Lưới Bắt Cá (Space)";
+      labelHarvest.textContent = "Hái (Chỉ Mặt Nước)";
+    }
+
+    const catchCd = snap.catch_cd_ticks || 0;
+    if (!atSurface) {
+      if (catchCd > 0) {
+        cardCatch.classList.add("cooldown");
+        labelCatch.textContent = `Hồi Chiêu ${(catchCd / 60).toFixed(1)}s`;
+        cdBar.style.display = "block";
+        cdFill.style.width = `${((30 - catchCd) / 30) * 100}%`;
+      } else {
+        cardCatch.classList.add("active-catch");
+        labelCatch.textContent = "Quăng Lưới Bắt Cá (Space)";
+        cdBar.style.display = "none";
+      }
+    } else {
+      labelCatch.textContent = "Bắt Cá (Chỉ Dưới Sông)";
       cdBar.style.display = "none";
     }
-  } else {
-    labelCatch.textContent = "Bắt Cá (Chỉ Dưới Sông)";
-    cdBar.style.display = "none";
   }
 
   // 7. Mini-map
@@ -2050,6 +2300,7 @@ function drawQuan(w, h) {
   ctx.font = "bold 18px system-ui"; ctx.textAlign = "left";
   ctx.fillText("⏱ " + fmtTime(snap.time_left_ticks), 20, 36);
   ctx.fillText(`💰 Doanh thu: ${snap.money ?? 0} xu  ·  ⭐ Uy tín: ${(snap.reputation ?? 0).toFixed(1)}/5.0`, 130, 36);
+  updateHUDOverlay(snap.player || { pos: [0, 0] }, snap.meta || {});
 }
 
 function fmtTime(ticks) {
@@ -2082,9 +2333,27 @@ function frame() {
 
   if (snap) {
     if (snap.mode === "quan") {
-      document.getElementById("hud").style.display = "none";
+      document.body.classList.add("mode-quan");
+      const basket = document.getElementById("basket-panel");
+      if (basket) basket.style.display = "none";
+      const topCenter = document.querySelector(".top-center");
+      if (topCenter) topCenter.style.display = "none";
+      const botRight = document.querySelector(".bottom-right");
+      if (botRight) botRight.style.display = "none";
+      const topRight = document.querySelector(".top-right");
+      if (topRight) topRight.style.display = "none";
+      document.getElementById("hud").style.display = "grid";
       drawQuan(w, h);
     } else {
+      document.body.classList.remove("mode-quan");
+      const basket = document.getElementById("basket-panel");
+      if (basket) basket.style.display = "";
+      const topCenter = document.querySelector(".top-center");
+      if (topCenter) topCenter.style.display = "";
+      const botRight = document.querySelector(".bottom-right");
+      if (botRight) botRight.style.display = "";
+      const topRight = document.querySelector(".top-right");
+      if (topRight) topRight.style.display = "";
       document.getElementById("hud").style.display = "grid";
       drawGather(w, h);
     }
