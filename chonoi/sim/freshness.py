@@ -23,13 +23,13 @@ UNITS = 240  # 1 điểm tươi = 240 đơn vị: quán hao 1 đơn vị/tick, g
 
 
 def frac(x) -> Fraction:
-    """Số -> Fraction chính xác. Float sát một bội 1/240 (vd 30.004166666666666 đọc lại từ file kho) được đưa về
-    đúng bội đó, để giá trị và nhánh ở ngưỡng 30 giữ nguyên sau khi ghi/đọc; số thập phân khác giữ nguyên."""
+    """Khôi phục bội 1/240 chỉ khi float trùng giá trị biểu diễn của đúng bội đó."""
     if isinstance(x, Fraction):
         return x
     f = Fraction(str(x))
     u = round(f * UNITS)
-    return Fraction(u, UNITS) if abs(f * UNITS - u) < Fraction(1, 10 ** 6) else f
+    grid_value = Fraction(u, UNITS)
+    return grid_value if isinstance(x, float) and float(grid_value) == x else f
 
 
 def config(tuning):
@@ -61,10 +61,10 @@ def validate_item_list(items, kinds, where="items") -> list:
         if iid in seen:
             raise BadInput(f"{where}: id trùng {iid}")
         seen.add(iid)
-        if kind not in kinds:
+        if not isinstance(kind, str) or kind not in kinds:
             raise BadInput(f"{where}.{iid}: nguyên liệu lạ {kind!r}")
-        if isinstance(fresh, bool) or not isinstance(fresh, numbers.Real) or not math.isfinite(fresh) \
-                or not (0 <= fresh <= 100):
+        if isinstance(fresh, bool) or not isinstance(fresh, numbers.Real) or not (0 <= fresh <= 100) \
+                or not math.isfinite(fresh):
             raise BadInput(f"{where}.{iid}: fresh phải là số hữu hạn trong [0, 100]")
         out.append({"id": iid, "kind": kind, "fresh": frac(fresh)})
     return out

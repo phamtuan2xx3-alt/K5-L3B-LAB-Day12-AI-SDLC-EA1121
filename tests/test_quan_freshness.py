@@ -15,7 +15,7 @@ from chonoi.contract import load_contract
 from chonoi.errors import BadInput
 from chonoi.ids import IdAllocator
 from chonoi.inputs import LiveInputs
-from chonoi.inventory import read_inventory, write_inventory
+from chonoi.inventory import is_itemized, read_inventory, write_inventory
 from chonoi.rng import Streams
 from chonoi.scenario import _validate_quan
 from chonoi.sim.quan import QuanSim
@@ -183,6 +183,28 @@ class FixtureV12(unittest.TestCase):
 
 
 class InventoryFileV12(unittest.TestCase):
+    def test_schema_cli_theo_phien_ban_manifest(self):
+        self.assertFalse(is_itemized(tuning_v12(), version="1.1"))
+        self.assertTrue(is_itemized(tuning_v12(), version="1.2"))
+        with self.assertRaises(BadInput):
+            is_itemized({}, version="1.2")
+
+    def test_gia_tri_sat_duoi_30_van_uon_sau_khi_doc_file(self):
+        with Workdir() as w:
+            fresh = 29.999999999
+            path = write_json(w.path("edge.json"), {"items": [item("I1", "ca_loc", fresh)]})
+            items = read_inventory(path, ("ca_loc",), itemized=True)
+            self.assertEqual(items[0]["fresh"], Fraction(str(fresh)))
+            sim = QuanSim(tuning_v12(), {}, Streams(1), IdAllocator(), inventory=items)
+            self.assertEqual(sim._find_cookable_dish(sim._get_available_stock()), None)
+            self.assertNotIn("spoiled", [e[0] for e in step(sim)])
+
+    def test_file_tu_choi_kind_khong_phai_chuoi(self):
+        with Workdir() as w:
+            path = write_json(w.path("bad.json"), {"items": [item("I1", ["ca_loc"], 80)]})
+            with self.assertRaises(BadInput):
+                read_inventory(path, {"ca_loc"}, itemized=True)
+
     def test_ghi_doc_lai_chinh_xac_va_quan_nhan_nguyen_ven(self):
         with Workdir() as w:
             p = w.path("catch.json")
