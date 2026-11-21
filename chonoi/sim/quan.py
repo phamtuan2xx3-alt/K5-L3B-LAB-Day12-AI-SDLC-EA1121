@@ -60,6 +60,41 @@ class QuanSim:
             by_id[u["id"]].update(u)
         return sort_by_id(list(by_id.values()))
 
+    def _get_available_stock(self) -> dict:
+        """Tính phần kho chưa được khách giữ chỗ."""
+        available = dict(self.stock)
+        for customer in self.customers:
+            for ingredient, quantity in customer.get("reserved", {}).items():
+                available[ingredient] = available.get(ingredient, 0) - quantity
+        return available
+
+    def _find_cookable_dish(self, available_stock) -> tuple[str, dict] | None:
+        """Trả món đầu tiên đủ nguyên liệu và bản sao công thức để giữ chỗ."""
+        for dish, details in self.menu.items():
+            recipe = details["recipe"]
+            if all(available_stock.get(ingredient, 0) >= quantity
+                   for ingredient, quantity in recipe.items()):
+                return dish, dict(recipe)
+        return None
+
+    def _choose_dish_for_customer(self, events) -> tuple[str, dict] | None:
+        """Sau khi tìm được bàn, trả (món, reserved) để lưu vào khách mới."""
+        order = self._find_cookable_dish(self._get_available_stock())
+        if order is None:
+            events.append(("no_dish", {}))
+        return order
+
+    def _consume_reservation(self, customer) -> bool:
+        """Trừ kho khi bếp bắt đầu nấu. Trả False nếu chưa thể trừ đủ."""
+        reserved = customer.get("reserved", {})
+        if not reserved or any(self.stock.get(ingredient, 0) < quantity
+                               for ingredient, quantity in reserved.items()):
+            return False
+        for ingredient, quantity in reserved.items():
+            self.stock[ingredient] = self.stock.get(ingredient, 0) - quantity
+        customer["reserved"] = {}
+        return True
+
     def snapshot(self) -> dict:
         occupied = {c["table_id"]: c["id"] for c in self.customers}
         return {
