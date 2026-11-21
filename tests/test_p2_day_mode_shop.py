@@ -11,6 +11,21 @@ from helpers import Workdir, read_jsonl, run_headless, snapshots, write_json, fr
 
 
 class TestDayModeAndShop(unittest.TestCase):
+    def test_day_plan_override_recomputes_ingredients_and_rejects_mismatch(self):
+        with Workdir() as w:
+            plan = {"day": 1, "dishes": {"lau_mam": 2}}
+            scenario = write_json(w.path("scenario.json"), {"day": {"day_plan": [plan]}})
+            out = w.path("day.jsonl")
+            args = ("--mode", "day", "--seed", "1", "--ticks", "0", "--scenario", scenario, "--out", out)
+            code, err = run_headless(*args)
+            self.assertEqual(code, 0, err)
+            self.assertEqual(read_jsonl(out)[0]["day_plan"]["ingredients"],
+                             {"ca_linh": 4, "ca_keo": 2, "keo_neo": 2, "bong_dien_dien": 2})
+            plan["ingredients"] = {"ca_linh": 2}
+            write_json(scenario, {"day": {"day_plan": [plan]}})
+            code, err = run_headless(*args)
+            self.assertEqual(code, 2, err)
+
     def test_day_mode_headless_cli_basic(self):
         """Khởi chạy headless mode day qua CLI, kiểm tra snapshot tick 0 và các event đầu ca."""
         with Workdir() as w:
