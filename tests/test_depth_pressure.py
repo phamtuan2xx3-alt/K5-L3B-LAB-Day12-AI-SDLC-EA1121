@@ -3,6 +3,8 @@
 import json
 import unittest
 
+from chonoi.ids import IdAllocator
+from chonoi.rng import Streams
 from chonoi.sim.gather import GatherSim
 
 
@@ -22,15 +24,8 @@ class TestDepthPressureInnovation(unittest.TestCase):
             cls.tuning = json.load(f)["tuning"]
 
     def _make_sim(self, pos, oxygen_ticks=1000):
-        class DummyStreams:
-            pass
-
-        class DummyIds:
-            def reserve(self, id):
-                pass
-
-        scenario = {"player": {"pos": pos, "oxygen_ticks": oxygen_ticks}}
-        return GatherSim(self.tuning, scenario, DummyStreams(), DummyIds())
+        scenario = {"player": {"pos": pos, "oxygen_ticks": oxygen_ticks}, "random_fish": False}
+        return GatherSim(self.tuning, scenario, Streams(1), IdAllocator())
 
     def test_depth_warning_emitted_when_crossing_threshold(self):
         # Bắt đầu tại d = 17.5 (ngay sát ngưỡng 18.0)
