@@ -130,6 +130,66 @@ class PatienceAndLeaving(unittest.TestCase):
         self.assertEqual((snap["money"], snap["earned"], snap["reputation"]), (48, 48, 3.2))
 
 
+class KitchenIntegration(unittest.TestCase):
+    """Lát 3 nối lát 4 (bếp/bưng/phục vụ của DEV 5) theo PRD-0 F."""
+
+    def press(self, sess):
+        li = LiveInputs()
+        li.set(interact=True)
+        return sess.step(li.advance())
+
+    def test_bep_nau_tieu_dung_phan_giu_va_chot_gia(self):
+        sc = {"player": {"pos": [2, 8]}, "random_customers": False,
+              "stock": {"ca_linh": 3, "bong_dien_dien": 1, "ca_loc": 1},
+              "customers": [{"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui"}]}
+        s = Session("quan", TUNING, sc, 1)
+        rows = self.press(s)
+        self.assertEqual(rows[0]["name"], "cook_started")
+        self.assertEqual(rows[0]["data"], {"stove_id": "B1", "order_id": "C1", "dish_id": "ca_loc_nuong_trui",
+                                           "items": ["ca_loc"], "base_price": 60})
+        c = s.snapshot()["customers"][0]
+        self.assertEqual((c["order_status"], c["reserved"], c["base_price"]), ("assigned", {}, 60))
+        self.assertEqual(s.snapshot()["stock"], {"bong_dien_dien": 1, "ca_linh": 3}, "chỉ tiêu đúng phần giữ")
+
+    def test_items_nhieu_nguyen_lieu_sap_theo_kind(self):
+        sc = {"player": {"pos": [2, 8]}, "random_customers": False, "stock": {"ca_linh": 3, "bong_dien_dien": 1},
+              "customers": [{"id": "C1", "table_id": "T1", "dish_id": "lau_ca_linh_dien_dien"}]}
+        rows = self.press(Session("quan", TUNING, sc, 1))
+        self.assertEqual(rows[0]["data"]["items"], ["bong_dien_dien", "ca_linh", "ca_linh", "ca_linh"])
+
+    def test_phuc_vu_khi_kien_nhan_duoi_nua_khong_boa(self):
+        sc = {"player": {"pos": [9, 2]}, "random_customers": False,
+              "hand": {"order_id": "C1", "dish_id": "goi_bong_sung", "base_price": 40},
+              "customers": [{"id": "C1", "table_id": "T1", "dish_id": "goi_bong_sung",
+                             "order_status": "assigned", "patience_ticks_left": 1799}]}
+        rows = self.press(Session("quan", TUNING, sc, 1))
+        self.assertEqual(rows[0]["name"], "served")
+        self.assertEqual(rows[0]["data"]["tip"], 0, "1798/3600 < 0.5 sau bước 1")
+
+    def test_phuc_vu_dung_tick_kien_nhan_ve_0_van_hop_le(self):
+        sc = {"player": {"pos": [9, 2]}, "random_customers": False,
+              "hand": {"order_id": "C1", "dish_id": "goi_bong_sung", "base_price": 40},
+              "customers": [{"id": "C1", "table_id": "T1", "dish_id": "goi_bong_sung",
+                             "order_status": "assigned", "patience_ticks_left": 1}]}
+        s = Session("quan", TUNING, sc, 1)
+        rows = self.press(s)
+        self.assertEqual([r["name"] for r in rows], ["served"], "không có customer_left")
+        self.assertEqual(rows[0]["data"]["patience_ticks_left"], 0)
+        self.assertEqual(s.snapshot()["customers"][0]["state"], "eating")
+
+    def test_khach_roi_bo_mon_dang_nau(self):
+        sc = {"random_customers": False,
+              "stoves": [{"id": "B1", "state": "cooking", "cook_ticks_left": 100,
+                          "dish": {"order_id": "C1", "dish_id": "goi_bong_sung", "base_price": 40}}],
+              "customers": [{"id": "C1", "table_id": "T1", "dish_id": "goi_bong_sung",
+                             "order_status": "assigned", "patience_ticks_left": 1}]}
+        s = Session("quan", TUNING, sc, 1)
+        rows = run_until(s, 1)
+        self.assertEqual([r["name"] for r in rows], ["customer_left"])
+        st = s.snapshot()["stoves"][0]
+        self.assertEqual((st["state"], st["dish"]), ("idle", None))
+
+
 class FixtureValidation(unittest.TestCase):
     def bad(self, sc):
         with self.assertRaises(BadInput):
